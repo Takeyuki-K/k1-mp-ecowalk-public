@@ -1,0 +1,41 @@
+{
+ "runs/speed7/candidate_it1770.pt": {
+  "rel_err": 0.027314753601256504,
+  "max_yaw_deg": 5.028076810595131,
+  "min_survival": 1.0,
+  "push_DR_random_cmd_survival": 0.7916666666666666,
+  "P": [
+   75.0,
+   93.0,
+   114.5,
+   144.5,
+   161.8
+  ]
+ },
+ "runs/speed7/model_2000.pt": {
+  "rel_err": 0.057468383021890834,
+  "max_yaw_deg": 4.378162548849672,
+  "min_survival": 1.0,
+  "push_DR_random_cmd_survival": 0.7916666666666666,
+  "P": [
+   80.6,
+   88.8,
+   107.3,
+   141.1,
+   159.1
+  ]
+ },
+ "runs/speed7/model_2500.pt": {
+  "rel_err": 0.019608506071577454,
+  "max_yaw_deg": 1.8027166353513886,
+  "min_survival": 1.0,
+  "push_DR_random_cmd_survival": 0.8333333333333334,
+  "P": [
+   81.2,
+   89.2,
+   108.6,
+   137.5,
+   153.9
+  ]
+ }
+}

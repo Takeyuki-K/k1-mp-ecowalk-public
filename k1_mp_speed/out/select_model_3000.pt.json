@@ -1,0 +1,28 @@
+{
+ "runs/speed7/model_3000.pt": {
+  "rel_err": 0.011582862639053813,
+  "max_yaw_deg": 10.30526783886261,
+  "min_survival": 1.0,
+  "push_DR_random_cmd_survival": 0.7916666666666666,
+  "P": [
+   69.0,
+   87.5,
+   108.2,
+   143.1,
+   163.4
+  ]
+ },
+ "runs/speed7/model_3500.pt": {
+  "rel_err": 0.018998836155111505,
+  "max_yaw_deg": 6.102152984252013,
+  "min_survival": 1.0,
+  "push_DR_random_cmd_survival": 0.875,
+  "P": [
+   81.8,
+   85.2,
+   103.7,
+   135.0,
+   153.2
+  ]
+ }
+}
