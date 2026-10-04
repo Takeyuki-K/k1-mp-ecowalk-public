@@ -1,0 +1,25 @@
+{
+ "fell": false,
+ "duration": 12.98,
+ "distance": 7.2623571895780445,
+ "mean_vx_walk": 0.9078575635333043,
+ "heel_first_ratio": 0.95,
+ "mp_min_deg": -43.10313171316253,
+ "mean_power_W": 93.18104159276989,
+ "CoT_mech": 0.2930212655650675,
+ "steady_state_stance_pattern": "Heel -> Flat -> Toe in every steady-state stance",
+ "touchdowns_heel_first": "19/20 (exception: final stopping step)",
+ "robustness_64envs": {
+  "stand_8s": 1.0,
+  "walk_8s": 1.0,
+  "stand_walk_stop": 1.0,
+  "stand_walk_stop_DR": 1.0,
+  "stand_with_pushes": 0.73,
+  "stand_walk_stop_DR_pushes": 0.86
+ },
+ "training_steps": {
+  "stage1_imitation": 4500000.0,
+  "stage2_rl": 14900000.0
+ },
+ "mp_spring_K": 2.63
+}

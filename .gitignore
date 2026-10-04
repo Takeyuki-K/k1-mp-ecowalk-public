@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+external/
+k1_mp/data/
+k1_mp_eco/data/
+k1_mp_eco/runs/eco[2-9]*/
+k1_compare/raw_*.mp4
+*/out/*.mp4
+*/out/*.npy

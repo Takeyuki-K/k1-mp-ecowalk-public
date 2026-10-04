@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this work or are inspired by its idea, please credit Takeyuki-K and cite this repository."
+title: "K1 MP Eco-Walk: passive MP toe joints, human-gait imitation and learned relaxation for energy-efficient humanoid walking (simulation)"
+authors:
+  - alias: "Takeyuki-K"
+type: software
+license: Apache-2.0
+date-released: "2026-10-04"
+repository-code: "https://github.com/Takeyuki-K/k1-mp-ecowalk"
+keywords:
+  - humanoid
+  - reinforcement learning
+  - energy efficiency
+  - toe joint
+  - variable impedance
+  - motion imitation
+  - MuJoCo
+  - ROS 2

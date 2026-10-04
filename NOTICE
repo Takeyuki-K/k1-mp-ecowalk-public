@@ -1,0 +1,33 @@
+K1 MP Eco-Walk
+Copyright 2026 Takeyuki-K (https://github.com/Takeyuki-K)
+
+This product includes software and results developed by Takeyuki-K:
+the concept and implementation of combining
+  (1) a passive spring-return MP (metatarsophalangeal / toe) joint,
+  (2) imitation of human walking data (hip-to-ankle retargeting + IK), and
+  (3) learned joint relaxation (variable impedance: policy-selected Kp/Kd)
+for energy-efficient humanoid walking.
+
+When redistributing this work or derivative works, this NOTICE file must be
+retained as required by Section 4(d) of the Apache License, Version 2.0.
+
+----------------------------------------------------------------------------
+Third-party material included in this repository
+----------------------------------------------------------------------------
+
+1. ai_sapiens/ai_sapiens_description/  (robot model files and meshes)
+   Derived from ROBOTIS-GIT/ai_sapiens, https://github.com/ROBOTIS-GIT/ai_sapiens
+   Licensed under the Apache License, Version 2.0 (see ai_sapiens/LICENSE).
+   Modified by Takeyuki-K: see ai_sapiens/NOTICE_MODIFICATIONS.md.
+   "ROBOTIS" is a trademark of its owner. This project is independent personal
+   research and is not affiliated with or endorsed by ROBOTIS.
+
+2. k1_mp/ref_gait.npz, k1_mp_eco/ref_gait.npz  (reference gait trajectory)
+   Derived from human gait data "walk2.trc" in
+   M. Duarte, "Notes on Scientific Computing for Biomechanics and Motor Control" (BMC),
+   https://github.com/duartexyz/BMC
+   Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0),
+   https://creativecommons.org/licenses/by/4.0/
+   Changes: hip-to-ankle vectors scaled to the robot leg length, time-scaled
+   (Froude similarity), converted to robot joint angles by inverse kinematics.
+   This file remains under CC BY 4.0 (it is NOT relicensed under Apache-2.0).

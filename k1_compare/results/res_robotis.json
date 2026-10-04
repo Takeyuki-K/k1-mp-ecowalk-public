@@ -1,0 +1,53 @@
+{
+ "robotis_v0.5": {
+  "speed": 0.4942330019904956,
+  "P_legs": 118.12275186097457,
+  "P_arms_waist": 3.8885586394365674,
+  "P_total": 122.01131050041113,
+  "legs_copper": 89.47922986200219,
+  "legs_pos_mech": 28.64352199897238,
+  "legs_neg_mech": 18.022758598267522,
+  "legs_hip_pitch": 18.89177678536648,
+  "legs_hip_roll": 31.424365067423363,
+  "legs_hip_yaw": 4.553414220069854,
+  "legs_knee": 34.15899885060995,
+  "legs_ankle_pitch": 24.32538513722337,
+  "legs_ankle_roll": 4.768811800281548,
+  "fell": false,
+  "foot_contacts": "flat sole (9 small spheres), no toe joint"
+ },
+ "robotis_v0.7": {
+  "speed": 0.7027100275261503,
+  "P_legs": 142.8681049649157,
+  "P_arms_waist": 5.207812219796298,
+  "P_total": 148.07591718471198,
+  "legs_copper": 103.84942928084813,
+  "legs_pos_mech": 39.018675684067574,
+  "legs_neg_mech": 22.040060655302103,
+  "legs_hip_pitch": 28.412116582561133,
+  "legs_hip_roll": 33.75964120315501,
+  "legs_hip_yaw": 5.771962341676477,
+  "legs_knee": 35.65036345234273,
+  "legs_ankle_pitch": 34.73974730163832,
+  "legs_ankle_roll": 4.534274083542021,
+  "fell": false,
+  "foot_contacts": "flat sole (9 small spheres), no toe joint"
+ },
+ "robotis_v0.9": {
+  "speed": 0.9007133550016139,
+  "P_legs": 172.43476768269443,
+  "P_arms_waist": 6.659705939255712,
+  "P_total": 179.09447362195016,
+  "legs_copper": 119.43408149168984,
+  "legs_pos_mech": 53.0006861910046,
+  "legs_neg_mech": 29.69494268543238,
+  "legs_hip_pitch": 40.48571225574398,
+  "legs_hip_roll": 36.19441407806941,
+  "legs_hip_yaw": 7.04793647760626,
+  "legs_knee": 38.114680851347174,
+  "legs_ankle_pitch": 45.72454633631433,
+  "legs_ankle_roll": 4.867477683613269,
+  "fell": false,
+  "foot_contacts": "flat sole (9 small spheres), no toe joint"
+ }
+}

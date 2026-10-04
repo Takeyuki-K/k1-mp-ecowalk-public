@@ -1,0 +1,189 @@
+{
+ "action_layout": "[0:12] position residual, [12:24] Kp scale action, [24:36] Kd scale action",
+ "gain_law": "Kp = kp_nominal * clip(1 + 0.5*a, (0.0, 1.5)); Kd = kd_nominal * clip(1 + 0.5*a, (0.05, 3.0)); send per joint every 20 ms as Goal Position / MIT P Gain / MIT D Gain",
+ "energy_model_Km_Nm_per_sqrtW": [
+  4.0,
+  4.0,
+  4.0,
+  4.0,
+  4.0,
+  2.2,
+  4.0,
+  4.0,
+  4.0,
+  4.0,
+  4.0,
+  2.2
+ ],
+ "control_hz": 50,
+ "action_scale": 0.25,
+ "action_clip": 4.0,
+ "policy_joints": [
+  "left_hip_pitch_joint",
+  "left_hip_roll_joint",
+  "left_hip_yaw_joint",
+  "left_knee_joint",
+  "left_ankle_pitch_joint",
+  "left_ankle_roll_joint",
+  "right_hip_pitch_joint",
+  "right_hip_roll_joint",
+  "right_hip_yaw_joint",
+  "right_knee_joint",
+  "right_ankle_pitch_joint",
+  "right_ankle_roll_joint"
+ ],
+ "all_joints": [
+  "left_hip_pitch_joint",
+  "left_hip_roll_joint",
+  "left_hip_yaw_joint",
+  "left_knee_joint",
+  "left_ankle_pitch_joint",
+  "left_ankle_roll_joint",
+  "right_hip_pitch_joint",
+  "right_hip_roll_joint",
+  "right_hip_yaw_joint",
+  "right_knee_joint",
+  "right_ankle_pitch_joint",
+  "right_ankle_roll_joint",
+  "waist_yaw_joint",
+  "left_shoulder_pitch_joint",
+  "left_shoulder_roll_joint",
+  "left_shoulder_yaw_joint",
+  "left_elbow_joint",
+  "left_wrist_roll_joint",
+  "right_shoulder_pitch_joint",
+  "right_shoulder_roll_joint",
+  "right_shoulder_yaw_joint",
+  "right_elbow_joint",
+  "right_wrist_roll_joint"
+ ],
+ "default_pose": [
+  -0.205,
+  0.0,
+  0.0,
+  0.517,
+  -0.307,
+  0.0,
+  -0.205,
+  0.0,
+  0.0,
+  0.517,
+  -0.307,
+  0.0,
+  0.0,
+  0.218,
+  0.315,
+  0.0,
+  1.08,
+  0.0,
+  0.218,
+  -0.315,
+  0.0,
+  1.08,
+  0.0
+ ],
+ "kp": [
+  100.0,
+  100.0,
+  100.0,
+  150.0,
+  40.0,
+  40.0,
+  100.0,
+  100.0,
+  100.0,
+  150.0,
+  40.0,
+  40.0,
+  200.0,
+  40.0,
+  40.0,
+  40.0,
+  40.0,
+  40.0,
+  40.0,
+  40.0,
+  40.0,
+  40.0,
+  40.0
+ ],
+ "kd": [
+  2.0,
+  2.0,
+  2.0,
+  4.0,
+  2.0,
+  2.0,
+  2.0,
+  2.0,
+  2.0,
+  4.0,
+  2.0,
+  2.0,
+  5.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0
+ ],
+ "T_cycle": 0.9065889652017798,
+ "walk_speed": 1.0486229760144363,
+ "obs_layout": [
+  [
+   "base_ang_vel(local) x0.25",
+   3
+  ],
+  [
+   "projected_gravity",
+   3
+  ],
+  [
+   "walk_cmd (0/1)",
+   1
+  ],
+  [
+   "alpha",
+   1
+  ],
+  [
+   "sin(2pi*phase)",
+   1
+  ],
+  [
+   "cos(2pi*phase)",
+   1
+  ],
+  [
+   "leg_q - default (12)",
+   12
+  ],
+  [
+   "leg_qd x0.05 (12)",
+   12
+  ],
+  [
+   "last_action (36)",
+   36
+  ]
+ ],
+ "mp_joint": {
+  "type": "passive torsion spring",
+  "stiffness_Nm_per_rad": 2.63,
+  "damping": 0.04,
+  "range_rad": [
+   -1.0,
+   0.05
+  ],
+  "location_in_ankle_roll_link": [
+   0.075,
+   0,
+   -0.05
+  ]
+ }
+}

@@ -1,0 +1,4 @@
+controller,speed,P_total_W,P_legs_W,legs_copper_W,legs_pos_mech_W,legs_neg_mech_W,CoT_elec,CoT_vs_1
+"(1) ROBOTIS public walk_default (original K1, no MP)",0.901,179.1,172.4,119.4,53.0,29.7,0.568,+0%
+(2) MP joint + human-gait RL (fixed gains),0.927,156.6,154.5,105.7,48.7,46.3,0.482,-15%
+(3) MP joint + eco (variable impedance),0.917,114.1,111.9,67.7,44.2,38.6,0.355,-37%
