@@ -6,7 +6,7 @@
 
 Idea & project: **Takeyuki-K** · License: Apache-2.0 (see [NOTICE](NOTICE)) · Simulation only
 
-![comparison](media/comparison_frame.jpg)
+![3-way comparison: ROBOTIS walk_default vs MP + imitation vs MP + imitation + relaxation, live power](media/comparison_3way.gif)
 
 > **Simulation only (MuJoCo).** Independent personal research, **not affiliated with or endorsed by ROBOTIS.**
 > MuJoCoによるシミュレーションのみ（実機ではありません）。個人の独自研究であり、ROBOTIS社とは無関係で、同社の承認・推奨を受けたものではありません。
@@ -34,7 +34,11 @@ Three controllers on the same K1 model family, same MuJoCo physics (dt 2 ms, 50 
 | ② | MP joint + human-gait imitation, fixed gains | 0.90 m/s | 158 W | 0.50 | −13 % |
 | ③ | **MP joint + imitation + learned relaxation** | 0.91 m/s | **114 W** | **0.36** | **−37 %** |
 
-Videos / 動画: [`media/K1_3way_energy_comparison.mp4`](media/K1_3way_energy_comparison.mp4) (3-up comparison with live per-joint power),
+| ② heel strike → flat → toe-off, passive MP bending (slow ×0.25) | ③ learned stiffness within one stride (slow ×0.25) |
+|---|---|
+| ![heel-to-toe close-up](media/heel_toe_slowmo.gif) | ![stiffness bars](media/eco_stiffness_slowmo.gif) |
+
+Full videos / 動画（MP4）: [`media/K1_3way_energy_comparison.mp4`](media/K1_3way_energy_comparison.mp4) (3-up comparison with live per-joint power),
 [`media/K1_MP_heel_toe_walk.mp4`](media/K1_MP_heel_toe_walk.mp4) (②, heel-to-toe close-up),
 [`media/K1_MP_eco_walk.mp4`](media/K1_MP_eco_walk.mp4) (③, live stiffness bars).
 
