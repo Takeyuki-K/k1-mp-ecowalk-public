@@ -1,8 +1,10 @@
 K1 MP Eco-Walk
 Copyright 2026 Takeyuki-K (https://github.com/Takeyuki-K)
 
-This product includes software and results developed by Takeyuki-K:
-the concept and implementation of combining
+This product includes software and results of a project by Takeyuki-K.
+Idea and direction: Takeyuki-K. Implementation (code, model modification, training,
+evaluation, documentation): Claude (Anthropic), under Takeyuki-K's direction.
+The idea is the combination of
   (1) a passive spring-return MP (metatarsophalangeal / toe) joint,
   (2) imitation of human walking data (hip-to-ankle retargeting + IK), and
   (3) learned joint relaxation (variable impedance: policy-selected Kp/Kd)
@@ -22,12 +24,15 @@ Third-party material included in this repository
    "ROBOTIS" is a trademark of its owner. This project is independent personal
    research and is not affiliated with or endorsed by ROBOTIS.
 
-2. k1_mp/ref_gait.npz, k1_mp_eco/ref_gait.npz  (reference gait trajectory)
+2. k1_mp/ref_gait.npz, k1_mp_eco/ref_gait.npz, k1_mp_speed/ref_gait.npz,
+   k1_mp_speed/ref_lib.npz and k1_mp_speed/deploy_speed/ref_*.csv  (reference gait trajectories)
    Derived from human gait data "walk2.trc" in
    M. Duarte, "Notes on Scientific Computing for Biomechanics and Motor Control" (BMC),
    https://github.com/duartexyz/BMC
    Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0),
    https://creativecommons.org/licenses/by/4.0/
    Changes: hip-to-ankle vectors scaled to the robot leg length, time-scaled
-   (Froude similarity), converted to robot joint angles by inverse kinematics.
-   This file remains under CC BY 4.0 (it is NOT relicensed under Apache-2.0).
+   (Froude similarity), converted to robot joint angles by inverse kinematics;
+   for ref_lib.npz / ref_*.csv additionally step length and cadence scaled with
+   sqrt(speed) (walk-ratio law) to 0.30-1.65 m/s.
+   These files remain under CC BY 4.0 (they are NOT relicensed under Apache-2.0).

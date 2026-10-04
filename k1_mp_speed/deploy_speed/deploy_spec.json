@@ -1,0 +1,199 @@
+{
+ "control_hz": 50,
+ "command_range_mps": [
+  0.3,
+  1.35
+ ],
+ "ref_acceleration_limit": 0.6,
+ "obs_layout": [
+  [
+   "base_ang_vel(local) x0.25",
+   3
+  ],
+  [
+   "projected_gravity",
+   3
+  ],
+  [
+   "walk_flag",
+   1
+  ],
+  [
+   "alpha",
+   1
+  ],
+  [
+   "v_cmd",
+   1
+  ],
+  [
+   "v_ref",
+   1
+  ],
+  [
+   "heading_error(clip +-1 rad)",
+   1
+  ],
+  [
+   "sin(2pi*phase)",
+   1
+  ],
+  [
+   "cos(2pi*phase)",
+   1
+  ],
+  [
+   "leg_q - default (12)",
+   12
+  ],
+  [
+   "leg_qd x0.05 (12)",
+   12
+  ],
+  [
+   "last_action (37)",
+   37
+  ]
+ ],
+ "action_layout": "[0:12] position residual x0.25 rad, [12:24] Kp scale, [24:36] Kd scale, [36] gait choice",
+ "gait_choice": "v_lib = clip(v_ref*(1+0.15*clip(a36,-2,2)), 0.25, 1.65)",
+ "gain_law": "Kp = Kp_nom*clip(1+0.5a, (0.0, 1.5)); Kd = Kd_nom*clip(1+0.5a, (0.05, 3.0))",
+ "joints": [
+  "left_hip_pitch_joint",
+  "left_hip_roll_joint",
+  "left_hip_yaw_joint",
+  "left_knee_joint",
+  "left_ankle_pitch_joint",
+  "left_ankle_roll_joint",
+  "right_hip_pitch_joint",
+  "right_hip_roll_joint",
+  "right_hip_yaw_joint",
+  "right_knee_joint",
+  "right_ankle_pitch_joint",
+  "right_ankle_roll_joint",
+  "waist_yaw_joint",
+  "left_shoulder_pitch_joint",
+  "left_shoulder_roll_joint",
+  "left_shoulder_yaw_joint",
+  "left_elbow_joint",
+  "left_wrist_roll_joint",
+  "right_shoulder_pitch_joint",
+  "right_shoulder_roll_joint",
+  "right_shoulder_yaw_joint",
+  "right_elbow_joint",
+  "right_wrist_roll_joint"
+ ],
+ "default_pose": [
+  -0.205,
+  0.0,
+  0.0,
+  0.517,
+  -0.307,
+  0.0,
+  -0.205,
+  0.0,
+  0.0,
+  0.517,
+  -0.307,
+  0.0,
+  0.0,
+  0.218,
+  0.315,
+  0.0,
+  1.08,
+  0.0,
+  0.218,
+  -0.315,
+  0.0,
+  1.08,
+  0.0
+ ],
+ "kp_nom": [
+  100.0,
+  100.0,
+  100.0,
+  150.0,
+  40.0,
+  40.0,
+  100.0,
+  100.0,
+  100.0,
+  150.0,
+  40.0,
+  40.0,
+  200.0,
+  40.0,
+  40.0,
+  40.0,
+  40.0,
+  40.0,
+  40.0,
+  40.0,
+  40.0,
+  40.0,
+  40.0
+ ],
+ "kd_nom": [
+  2.0,
+  2.0,
+  2.0,
+  4.0,
+  2.0,
+  2.0,
+  2.0,
+  2.0,
+  2.0,
+  4.0,
+  2.0,
+  2.0,
+  5.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0
+ ],
+ "library_speeds": [
+  0.3,
+  0.44999999999999996,
+  0.6000000000000001,
+  0.75,
+  0.9,
+  1.0499999999999998,
+  1.2,
+  1.3500000000000003,
+  1.5000000000000002,
+  1.6500000000000001
+ ],
+ "library_cycle_time_s": [
+  1.6949601258950329,
+  1.3839291476021225,
+  1.198517798861182,
+  1.0719869081988092,
+  0.9785856849511791,
+  0.9059942964774914,
+  0.8474800629475164,
+  0.7990118659074547,
+  0.7580092121305789,
+  0.7227334260700333
+ ],
+ "energy_model_Km": [
+  4.0,
+  4.0,
+  4.0,
+  4.0,
+  4.0,
+  2.2,
+  4.0,
+  4.0,
+  4.0,
+  4.0,
+  4.0,
+  2.2
+ ]
+}
