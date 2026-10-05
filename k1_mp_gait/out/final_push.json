@@ -1,0 +1,32 @@
+{
+ "accel": {
+  "survival": 0.9375,
+  "falls": [
+   {
+    "t": 40.4,
+    "mode": "walk",
+    "cmd": 0.0
+   },
+   {
+    "t": 41.36,
+    "mode": "walk",
+    "cmd": 0.0
+   }
+  ]
+ },
+ "standrun": {
+  "survival": 0.9375,
+  "falls": [
+   {
+    "t": 2.32,
+    "mode": "run",
+    "cmd": 3.0
+   },
+   {
+    "t": 2.44,
+    "mode": "run",
+    "cmd": 3.0
+   }
+  ]
+ }
+}

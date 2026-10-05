@@ -1,0 +1,26 @@
+{
+ "policy": "runs/sp4/model_final.pt",
+ "push": false,
+ "dr": false,
+ "results": [
+  {
+   "v_cmd": 5.5,
+   "survival": 1.0,
+   "speed": 5.214,
+   "speed_err_pct": 5.207,
+   "cadence_spm": 238.929,
+   "step_length": 1.309,
+   "flight_fraction": 0.452,
+   "heel_contact_at_touchdown": 1.0,
+   "heel_only_touchdown": 0.988,
+   "peak_force_bw_p95": 3.65,
+   "trunk_pitch_mean_deg": 4.495,
+   "trunk_pitch_std_deg": 1.025,
+   "joint_speed_over_limit_pct": 27.753,
+   "joint_speed_peak": 20.208,
+   "P_leg": 1941.203,
+   "CoT": 1.063,
+   "kp_mean": 1.101
+  }
+ ]
+}

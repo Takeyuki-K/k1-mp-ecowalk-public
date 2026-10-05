@@ -25,7 +25,9 @@ Third-party material included in this repository
    research and is not affiliated with or endorsed by ROBOTIS.
 
 2. k1_mp/ref_gait.npz, k1_mp_eco/ref_gait.npz, k1_mp_speed/ref_gait.npz,
-   k1_mp_speed/ref_lib.npz and k1_mp_speed/deploy_speed/ref_*.csv  (reference gait trajectories)
+   k1_mp_speed/ref_lib.npz, k1_mp_speed/deploy_speed/ref_*.csv,
+   k1_mp_turn/ref_gait.npz, k1_mp_turn/ref_lib.npz, k1_mp_fastwalk/ref_gait.npz,
+   k1_mp_fastwalk/ref_lib.npz and k1_mp_gait/ref_lib.npz  (reference gait trajectories)
    Derived from human gait data "walk2.trc" in
    M. Duarte, "Notes on Scientific Computing for Biomechanics and Motor Control" (BMC),
    https://github.com/duartexyz/BMC
@@ -34,5 +36,26 @@ Third-party material included in this repository
    Changes: hip-to-ankle vectors scaled to the robot leg length, time-scaled
    (Froude similarity), converted to robot joint angles by inverse kinematics;
    for ref_lib.npz / ref_*.csv additionally step length and cadence scaled with
-   sqrt(speed) (walk-ratio law) to 0.30-1.65 m/s.
+   sqrt(speed) (walk-ratio law) to 0.30-1.65 m/s; k1_mp_turn/ref_lib.npz additionally
+   contains a stepping-in-place cycle (stride 0) for in-place turning; k1_mp_fastwalk/ref_lib.npz
+   extends the library to 1.95 m/s.
    These files remain under CC BY 4.0 (they are NOT relicensed under Apache-2.0).
+
+3. k1_mp_run/data/cmu/data/016/16_35.bvh, k1_mp_sprint/data/cmu/data/009/09_04.bvh,
+   k1_mp_gait/data/cmu/data/009/09_04.bvh,
+   k1_mp_*/data/cmu/READMEFIRST.txt and the derived running references k1_mp_run/ref_run.npz,
+   k1_mp_sprint/ref_run.npz, k1_mp_sprint/ref_sprint_lib.npz, k1_mp_gait/ref_run.npz and
+   k1_mp_gait/ref_sprint_lib.npz
+   Carnegie Mellon University Graphics Lab Motion Capture Database, http://mocap.cs.cmu.edu
+   (subject 16, trial 35 "run/jog"; subject 9, trial 4 "run"), BVH conversion by B. Hahne (cgspeed.com).
+   CMU: "This data is free for use in research and commercial projects worldwide."
+   Neither CMU nor the BVH converter place restrictions on its use.
+   Acknowledgement requested by CMU:
+   "The data used in this project was obtained from mocap.cs.cmu.edu.
+    The database was created with funding from NSF EIA-0196217."
+   Changes in ref_run.npz: hip-to-ankle vectors scaled to the robot leg length, Froude time
+   scaling, stride shortened at constant cadence (1.65 m/s), foot pitch around touchdown replaced
+   by a heel-first landing, 5 deg trunk lean, converted to robot joint angles by inverse kinematics.
+   ref_sprint_lib.npz (from 09_04): same retargeting, then time-warped to 1.6-5.5 m/s (cadence ~ v^0.35,
+   contact time ~ 1/v), heel-first landing, 5 deg trunk lean.
+   k1_mp_gait/ref_sprint_lib.npz: as above but with the runner's own mid/forefoot landing (no heel override).
