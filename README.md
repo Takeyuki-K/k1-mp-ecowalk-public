@@ -1,5 +1,7 @@
 # K1 MP Eco-Walk
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23178358.svg)](https://doi.org/10.5281/zenodo.23178358)
+
 **Passive spring toe (MP) joints × human-gait imitation × learned relaxation → energy-efficient humanoid walking (MuJoCo simulation)**
 
 受動バネのMP関節（つま先関節） × 人の歩行の模倣 × 学習による脱力で、ヒューマノイドの省エネ歩行を実現する（MuJoCoシミュレーション）
@@ -387,6 +389,8 @@ Exact historical commands per stage, carried-over checkpoints and code changes b
 ## Use this idea / このアイディアの利用について
 You are free to use, modify and build on this work (code: Apache-2.0; data files keep their own licences, see [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md)).
 **If this work or its idea inspired yours, please credit `Takeyuki-K` and link this repository** (GitHub "Cite this repository" uses [CITATION.cff](CITATION.cff)).
+Archived on Zenodo: **DOI [10.5281/zenodo.23178358](https://doi.org/10.5281/zenodo.23178358)** — please cite this DOI.
+Zenodoにアーカイブ済み（DOI: 10.5281/zenodo.23178358）。引用の際はこのDOIをお使いください。
 自由に使ってください。参考にした場合は、ユーザー名 **Takeyuki-K** とこのリポジトリへのリンクの記載をお願いします。
 
 **No patents, open for everyone.** The author does not intend to patent this idea. It is published so that anyone can
