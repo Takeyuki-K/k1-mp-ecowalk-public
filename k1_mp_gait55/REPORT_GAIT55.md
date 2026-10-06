@@ -57,6 +57,11 @@ following walking steps, not in the same stance.
 **Straight walking power** (eco reward kept): 1.0 m/s 126 W vs v5 119 W (+6 %); like v3, turning needs slightly
 stiffer legs. Running power is not optimised (as v5).
 
+Videos (`video_gait55.py`, one robot, no pushes): [full profile](../media/K1_v55_turn_run.mp4) ·
+[hard braking, side view](../media/K1_v55_brake.mp4) · [in-place turning](../media/K1_v55_inplace.mp4) ·
+GIF of the governed turn: [`media/K1_v55_governed_turn.gif`](../media/K1_v55_governed_turn.gif).
+Figures: `out/fig_gait55_profile.png` (Fig. 1), `out/fig_gait55_stop.png` (Fig. 2).
+
 ## 2. Decisions and reasons
 
 | # | decision | reason |

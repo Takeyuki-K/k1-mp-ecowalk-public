@@ -27,6 +27,12 @@ torque kept inside a modelled K1 torque–speed envelope (joints can still be ba
 in-place turning, an automatic speed governor (v·|ω| ≤ 3 m/s² while running) with the body leaning into the turn
 (measured lean ≈ atan(vω/g)), and hard braking (4.5 m/s → standing in 4.4 s / 6.2 m instead of 5.9 s / 8.7 m) —
 see [k1_mp_gait55/REPORT_GAIT55.md](k1_mp_gait55/REPORT_GAIT55.md). Simulation only.
+
+![v5.5: governed running turn (4.5 m/s + 1 rad/s command -> 3 m/s), leaning into the turn](media/K1_v55_governed_turn.gif)
+
+Videos: [`media/K1_v55_turn_run.mp4`](media/K1_v55_turn_run.mp4) (full profile) ·
+[`media/K1_v55_brake.mp4`](media/K1_v55_brake.mp4) (hard braking, side view) ·
+[`media/K1_v55_inplace.mp4`](media/K1_v55_inplace.mp4) (in-place turning).
 v5.5（ブランチ `v5.5-turn-run`、確認中）: 歩行・走行中の旋回、その場旋回、旋回時の自動減速と旋回内側への体の傾け、急停止。
 
 ---
