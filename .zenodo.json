@@ -1,0 +1,34 @@
+{
+  "title": "K1 MP Eco-Walk: passive MP toe joints, human-gait imitation and learned relaxation for energy-efficient humanoid walking (simulation)",
+  "upload_type": "software",
+  "creators": [
+    {
+      "name": "Takeyuki-K"
+    }
+  ],
+  "license": "Apache-2.0",
+  "description": "MuJoCo simulation study on the ROBOTIS AI Sapiens K1 humanoid model: passive spring toe (MP) joints, imitation of human gait data and learned joint relaxation for energy-efficient walking (37 % lower estimated electrical cost of transport than the public walk_default policy under the reported simulation condition), extended to speed-command walking, turning, running and automatic walk-run switching. Simulation only; not tested on a real robot. Idea and direction: Takeyuki-K. Implementation generated with Claude (Anthropic) under the direction of Takeyuki-K. Project code is Apache-2.0; human-gait-derived reference trajectories are CC BY 4.0 (Marcos Duarte & Renato Naville Watanabe, BMC, doi:10.5281/zenodo.4599319); CMU motion-capture data from mocap.cs.cmu.edu (NSF EIA-0196217). See NOTICE and THIRD_PARTY_LICENSES.md.",
+  "keywords": [
+    "humanoid",
+    "reinforcement learning",
+    "energy efficiency",
+    "toe joint",
+    "variable impedance",
+    "motion imitation",
+    "MuJoCo",
+    "ROS 2",
+    "ROBOTIS K1"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/Takeyuki-K/k1-mp-ecowalk-public",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    },
+    {
+      "identifier": "10.5281/zenodo.4599319",
+      "relation": "references",
+      "scheme": "doi"
+    }
+  ]
+}

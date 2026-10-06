@@ -388,6 +388,11 @@ Exact historical commands per stage, carried-over checkpoints and code changes b
 You are free to use, modify and build on this work (code: Apache-2.0; data files keep their own licences, see [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md)).
 **If this work or its idea inspired yours, please credit `Takeyuki-K` and link this repository** (GitHub "Cite this repository" uses [CITATION.cff](CITATION.cff)).
 自由に使ってください。参考にした場合は、ユーザー名 **Takeyuki-K** とこのリポジトリへのリンクの記載をお願いします。
+
+**No patents, open for everyone.** The author does not intend to patent this idea. It is published so that anyone can
+use it, find its problems and improve it — if it proves useful, it may become one of the common building blocks of humanoids.
+The public, dated release (Zenodo DOI) also serves as a defensive publication.
+**特許で独占するつもりはありません。** 誰でも使い、問題を見つけ、改善できるように公開しています。役に立つなら、ヒューマノイドの標準的な要素の一つになってほしいと考えています。日付付きの公開（Zenodo DOI）は防衛的公開も兼ねています。
 Redistributions must keep the [NOTICE](NOTICE) file (Apache-2.0 §4(d)).
 
 ## Credits / クレジット
