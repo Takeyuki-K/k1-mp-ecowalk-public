@@ -1,0 +1,31 @@
+{
+ "policy": "runs/final/model.pt",
+ "survival": 1.0,
+ "speed": 1.5365803919684322,
+ "distance_10s": 15.499109293031733,
+ "flight_fraction": 0.2859375,
+ "ref_flight_fraction": 0.35,
+ "touchdowns": 184,
+ "heel_contact_at_touchdown": 1.0,
+ "heel_only_touchdown": 1.0,
+ "peak_force_bw_mean": 2.3025268952387354,
+ "peak_force_bw_p95": 2.4956153861304022,
+ "torso_pitch_mean_deg": 1.795021620564305,
+ "torso_pitch_std_deg": 0.3587128582528503,
+ "pelvis_z_range": 0.064007832948122,
+ "P_leg": 341.83746203031893,
+ "CoT": 0.6351176184689511,
+ "kp_scale_right_leg_by_phase": [
+  0.8465014444650739,
+  0.823914316266011,
+  0.9557489085451795,
+  0.9729523806576568,
+  0.9163969060849296,
+  0.8244315814616141,
+  0.6845875780966963,
+  0.6048185951287242,
+  0.590791461353024,
+  0.7632929326105439
+ ],
+ "kd_scale_mean": 1.2122195622440253
+}

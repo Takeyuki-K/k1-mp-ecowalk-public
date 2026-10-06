@@ -1,9 +1,12 @@
 __pycache__/
 *.pyc
+# fetched by scripts/fetch_external.sh (pinned upstream sources, not redistributed)
 external/
 k1_mp/data/
 k1_mp_eco/data/
+# local training / evaluation output
 k1_mp_eco/runs/eco[2-9]*/
 k1_compare/raw_*.mp4
 */out/*.mp4
 */out/*.npy
+*/runs/test*/

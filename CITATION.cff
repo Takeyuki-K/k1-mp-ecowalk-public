@@ -1,12 +1,13 @@
 cff-version: 1.2.0
-message: "If you use this work or are inspired by its idea, please credit Takeyuki-K and cite this repository."
+message: "If you use this work or are inspired by its idea, please credit Takeyuki-K and cite this repository. Project code is Apache-2.0; some data files are separately licensed (human-gait-derived references: CC BY 4.0; CMU motion-capture files) - see NOTICE and THIRD_PARTY_LICENSES.md."
 title: "K1 MP Eco-Walk: passive MP toe joints, human-gait imitation and learned relaxation for energy-efficient humanoid walking (simulation)"
 authors:
   - alias: "Takeyuki-K"
 type: software
 license: Apache-2.0
-date-released: "2026-10-04"
+date-released: "2026-10-06"
 repository-code: "https://github.com/Takeyuki-K/k1-mp-ecowalk"
+abstract: "Simulation study (MuJoCo) on the ROBOTIS AI Sapiens K1 humanoid model: passive spring toe (MP) joints, imitation of human gait data and learned joint relaxation for energy-efficient walking, extended to speed-command walking, turning, running and walk-run switching. Implementation generated with Claude (Anthropic) under the direction of Takeyuki-K."
 keywords:
   - humanoid
   - reinforcement learning
@@ -16,3 +17,27 @@ keywords:
   - motion imitation
   - MuJoCo
   - ROS 2
+references:
+  - type: software
+    title: "ai_sapiens"
+    authors:
+      - name: "ROBOTIS"
+    repository-code: "https://github.com/ROBOTIS-GIT/ai_sapiens"
+    commit: "bdc40f126c4a1551422dce44dce144974f7a2f2b"
+    license: Apache-2.0
+  - type: software
+    title: "Notes on Scientific Computing for Biomechanics and Motor Control"
+    authors:
+      - family-names: "Duarte"
+        given-names: "Marcos"
+      - family-names: "Watanabe"
+        given-names: "Renato Naville"
+    doi: "10.5281/zenodo.4599319"
+    repository-code: "https://github.com/BMClab/BMC"
+    commit: "50a05aebcc814e5341860f1b270652e3ea590d20"
+    license: CC-BY-4.0
+  - type: data
+    title: "CMU Graphics Lab Motion Capture Database"
+    authors:
+      - name: "Carnegie Mellon University Graphics Lab"
+    url: "http://mocap.cs.cmu.edu"

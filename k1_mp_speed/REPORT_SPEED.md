@@ -1,7 +1,7 @@
 # Speed-command walking: report and decision log
 
 **K1 + passive MP toe joints + human-gait imitation + learned relaxation, now following a speed command.**
-Idea & direction: Takeyuki-K · Implementation: Claude (Anthropic) · MuJoCo simulation only
+Idea & direction: Takeyuki-K · Implementation generated with Claude (Anthropic) under Takeyuki-K's direction · MuJoCo simulation only
 
 Goal: keep the eco walking concept (MP toes × human-gait imitation × relaxation) and make one policy follow a changing
 forward speed command. Running is out of scope (separate future work).
@@ -77,7 +77,32 @@ Total ≈ 39 M environment steps on 2 CPU cores (MuJoCo 3.14, PPO).
 `eval_speed.py`, `select_ckpt.py`, `robotis_sweep.py`, `plot_speed.py`, `record_profile.py`, `video_profile.py`.
 
 ## 6. Reproducibility note
-Stages A–F were run while the reward settings were being corrected (D6–D10); the code in this folder contains the
-**final** settings (stage G). The released policy is `runs/final/model.pt`; stage logs are in `runs/logs/`.
-Re-running all stages from scratch with the final code (init from `../k1_mp_eco/runs/eco1/model.pt` with `--from_eco`,
-then `--from_speed36`, then `--add_heading_obs`) follows the same path but has not been re-executed end-to-end.
+- **Evaluation** of the released policy (`runs/final/model.pt`) is reproducible with the included code.
+- **Training**: stages A–F were run while the reward settings were being corrected (D6–D10); the code in this folder
+  contains only the **final** settings (stage G). The exact historical chain (init checkpoints, flags, iterations, the
+  settings that were in the code at each stage) is documented in [TRAINING_HISTORY.md](TRAINING_HISTORY.md) and all
+  stage-final checkpoints are included in `runs/stages/`. Stages A–F cannot be replayed identically with the released
+  code; stage G can (from `runs/stages/stage_F.pt`).
+- An end-to-end re-training with the released code is reported in §7.
+- The stage table in §3 lists the logged iterations; the checkpoints actually carried over are listed in
+  TRAINING_HISTORY.md (e.g. stage A: it 1100).
+
+## 7. Re-training with the final code
+`python3 ppo_speed.py --iters 9300 --init ../k1_mp_eco/runs/eco1/model.pt --from_eco_full --lr 1e-4 --lr_min 5e-5 --out runs/repro_final_code`
+— one stage, released code only, same total iterations as A–G (9 300; 2.6 h on 2 CPU threads). Checkpoint:
+`runs/repro_final_code/model.pt`, log: `runs/logs/repro_final_code.jsonl`. Both policies evaluated with the same protocol
+(`compare_repro.py`: dt 2 ms, 3 robots per speed, 12 s; result `out/repro_final_code.json`):
+
+| command [m/s] | 0.30 | 0.45 | 0.60 | 0.75 | 0.90 | 1.05 | 1.20 | 1.35 |
+|---|---|---|---|---|---|---|---|---|
+| released: speed | 0.311 | 0.446 | 0.611 | 0.764 | 0.914 | 1.062 | 1.188 | 1.304 |
+| re-trained: speed | 0.303 | 0.446 | 0.592 | 0.743 | 0.909 | 1.065 | 1.190 | 1.304 |
+| released: leg power [W] | 87.0 | 77.0 | 87.3 | 96.0 | 108.3 | 125.3 | 144.1 | 163.1 |
+| re-trained: leg power [W] | 71.1 | 76.8 | 84.8 | 95.0 | 107.9 | 123.9 | 140.6 | 156.7 |
+| released: step [m] / cadence | 0.24 / 78 | 0.29 / 94 | 0.34 / 107 | 0.39 / 118 | 0.43 / 128 | 0.45 / 136 | 0.50 / 142 | 0.55 / 148 |
+| re-trained: step [m] / cadence | 0.23 / 78 | 0.28 / 95 | 0.33 / 108 | 0.39 / 118 | 0.43 / 127 | 0.48 / 134 | 0.53 / 140 | 0.54 / 146 |
+
+Both: no falls, heel-first touchdowns 100 %, speed-profile test passed (mean |v − v_ref| 0.059 m/s released,
+0.045 m/s re-trained). **The released code alone reproduces a policy of the same quality** (power within −18 … 0 %,
+speed within 3.1 %). The re-trained policy is not the released one (different training path and random sequence); the
+README numbers refer to the released policy.
