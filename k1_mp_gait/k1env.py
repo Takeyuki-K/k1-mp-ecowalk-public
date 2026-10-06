@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Takeyuki-K
 """Batched MuJoCo environment for K1 + passive MP joints (CPU, mujoco.rollout threads).
 
 Action  : 12 leg joint residuals around the (blended) human reference, PD position targets.

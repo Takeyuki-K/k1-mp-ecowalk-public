@@ -1,7 +1,7 @@
 # Fast walking (eco) up to 1.65 m/s: report
 
 **K1 + passive MP toes + human-gait imitation + learned relaxation; speed command extended 1.35 → 1.65 m/s.**
-Idea & direction: Takeyuki-K · Implementation: Claude (Anthropic) · MuJoCo simulation only
+Idea & direction: Takeyuki-K · Implementation generated with Claude (Anthropic) under Takeyuki-K's direction · MuJoCo simulation only
 
 User instruction: speeds around 1.35–1.6 m/s should be covered by **walking with longer steps** (not by running),
 and the power-saving reward stays.
@@ -43,3 +43,8 @@ Same protocol as the v2 table (dt 2 ms, 3 robots per speed, 12 s from standing, 
 
 Files: `retarget_speed.py` (library 0.30–1.95), `k1env_speed.py` (range), `ppo_speed.py` (`--kv_walk`), `eval_fw.py`,
 `out/sweep_v2.json`, `out/sweep_fw2.json`. All other code identical to `k1_mp_speed` (v2, unchanged).
+
+## Reproducibility
+Evaluation of the released checkpoints is reproducible with the included code. The training was staged; the exact
+commands, the checkpoints carried over and the code changes between stages are listed in
+[TRAINING_HISTORY.md](TRAINING_HISTORY.md). Stages that ran with earlier code cannot be replayed identically.

@@ -16,9 +16,16 @@ W, H = 800, 600
 FPS = 50
 BG, PANEL, INK, INK2 = (16, 16, 15), (26, 26, 25), (255, 255, 255), (195, 194, 183)
 C_REF, C_POL, C_HEEL, C_FORE = (0x9a, 0x9a, 0x95), (0x19, 0x9e, 0x70), (0xe5, 0x8a, 0x39), (0x39, 0x87, 0xe5)
-CJK = '/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc'
-CJKB = '/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc'
-F = lambda s, b=False: ImageFont.truetype(CJKB if (b and os.path.exists(CJKB)) else CJK, s)
+CJK = os.environ.get('K1_FONT', '/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc')  # Noto Sans CJK (fonts-noto-cjk)
+CJKB = os.environ.get('K1_FONT_BOLD', '/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc')
+
+def _truetype(path, size):
+    """font with a fallback: without Noto Sans CJK the captions are drawn with Pillow's default font"""
+    try:
+        return ImageFont.truetype(path, size)
+    except OSError:
+        return ImageFont.load_default(size)
+F = lambda s, b=False: _truetype(CJKB if (b and os.path.exists(CJKB)) else CJK, s)
 
 
 def ref_traj(ph):
@@ -110,7 +117,7 @@ def main():
             dr.text((1080, y0 + 32), '0 = fully relaxed (脱力). Legs mean.', font=f_s, fill=INK2)
             dr.text((1080, y0 + 70), 'MuJoCo simulation only.', font=f_s, fill=INK2)
             dr.text((1080, y0 + 90), 'Mocap: mocap.cs.cmu.edu (NSF EIA-0196217)', font=f_s, fill=INK2)
-            dr.text((1080, y0 + 110), 'Idea: Takeyuki-K · Implementation: Claude', font=f_s, fill=INK2)
+            dr.text((1080, y0 + 110), 'Idea: Takeyuki-K · Impl.: generated with Claude', font=f_s, fill=INK2)
             wr.append_data(np.array(im))
     wr.close()
     print('saved', out)

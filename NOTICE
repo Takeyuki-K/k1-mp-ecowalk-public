@@ -1,61 +1,79 @@
 K1 MP Eco-Walk
 Copyright 2026 Takeyuki-K (https://github.com/Takeyuki-K)
 
-This product includes software and results of a project by Takeyuki-K.
-Idea and direction: Takeyuki-K. Implementation (code, model modification, training,
-evaluation, documentation): Claude (Anthropic), under Takeyuki-K's direction.
+Idea, direction, evaluation criteria and project integration: Takeyuki-K.
+The code, model modifications, training pipeline, evaluation tools and documentation were generated and
+implemented with Claude (Anthropic), used extensively under the direction, selection, testing and integration
+of Takeyuki-K.
+
 The idea is the combination of
   (1) a passive spring-return MP (metatarsophalangeal / toe) joint,
   (2) imitation of human walking data (hip-to-ankle retargeting + IK), and
   (3) learned joint relaxation (variable impedance: policy-selected Kp/Kd)
 for energy-efficient humanoid walking.
 
-When redistributing this work or derivative works, this NOTICE file must be
-retained as required by Section 4(d) of the Apache License, Version 2.0.
+LICENSING SCOPE
+  * Project code and original assets: Apache License 2.0 (LICENSE, LICENSES/Apache-2.0.txt).
+  * Human-gait-derived reference trajectories (item 2 below): Creative Commons Attribution 4.0
+    International (LICENSES/CC-BY-4.0.txt). They are NOT relicensed under Apache-2.0.
+  * CMU motion-capture files and their derivatives (item 3): no restrictions by the providers;
+    acknowledgement below.
+  See THIRD_PARTY_LICENSES.md for the complete list.
+
+When redistributing this work or derivative works, this NOTICE file must be retained as required by
+Section 4(d) of the Apache License, Version 2.0.
 
 ----------------------------------------------------------------------------
 Third-party material included in this repository
 ----------------------------------------------------------------------------
 
 1. ai_sapiens/ai_sapiens_description/  (robot model files and meshes)
-   Derived from ROBOTIS-GIT/ai_sapiens, https://github.com/ROBOTIS-GIT/ai_sapiens
+   From ROBOTIS-GIT/ai_sapiens, https://github.com/ROBOTIS-GIT/ai_sapiens,
+   commit bdc40f126c4a1551422dce44dce144974f7a2f2b.
    Licensed under the Apache License, Version 2.0 (see ai_sapiens/LICENSE).
-   Modified by Takeyuki-K: see ai_sapiens/NOTICE_MODIFICATIONS.md.
-   "ROBOTIS" is a trademark of its owner. This project is independent personal
+   Original files are unmodified copies; derived files (k1_mp.xml, scene_mp.xml, k1_mp.urdf, split foot
+   meshes) were MODIFIED by Takeyuki-K and carry a modification notice; the full list is in
+   ai_sapiens/NOTICE_MODIFICATIONS.md.
+   "ROBOTIS" and "AI Sapiens" may be trademarks of their owner. This project is independent personal
    research and is not affiliated with or endorsed by ROBOTIS.
 
-2. k1_mp/ref_gait.npz, k1_mp_eco/ref_gait.npz, k1_mp_speed/ref_gait.npz,
-   k1_mp_speed/ref_lib.npz, k1_mp_speed/deploy_speed/ref_*.csv,
-   k1_mp_turn/ref_gait.npz, k1_mp_turn/ref_lib.npz, k1_mp_fastwalk/ref_gait.npz,
-   k1_mp_fastwalk/ref_lib.npz and k1_mp_gait/ref_lib.npz  (reference gait trajectories)
-   Derived from human gait data "walk2.trc" in
-   M. Duarte, "Notes on Scientific Computing for Biomechanics and Motor Control" (BMC),
-   https://github.com/duartexyz/BMC
+2. Human-gait-derived reference trajectories:
+     k1_mp/ref_gait.npz, k1_mp/deploy/ref_joint_table.csv,
+     k1_mp_eco/ref_gait.npz, k1_mp_eco/deploy_eco/ref_joint_table.csv,
+     k1_mp_speed/ref_gait.npz, k1_mp_speed/ref_lib.npz, k1_mp_speed/deploy_speed/ref_*.csv,
+     k1_mp_turn/ref_gait.npz, k1_mp_turn/ref_lib.npz,
+     k1_mp_fastwalk/ref_gait.npz, k1_mp_fastwalk/ref_lib.npz,
+     k1_mp_gait/ref_lib.npz
+   Derived from the human gait data "data/walk2.trc" of
+     Marcos Duarte and Renato Naville Watanabe,
+     "Notes on Scientific Computing for Biomechanics and Motor Control" (BMC),
+     https://github.com/BMClab/BMC (commit 50a05aebcc814e5341860f1b270652e3ea590d20),
+     DOI 10.5281/zenodo.4599319.
    Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0),
-   https://creativecommons.org/licenses/by/4.0/
-   Changes: hip-to-ankle vectors scaled to the robot leg length, time-scaled
-   (Froude similarity), converted to robot joint angles by inverse kinematics;
-   for ref_lib.npz / ref_*.csv additionally step length and cadence scaled with
-   sqrt(speed) (walk-ratio law) to 0.30-1.65 m/s; k1_mp_turn/ref_lib.npz additionally
-   contains a stepping-in-place cycle (stride 0) for in-place turning; k1_mp_fastwalk/ref_lib.npz
-   extends the library to 1.95 m/s.
+   https://creativecommons.org/licenses/by/4.0/ (copy in LICENSES/CC-BY-4.0.txt).
+   Changes: hip-to-ankle vectors scaled to the robot leg length, time-scaled (Froude similarity),
+   converted to robot joint angles by inverse kinematics; for ref_lib.npz / ref_*.csv additionally step
+   length and cadence scaled with sqrt(speed) (walk-ratio law) to 0.30-1.65 m/s; k1_mp_turn/ref_lib.npz
+   additionally contains a stepping-in-place cycle (stride 0); k1_mp_fastwalk/ref_lib.npz and
+   k1_mp_gait/ref_lib.npz extend the library to 1.95 m/s.
    These files remain under CC BY 4.0 (they are NOT relicensed under Apache-2.0).
+   The raw walk2.trc file is not redistributed (scripts/fetch_external.sh downloads it).
 
-3. k1_mp_run/data/cmu/data/016/16_35.bvh, k1_mp_sprint/data/cmu/data/009/09_04.bvh,
-   k1_mp_gait/data/cmu/data/009/09_04.bvh,
-   k1_mp_*/data/cmu/READMEFIRST.txt and the derived running references k1_mp_run/ref_run.npz,
-   k1_mp_sprint/ref_run.npz, k1_mp_sprint/ref_sprint_lib.npz, k1_mp_gait/ref_run.npz and
-   k1_mp_gait/ref_sprint_lib.npz
+3. CMU motion-capture data and derivatives:
+     k1_mp_run/data/cmu/data/016/16_35.bvh, k1_mp_sprint/data/cmu/data/009/09_04.bvh,
+     k1_mp_gait/data/cmu/data/009/09_04.bvh, k1_mp_*/data/cmu/READMEFIRST.txt,
+     k1_mp_run/ref_run.npz, k1_mp_sprint/ref_run.npz, k1_mp_sprint/ref_sprint_lib.npz,
+     k1_mp_gait/ref_run.npz, k1_mp_gait/ref_sprint_lib.npz
    Carnegie Mellon University Graphics Lab Motion Capture Database, http://mocap.cs.cmu.edu
-   (subject 16, trial 35 "run/jog"; subject 9, trial 4 "run"), BVH conversion by B. Hahne (cgspeed.com).
+   (subject 16, trial 35 "run/jog"; subject 9, trial 4 "run"), BVH conversion by B. Hahne (cgspeed.com),
+   obtained from https://github.com/una-dinosauria/cmu-mocap (commit 09a07f54f3bbb58797325f009282d0b2048a2871).
    CMU: "This data is free for use in research and commercial projects worldwide."
-   Neither CMU nor the BVH converter place restrictions on its use.
+   Neither CMU nor the BVH converter place restrictions on its use (see READMEFIRST.txt).
    Acknowledgement requested by CMU:
    "The data used in this project was obtained from mocap.cs.cmu.edu.
     The database was created with funding from NSF EIA-0196217."
-   Changes in ref_run.npz: hip-to-ankle vectors scaled to the robot leg length, Froude time
-   scaling, stride shortened at constant cadence (1.65 m/s), foot pitch around touchdown replaced
-   by a heel-first landing, 5 deg trunk lean, converted to robot joint angles by inverse kinematics.
-   ref_sprint_lib.npz (from 09_04): same retargeting, then time-warped to 1.6-5.5 m/s (cadence ~ v^0.35,
-   contact time ~ 1/v), heel-first landing, 5 deg trunk lean.
-   k1_mp_gait/ref_sprint_lib.npz: as above but with the runner's own mid/forefoot landing (no heel override).
+   Changes: hip-to-ankle vectors scaled to the robot leg length, Froude time scaling, converted to robot
+   joint angles by inverse kinematics; k1_mp_run/ref_run.npz: stride shortened at constant cadence
+   (1.65 m/s), heel-first landing imposed, 5 deg trunk lean; ref_sprint_lib.npz (09_04): time-warped to
+   1.6-5.5 m/s (cadence ~ v^0.35, contact time ~ 1/v), 5 deg trunk lean, heel-first landing imposed
+   (k1_mp_sprint) or the runner's own mid/forefoot landing kept (k1_mp_gait).

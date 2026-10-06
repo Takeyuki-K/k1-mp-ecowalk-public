@@ -4,7 +4,12 @@
 
 受動バネのMP関節（つま先関節） × 人の歩行の模倣 × 学習による脱力で、ヒューマノイドの省エネ歩行を実現する（MuJoCoシミュレーション）
 
-Idea & direction: **Takeyuki-K** · Implementation: Claude (Anthropic) · License: Apache-2.0 (see [NOTICE](NOTICE)) · Simulation only
+Idea & direction: **Takeyuki-K** · Implementation generated with Claude (Anthropic) under Takeyuki-K's direction · Simulation only
+
+> **Licences:** project code and original assets **Apache-2.0** · human-gait-derived reference trajectories
+> **CC BY 4.0** (Marcos Duarte & Renato Naville Watanabe, BMC) · CMU motion-capture files: free use, acknowledgement
+> below. See [NOTICE](NOTICE) and [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md).
+> コードはApache-2.0、人の歩行データ由来の参照軌道はCC BY 4.0です（リポジトリ全体が単一ライセンスではありません）。
 
 ![3-way comparison: ROBOTIS walk_default vs MP + imitation vs MP + imitation + relaxation, live power](media/comparison_3way.gif)
 
@@ -25,14 +30,20 @@ Instead of making a humanoid walk with stiff, always-on motors, let **natural ph
 
 ## Result / 結果
 
-Three controllers on the same K1 model family, same MuJoCo physics (dt 2 ms, 50 Hz control), same start, straight walking at the same speed (~0.92 m/s), same electrical power model.
-同一物理条件・同一速度・同一電力モデルで3つの制御を比較:
+Three controllers on the same K1 model family, same MuJoCo physics (dt 2 ms, 50 Hz control), same start, straight
+walking, **approximately speed-matched (0.90–0.93 m/s)**, same electrical power model. Values are **simulation estimates**
+taken from [`k1_compare/results/comparison_table.csv`](k1_compare/results/comparison_table.csv).
+同一物理条件・ほぼ同じ速度（0.90〜0.93 m/s）・同一電力モデルで3つの制御を比較（シミュレーション推定値）:
 
-| | controller | speed | avg. electrical power | CoT (electrical) | vs ① |
-|---|---|---|---|---|---|
-| ① | ROBOTIS public `walk_default` policy, original flat foot | 0.92 m/s | 182 W | 0.57 | – |
-| ② | MP joint + human-gait imitation, fixed gains | 0.90 m/s | 158 W | 0.50 | −13 % |
-| ③ | **MP joint + imitation + learned relaxation** | 0.91 m/s | **114 W** | **0.36** | **−37 %** |
+| | controller | speed | estimated electrical power (total) | of which legs | CoT (electrical) | CoT vs ① |
+|---|---|---|---|---|---|---|
+| ① | ROBOTIS public `walk_default` policy, original flat foot | 0.901 m/s | 179.1 W | 172.4 W | 0.568 | – |
+| ② | MP joint + human-gait imitation, fixed gains | 0.927 m/s | 156.6 W | 154.5 W | 0.482 | −15 % |
+| ③ | **MP joint + imitation + learned relaxation** | 0.917 m/s | **114.1 W** | **111.9 W** | **0.355** | **−37 %** |
+
+i.e. **37 % lower estimated electrical cost of transport under this simulation condition** (total power −36 %).
+The live numbers drawn in the comparison video come from the video recording (which includes the start from standing)
+and therefore differ from this steady-state table.
 
 | ② heel strike → flat → toe-off, passive MP bending (slow ×0.25) | ③ learned stiffness within one stride (slow ×0.25) |
 |---|---|
@@ -44,8 +55,8 @@ Full videos / 動画（MP4）: [`media/K1_3way_energy_comparison.mp4`](media/K1_
 
 Other findings (simulation):
 - ③ keeps the heel-strike → flat → toe-off sequence (17/18 heel-first touchdowns); MP bends up to ~55° at push-off.
-- Robustness improved with relaxation: standing with random pushes 73 % → 88 % survival, stand→walk→stop with domain randomisation + pushes 86 % → 98 % (② vs ③, 64 envs, 8 s).
-- The ranking ① > ② > ③ also holds for positive mechanical work (independent of the assumed motor constant): 53 W > 49 W > 44 W.
+- Robustness improved with relaxation: standing with random pushes 73 % → 88 % survival, stand→walk→stop with domain randomisation + pushes 86 % → 98 % (② vs ③, 64 envs, 8 s; `k1_mp_eco/out/eco_results.json`).
+- The ranking ① > ② > ③ also holds for the legs' positive mechanical work (independent of the assumed motor constant): 53.0 W > 48.7 W > 44.2 W.
 
 ### Honest limitations / 注意点
 - **① is a general-purpose policy** (omnidirectional velocity tracking, made for the real robot). ②③ are specialised for straight walking at one speed. The −37 % is valid for this condition only.
@@ -66,7 +77,7 @@ imitation and the learned relaxation. Slower = shorter steps and lower cadence, 
 |---|---|---|---|---|---|---|---|---|
 | measured speed | 0.31 | 0.45 | 0.61 | 0.76 | 0.91 | 1.02 | 1.19 | 1.30 |
 | step length (m) | 0.24 | 0.29 | 0.34 | 0.39 | 0.43 | 0.46 | 0.50 | 0.55 |
-| leg power vs ROBOTIS walk_default | −8 % | −32 % | −33 % | −36 % | −37 % | −36 % | −36 % | −38 % |
+| estimated leg power vs ROBOTIS walk_default | −8 % | −32 % | −33 % | −36 % | −37 % | −36 % | −36 % | −38 % |
 
 No falls, heel contact at every touchdown, heading drift ≤ 4.3°, 87.5 % survival with random commands + pushes + domain
 randomisation. Above the training range the robot saturates at ~1.45 m/s (step length ≈ 0.55 m) without falling — faster
@@ -170,57 +181,104 @@ CoT = P / (m g v). The Joule + mechanical decomposition follows the common pract
 | `k1_mp_sprint/` | **v4 fast running**: CMU 09_04 speed library 1.6–5.5 m/s, speed curriculum, policies `runs/final/model.pt` (speed priority) and `model_motorlimit.pt` |
 | `k1_mp_gait/` | **v5**: forefoot running with motor torque–speed model, stand → run, walk ⇄ run gait manager (`gait.py`), policies `runs/final/walk.pt`, `runs/final/run.pt` |
 | `k1_compare/` | 3-way comparison: recording, power evaluation, figures, video composition; results in `results/` |
-| `media/` | videos and key figure |
+| `media/` | videos and GIFs |
+| `scripts/` | `fetch_external.sh` (pinned upstream sources), `smoke_test.sh` |
+| `LICENSES/`, `NOTICE`, `THIRD_PARTY_LICENSES.md` | licence texts and attribution |
 
 ## Reproduce / 再現
+
+What can be reproduced, and how exactly / 再現できる範囲:
+
+| | status |
+|---|---|
+| **Evaluation of every released policy** (checkpoints in `*/runs/final/`, `k1_mp_eco/runs/eco1/`) | reproducible with the included code and the pinned upstream sources (section A) — e.g. re-running the 3-way comparison reproduced `k1_compare/results/comparison_table.csv` digit for digit |
+| Generated model files and reference motions | regenerated **byte-identically** by the included scripts (checked by `scripts/smoke_test.sh`, checksums in `scripts/generated_files.sha256`) |
+| Training of the fixed MP and eco policies (v1), fast walking (v4) | the documented commands use the released code as it was used |
+| Training of the speed (v2), turning / jog (v3), sprint (v4) and walk ⇄ run (v5) policies | produced by an **iterative research process**: reward / environment settings were changed in the code between stages. The exact historical commands, the checkpoint carried over at each stage and the code differences are documented in each folder's `TRAINING_HISTORY.md`; stage-final checkpoints of v2 are included (`k1_mp_speed/runs/stages/`), those of v3–v5 are provided as GitHub release assets (`k1-mp-ecowalk_intermediate_checkpoints_*.zip`). Stages run with code that no longer exists cannot be replayed identically. For v2 an end-to-end re-training with the released code only was run: it reached the same quality (no falls, speed within 3.1 %, leg power within −18 … 0 % of the released policy; `k1_mp_speed/REPORT_SPEED.md` §7) |
+
+### 0. Environment / 環境
+Tested on Ubuntu 24.04, Python 3.13.16, CPU only (no GPU used). Training used 1–2 CPU threads per run; the training
+times given below are approximate and hardware-dependent.
+
 ```bash
-pip install -r requirements.txt          # CPU is enough (2 cores were used)
-export MUJOCO_GL=osmesa                   # or egl, for headless rendering
-./scripts/fetch_external.sh               # gait data (CC BY 4.0) + ROBOTIS upstream (for ①)
-
-cd k1_mp
-python3 gen_model.py && python3 retarget.py && python3 test_mp.py   # model, reference, spring test
-python3 ppo.py --stage 1 --iters 1100 --out runs/s1                     # imitation   (~1 h)
-python3 ppo.py --stage 2 --iters 2500 --init runs/s1/model.pt --lr 1e-4 --out runs/s2   # RL (~1 h)
-
-cd ../k1_mp_eco
-python3 test_eco_equiv.py                                                # eco env == fixed env when gains = 1
-python3 ppo_eco.py --stage 2 --iters 2500 --init runs/final/model.pt --from_fixed --lr 1e-4 --out runs/eco1
-
-cd ../k1_compare
-python3 record3.py robotis && python3 record3.py mp_fixed && python3 record3.py eco
-for k in robotis mp_fixed eco; do python3 render_raw.py $k; done
-python3 compose3.py                                                      # -> K1_3way_energy_comparison.mp4
-cd ../k1_mp_speed                                                       # v2: speed command
-python3 retarget_speed.py                                               # speed library 0.30-1.65 m/s
-python3 ppo_speed.py --iters 3500 --init ../k1_mp_eco/runs/eco1/model.pt --from_eco ...   # see REPORT_SPEED.md (stages A-G)
-python3 eval_speed.py runs/final/model.pt
-cd ../k1_mp_turn                                                        # v3: turning (needs ../k1_mp/data from fetch_external.sh)
-python3 retarget_speed.py                                               # library incl. stepping in place (v = 0)
-python3 ppo_turn.py --iters 5000 --init ../k1_mp_speed/runs/final/model.pt --add_turn_obs ...   # stages: REPORT_TURN.md
-python3 eval_turn.py runs/final/model.pt && python3 video_turn.py runs/final/model.pt out/K1_turning.mp4
-cd ../k1_mp_run                                                         # v3: running
-python3 retarget_run.py                                                 # CMU 16_35 -> ref_run.npz
-python3 ppo_run.py --stage 1 --iters 330 --init ../k1_mp_eco/runs/eco1/model.pt --std_reset 0.3 --assist 2.0 --out runs/run1
-#   then --kv 4 --w_flight 1 (run2, run3) and --stage 2 (run4); see REPORT_RUN.md
-python3 eval_run.py runs/final/model.pt --push --dr && python3 video_run.py out/rec.npz out/K1_running.mp4
-cd ../k1_mp_fastwalk                                                    # v4: fast walking
-python3 retarget_speed.py && python3 ppo_speed.py --iters 3000 --init ../k1_mp_speed/runs/final/model.pt --lr 1e-4 --lr_min 5e-5 --out runs/fw1
-python3 ppo_speed.py --iters 1500 --init runs/fw1/model.pt --kv_walk 40 --lr 7e-5 --lr_min 5e-5 --out runs/fw2 && python3 eval_fw.py runs/fw2/model.pt out/sweep.json
-cd ../k1_mp_sprint                                                      # v4: fast running
-python3 retarget_sprint.py
-python3 ppo_sprint.py --stage 1 --iters 5000 --init runs/final/init_jog_v3.pt --from_run --std_reset 0.3 --assist 1.0 --out runs/sp1
-#   then sp2 (--stage 2), sp4 (--kvel 60 --v_hi 5.5 --v_max 5.5); motor-limit branch: --w_qd 0.5 (see REPORT_SPRINT.md)
-python3 eval_sprint.py runs/final/model.pt --speeds 3,4,5,5.5 --n 24 && python3 video_sprint.py runs/final/model.pt out/K1_sprint.mp4
-cd ../k1_mp_fastwalk && python3 make_walk_bank.py runs/final/model.pt ../k1_mp_gait/walk_bank.npz   # v5
-cd ../k1_mp_gait && python3 retarget_sprint.py                               # forefoot running library
-python3 ppo_run2.py --stage 1 --iters 6000 --init runs/final/init_run_v4_motorlimit.pt --std_reset 0.3 --assist 0.3 --v_hi 3.5 --v_max 5.5 --kvel 60 --out runs/rn1
-python3 make_run_bank.py runs/rn1/model.pt run_bank.npz
-python3 ppo_walk2.py --iters 1500 --init runs/final/init_walk_v4.pt --kv_walk 40 --out runs/wk1    # then robustness stages, see REPORT_GAIT.md
-python3 eval_gait.py runs/final/walk.pt runs/final/run.pt && python3 video_gait.py runs/final/walk.pt runs/final/run.pt accel out/K1_walk_to_run.mp4
+# system packages: only needed for rendering videos and for the MP4/GIF post-processing (not for training)
+sudo apt update && sudo apt install -y libosmesa6 libgl1 ffmpeg fonts-noto-cjk git
+# Python packages (CPU build of PyTorch first; the default Linux wheel is the large CUDA build)
+pip install torch==2.14.1 --index-url https://download.pytorch.org/whl/cpu
+pip install -r requirements.txt
+# pinned upstream sources: BMC gait data (commit 50a05ae) and ROBOTIS ai_sapiens (commit bdc40f1)
+./scripts/fetch_external.sh
+# end-to-end smoke test (~2 min): regenerate model + references (checksums), unit tests, 2-iteration trainings,
+# 3 s rollout of every released checkpoint
+./scripts/smoke_test.sh            # --full also regenerates the running references (~30 min)
 ```
-The ROBOTIS `walk_default` policy is **not redistributed**; it is loaded from the upstream clone in `external/`.
-Its observation (390 = 78 × 5 history) and action pipeline were reproduced from the upstream C++ sim2real code; it tracks 0.5/0.7/0.9 m/s commands at 0.494/0.703/0.901 m/s in our setup.
+Alternatively `docker build -t k1-mp-ecowalk .` and `docker run --rm -it -v "$PWD":/work k1-mp-ecowalk scripts/smoke_test.sh`
+(Dockerfile: Python 3.13, OSMesa, FFmpeg, Noto Sans CJK, CPU PyTorch). The same smoke test runs in GitHub Actions
+(`.github/workflows/smoke.yml`). The smoke test was verified natively (Ubuntu 24.04); the Docker image itself could not be built
+in our environment (no access to the image registry), so please report any Dockerfile issue.
+
+Notes: set `MUJOCO_GL=osmesa` (or `egl`) only for rendering; the video scripts set it themselves. With a CUDA build of
+PyTorch, exporting `MUJOCO_GL=osmesa` before training crashed the PyTorch import in our tests. Video captions use
+Noto Sans CJK (`fonts-noto-cjk`; other paths via `K1_FONT` / `K1_FONT_BOLD`); without it Pillow's default font is used.
+
+### A. Evaluate the released policies / 公開済みポリシーの評価
+| folder | checkpoint | command | saved result |
+|---|---|---|---|
+| `k1_mp` | `runs/final/model.pt` | `python3 eval.py runs/final/model.pt --stand 1.5 --walk 8 --stop 2.5 --out out/k1_mp_walk.mp4`; `python3 robust.py runs/final/model.pt` | `results.json` |
+| `k1_mp_eco` | `runs/eco1/model.pt` | `python3 eval_eco.py runs/final/model.pt runs/eco1/model.pt` | `out/eco_results.json` |
+| `k1_compare` | ① ROBOTIS `walk_default` (from `external/`), ②, ③ | `python3 compare3.py robotis && python3 compare3.py mp_fixed && python3 compare3.py eco && python3 plot3.py` (writes into `k1_compare/`) | `results/comparison_table.csv`, `results/res_*.json` |
+| `k1_mp_speed` | `runs/final/model.pt` | `python3 eval_speed.py runs/final/model.pt`; ROBOTIS baseline `python3 robotis_sweep.py`; `python3 plot_speed.py` | `out/final_eval.json`, `out/final_sweep_dt002.json`, `out/speed_table.json` |
+| `k1_mp_turn` | `runs/final/model.pt` | `python3 eval_turn.py runs/final/model.pt --json out/eval.json`; `python3 grid_turn.py runs/final/model.pt out/grid.json`; `python3 reg_v2.py` | `out/eval_final.json`, `out/grid_final.json`, `out/reg_v2.json` |
+| `k1_mp_run` | `runs/final/model.pt` | `python3 eval_run.py runs/final/model.pt --json out/eval.json` (`--push --dr [--hard]`) | `out/eval_final.json`, `out/ev_*.json` |
+| `k1_mp_fastwalk` | `runs/final/model.pt` | `python3 eval_fw.py runs/final/model.pt out/sweep.json` (`--v2` for the baseline) | `out/sweep_fw2.json`, `out/sweep_v2.json` |
+| `k1_mp_sprint` | `runs/final/model.pt`, `model_motorlimit.pt` | `python3 eval_sprint.py runs/final/model.pt --speeds 3,4,5,5.5 --n 24` (`--push --dr`) | `out/final_eval*.json`, `out/ev_sp4_*.json` |
+| `k1_mp_gait` | `runs/final/walk.pt`, `run.pt` | `python3 eval_gait.py runs/final/walk.pt runs/final/run.pt`; `python3 push_test.py runs/final/walk.pt runs/final/run.pt 8 out/push.json accel,standrun 11,12,13,14`; `python3 eval_run2.py runs/final/run.pt --entry walk --speeds 2,3,4,5,5.5 --n 16 --no_entry`; `python3 eval_walk2.py runs/final/walk.pt out/sweep.json` | `out/final_gait.json`, `out/final_push.json`, `out/ew_rn6.json`, `out/final_walk_sweep.json` |
+
+The ROBOTIS `walk_default` policy is **not redistributed**; it is loaded from `external/ai_sapiens` (commit `bdc40f1`).
+Its observation (390 = 78 × 5 history) and action pipeline were reproduced from the upstream C++ sim2real code; it tracks
+0.5 / 0.7 / 0.9 m/s commands at 0.494 / 0.703 / 0.901 m/s in our setup.
+
+### B. Fixed MP training (v1) / MP関節＋模倣
+```bash
+cd k1_mp
+python3 gen_model.py && python3 retarget.py && python3 test_mp.py               # model, reference, spring test
+python3 ppo.py --stage 1 --iters 1100 --out runs/s1                              # imitation (~1 h on 2 threads)
+python3 ppo.py --stage 2 --iters 2500 --init runs/s1/model.pt --lr 1e-4 --out runs/s2   # RL (~1 h)
+```
+
+### C. Eco training (v1) / 脱力
+```bash
+cd k1_mp_eco
+python3 test_eco_equiv.py                                                        # eco env == fixed env when gains = 1
+python3 ppo_eco.py --stage 2 --iters 2500 --init ../k1_mp/runs/final/model.pt --from_fixed --lr 1e-4 --out runs/eco1
+```
+
+### D. Speed-command training (v2) / 速度指令
+Historical stages A–G (exact chain, flags, carried-over checkpoints, settings at each stage):
+[k1_mp_speed/TRAINING_HISTORY.md](k1_mp_speed/TRAINING_HISTORY.md). Stage G from the included stage-F checkpoint
+(the only stage that used exactly the released code):
+```bash
+cd k1_mp_speed
+python3 retarget_speed.py                                                        # speed library 0.30-1.65 m/s
+python3 ppo_speed.py --iters 3500 --init runs/stages/stage_F.pt --add_heading_obs --lr 1e-4 --lr_min 5e-5 --out runs/speed7
+```
+End-to-end with the released code only (single stage from the eco policy, same total iterations):
+```bash
+python3 ppo_speed.py --iters 9300 --init ../k1_mp_eco/runs/eco1/model.pt --from_eco_full --lr 1e-4 --lr_min 5e-5 --out runs/repro_final_code
+```
+
+### E. Turning, running, fast walking, sprint, walk ⇄ run (v3–v5)
+Exact historical commands per stage, carried-over checkpoints and code changes between stages:
+[k1_mp_turn](k1_mp_turn/TRAINING_HISTORY.md) · [k1_mp_run](k1_mp_run/TRAINING_HISTORY.md) ·
+[k1_mp_fastwalk](k1_mp_fastwalk/TRAINING_HISTORY.md) · [k1_mp_sprint](k1_mp_sprint/TRAINING_HISTORY.md) ·
+[k1_mp_gait](k1_mp_gait/TRAINING_HISTORY.md). Reference motions: `retarget_speed.py` (turn / fastwalk),
+`retarget_run.py` (run), `retarget_sprint.py` (sprint / gait), hand-over banks `make_walk_bank.py` / `make_run_bank.py`.
+
+### F. Videos and figures / 動画・図
+`k1_compare`: `record3.py robotis|mp_fixed|eco` → `render_raw.py <k>` → `compose3.py`; `k1_mp_speed`:
+`record_profile.py`, `video_profile.py render robotis|speed` → `video_profile.py compose`; v3–v5: `video_turn.py`,
+`video_run.py`, `video_sprint.py`, `video_gait.py` (usage in each file's header). MP4/GIF size reduction used
+`ffmpeg -crf 24–26` and `palettegen stats_mode=full` + `paletteuse dither=none`.
 
 ## Authorship / 役割分担
 
@@ -237,31 +295,33 @@ Its observation (390 = 78 × 5 history) and action pipeline were reproduced from
   stability and speed first and power evaluated only as a result; running on the mid/forefoot (heel strike was a
   mistake), motor speed limits respected for sim2real, stand → run, and walk → run switching above a threshold
   with an allowed speed jump
-- Evaluation policy: comparison with the public ROBOTIS policy at the same speed and conditions; staged development
-  with branches so the walking result is preserved
+- Evaluation criteria: comparison with the public ROBOTIS policy at approximately the same speed and conditions;
+  staged development with branches so earlier results are preserved; selection, testing and integration of the results
 
-**Implementation — Claude (Anthropic) (実装)**
-- All code, the modified robot model (MJCF/URDF, split meshes), gait retargeting, reinforcement learning, evaluation,
-  videos, figures and documentation in this repository were produced by Claude under the direction above.
+**Implementation — generated with Claude (Anthropic) (実装)**
+- Claude (Anthropic) was used extensively to generate and implement the code, the modified robot model (MJCF/URDF,
+  split meshes), gait retargeting, reinforcement learning, evaluation tools, videos, figures and documentation, under
+  the direction, selection, testing and integration of Takeyuki-K. This describes how the work was made; it is not a
+  statement on copyright ownership of AI-generated content, which differs between jurisdictions.
 - Design decisions taken by Claude within that direction are recorded with reasons in
   [k1_mp_speed/REPORT_SPEED.md](k1_mp_speed/REPORT_SPEED.md) (D1–D12), [k1_mp_turn/REPORT_TURN.md](k1_mp_turn/REPORT_TURN.md) (T1–T9)
   [k1_mp_run/REPORT_RUN.md](k1_mp_run/REPORT_RUN.md) (R1–R12), [k1_mp_fastwalk/REPORT_FASTWALK.md](k1_mp_fastwalk/REPORT_FASTWALK.md) (F1–F4)
   [k1_mp_sprint/REPORT_SPRINT.md](k1_mp_sprint/REPORT_SPRINT.md) (S1–S12)
   and [k1_mp_gait/REPORT_GAIT.md](k1_mp_gait/REPORT_GAIT.md) (G1–G10).
 
-本リポジトリのアイディアと方向付けは Takeyuki-K、コード・モデル改変・学習・評価・動画・文書などの実装はすべて Claude（Anthropic）によるものです。
+アイディア・方向付け・評価基準・統合は Takeyuki-K、コード・モデル改変・学習・評価・動画・文書などの実装は Takeyuki-K の指示・選択・検証のもとで Claude（Anthropic）を用いて生成しました。
 
 ## Use this idea / このアイディアの利用について
-You are free to use, modify and build on this work (Apache-2.0).
+You are free to use, modify and build on this work (code: Apache-2.0; data files keep their own licences, see [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md)).
 **If this work or its idea inspired yours, please credit `Takeyuki-K` and link this repository** (GitHub "Cite this repository" uses [CITATION.cff](CITATION.cff)).
 自由に使ってください。参考にした場合は、ユーザー名 **Takeyuki-K** とこのリポジトリへのリンクの記載をお願いします。
 Redistributions must keep the [NOTICE](NOTICE) file (Apache-2.0 §4(d)).
 
 ## Credits / クレジット
-- **Robot model**: ROBOTIS AI Sapiens K1, [ROBOTIS-GIT/ai_sapiens](https://github.com/ROBOTIS-GIT/ai_sapiens) (Apache-2.0) — modified (passive spring MP toe joints added), see [ai_sapiens/NOTICE_MODIFICATIONS.md](ai_sapiens/NOTICE_MODIFICATIONS.md).
-- **Human gait data**: M. Duarte, "Notes on Scientific Computing for Biomechanics and Motor Control" (BMC), [duartexyz/BMC](https://github.com/duartexyz/BMC), [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) — retargeted to the robot (`ref_gait.npz` stays under CC BY 4.0).
+- **Robot model**: ROBOTIS AI Sapiens K1, [ROBOTIS-GIT/ai_sapiens](https://github.com/ROBOTIS-GIT/ai_sapiens) (Apache-2.0), commit `bdc40f1` — modified (passive spring MP toe joints added), see [ai_sapiens/NOTICE_MODIFICATIONS.md](ai_sapiens/NOTICE_MODIFICATIONS.md).
+- **Human gait data**: Marcos Duarte and Renato Naville Watanabe, "Notes on Scientific Computing for Biomechanics and Motor Control" (BMC), [BMClab/BMC](https://github.com/BMClab/BMC), DOI [10.5281/zenodo.4599319](https://doi.org/10.5281/zenodo.4599319), commit `50a05ae`, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) — retargeted to the robot; the derived reference files stay under CC BY 4.0 (list in [NOTICE](NOTICE)).
 - **Running motion data**: CMU Graphics Lab Motion Capture Database, [mocap.cs.cmu.edu](http://mocap.cs.cmu.edu) (subject 16 trial 35, subject 9 trial 4), BVH conversion by B. Hahne — free for research and commercial use. *The data used in this project was obtained from mocap.cs.cmu.edu. The database was created with funding from NSF EIA-0196217.*
-- **Software used** (not redistributed): MuJoCo (Apache-2.0), PyTorch (BSD-style/Apache-2.0), NumPy/SciPy/NetworkX/Shapely (BSD), trimesh/Rtree/PyYAML/ONNX Runtime (MIT), ONNX/OpenCV (Apache-2.0), imageio (BSD-2), matplotlib (PSF-based), Pillow (MIT-CMU), Noto Sans CJK font (SIL OFL 1.1), FFmpeg (used as an encoding tool only).
-- Idea and direction: Takeyuki-K. All implementation: Claude (Anthropic) — see [Authorship](#authorship--役割分担).
+- **Software used** (not redistributed): see [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md).
+- Idea, direction and integration: Takeyuki-K. Implementation generated with Claude (Anthropic) — see [Authorship](#authorship--役割分担).
 
 "ROBOTIS" and "AI Sapiens" may be trademarks of their respective owner; they are used here only to identify the robot model.

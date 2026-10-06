@@ -1,7 +1,7 @@
 # Running (jog) with human imitation: report and decision log
 
 **K1 + passive MP toe joints + human-running imitation (CMU mocap) + learned relaxation.**
-Idea & direction: Takeyuki-K · Implementation: Claude (Anthropic) · MuJoCo simulation only
+Idea & direction: Takeyuki-K · Implementation generated with Claude (Anthropic) under Takeyuki-K's direction · MuJoCo simulation only
 
 Goal (user instruction): first imitate human running and make it **stable**; give impact absorption and stability
 more weight than power ("eco is a result"); land **heel first** from the flight phase, let the heel act as a pivot so
@@ -82,3 +82,8 @@ leaned reference; identical for upright walking references).
 
 Mocap acknowledgement: The data used in this project was obtained from mocap.cs.cmu.edu.
 The database was created with funding from NSF EIA-0196217.
+
+## Reproducibility
+Evaluation of the released checkpoints is reproducible with the included code. The training was staged; the exact
+commands, the checkpoints carried over and the code changes between stages are listed in
+[TRAINING_HISTORY.md](TRAINING_HISTORY.md). Stages that ran with earlier code cannot be replayed identically.

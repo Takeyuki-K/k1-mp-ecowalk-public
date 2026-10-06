@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Takeyuki-K
 """Load open-source gait TRC (Duarte BMC dataset) -> hip/ankle joint centres, heel, MT, per leg.
 Coordinates: X forward, Y up, Z lateral (right = +Z in this lab). Units -> metres.
 Hip joint centre (HJC) for files without virtual markers: Bell/Harrington regression from ASIS/PSIS.

@@ -1,7 +1,7 @@
 # v5: mid/forefoot running within the motor limits, stand → run, and walk ⇄ run switching
 
 **K1 + passive MP toes. Eco walking policy (heel strike) ⇄ running policy (mid/forefoot strike), gait manager.**
-Idea & direction: Takeyuki-K · Implementation: Claude (Anthropic) · MuJoCo simulation only
+Idea & direction: Takeyuki-K · Implementation generated with Claude (Anthropic) under Takeyuki-K's direction · MuJoCo simulation only
 
 User instructions (v5):
 1. Running: heel landing was wrong → penalise heel strike, land on the **mid/forefoot**.
@@ -35,6 +35,10 @@ User instructions (v5):
   the same 20 ms).
 - **Top speed within the motor limit: 4.9 m/s** (v4 heel-strike with only a speed penalty: 4.6 m/s). At the top speed the
   motors are on their torque–speed limit 59 % of the time; this, not stability, sets the limit.
+- Evaluation start: robots start from recorded fast-walking states (the real use case through the gait manager).
+  With an artificial kinematic start directly inside the running cycle at 2 m/s (reference-state initialisation),
+  1 of 16 robots fell at the 2 / 4 / 5 / 5.5 m/s commands and one robot stalled at low speed
+  (`out/final_run.json`); this start is not used by the gait manager.
 - Stand → run: 100 %, 90 % of 3 m/s reached in 2.6 s. Robustness (pushes + friction/mass/gain randomisation): 100 % at
   3 / 4 / 5.5 m/s commands (8 robots, top 4.8 m/s).
 - Joint speeds above 11.5 rad/s now only happen when the joint is **driven by the environment** (landing impact, swing
@@ -82,3 +86,8 @@ Videos: `out/K1_walk_to_run.mp4` (test A), `out/K1_stand_to_run.mp4` (test B), G
 (in `k1_mp_fastwalk`) / `make_run_bank.py`, `eval_run2.py`, `eval_walk2.py`, `eval_gait.py`, `push_test.py`,
 `video_gait.py`; banks `walk_bank.npz`, `run_bank.npz`; libraries `ref_sprint_lib.npz` (running), `ref_lib.npz` (walking).
 Mocap: The data used in this project was obtained from mocap.cs.cmu.edu. The database was created with funding from NSF EIA-0196217.
+
+## Reproducibility
+Evaluation of the released checkpoints is reproducible with the included code. The training was staged; the exact
+commands, the checkpoints carried over and the code changes between stages are listed in
+[TRAINING_HISTORY.md](TRAINING_HISTORY.md). Stages that ran with earlier code cannot be replayed identically.

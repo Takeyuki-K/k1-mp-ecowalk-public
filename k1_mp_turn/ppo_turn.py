@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Takeyuki-K
 """PPO for K1-MP. Stage 1: motion imitation. Stage 2: RL fine-tune (stand<->walk, DR, pushes, energy).
 usage: python3 ppo.py --stage 1 --iters 1500 --out runs/s1
        python3 ppo.py --stage 2 --iters 3000 --init runs/s1/model.pt --out runs/s2

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Takeyuki-K
 """Eco variant: variable-impedance legs (policy sets per-joint Kp and Kd every 20 ms).
 
 Actuation (exact PD law at every 200 Hz physics substep, no extra Python stepping):

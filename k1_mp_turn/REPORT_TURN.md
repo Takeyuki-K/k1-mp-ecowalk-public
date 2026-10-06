@@ -1,7 +1,7 @@
 # Turning, in-place turning and safe stop: report and decision log
 
 **K1 + passive MP toe joints + human-gait imitation + learned relaxation, now with a yaw-rate command.**
-Idea & direction: Takeyuki-K · Implementation: Claude (Anthropic) · MuJoCo simulation only
+Idea & direction: Takeyuki-K · Implementation generated with Claude (Anthropic) under Takeyuki-K's direction · MuJoCo simulation only
 
 Goal (user instruction): turn while walking **and** on the spot; on a stop command stop safely; use relaxation for
 impact absorption during turning; if one of the two turning modes cannot be learned, leave it as future work.
@@ -96,3 +96,8 @@ Total ≈ 25 M environment steps.
 ## 5. Files
 `retarget_speed.py` (library incl. v = 0), `k1env_turn.py` (env), `ppo_turn.py` (training), `eval_turn.py`,
 `grid_turn.py`, `reg_v2.py` (v2 baseline under the same protocol), `video_turn.py`.
+
+## Reproducibility
+Evaluation of the released checkpoints is reproducible with the included code. The training was staged; the exact
+commands, the checkpoints carried over and the code changes between stages are listed in
+[TRAINING_HISTORY.md](TRAINING_HISTORY.md). Stages that ran with earlier code cannot be replayed identically.

@@ -22,16 +22,23 @@ GROUPS = [('股関節ピッチ hip pitch', 'hip_pitch'), ('股関節ロール hi
 STAND = 2.0
 MG = 35.706 * 9.81
 FPS = 50
-CJK = '/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc'
-CJKB = '/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc'
+CJK = os.environ.get('K1_FONT', '/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc')  # Noto Sans CJK (fonts-noto-cjk)
+CJKB = os.environ.get('K1_FONT_BOLD', '/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc')
+
+def _truetype(path, size):
+    """font with a fallback: without Noto Sans CJK the captions are drawn with Pillow's default font"""
+    try:
+        return ImageFont.truetype(path, size)
+    except OSError:
+        return ImageFont.load_default(size)
 try:
-    ImageFont.truetype(CJKB, 10)
+    _truetype(CJKB, 10)
 except Exception:
     CJKB = CJK
 
 
 def F(sz, bold=False):
-    return ImageFont.truetype(CJKB if bold else CJK, sz)
+    return _truetype(CJKB if bold else CJK, sz)
 
 
 f_title, f_sub, f_big, f_mid, f_sm, f_xs = F(26, True), F(15), F(44, True), F(20, True), F(16), F(13)

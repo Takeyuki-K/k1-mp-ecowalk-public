@@ -1,0 +1,27 @@
+# SPDX-License-Identifier: Apache-2.0
+# Lightweight CI: imports, model generation, reference regeneration (checksums), unit tests, 2-iteration training
+# runs and a 3 s rollout of every released checkpoint. No full RL training.
+name: smoke
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: system packages
+        run: sudo apt-get update && sudo apt-get install -y libosmesa6 libgl1 ffmpeg fonts-noto-cjk
+      - name: python packages (CPU PyTorch)
+        run: |
+          pip install torch==2.14.1 --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements.txt
+      - name: smoke test
+        run: scripts/smoke_test.sh

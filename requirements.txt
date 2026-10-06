@@ -1,4 +1,5 @@
-# tested with Python 3.13, CPU only
+# tested with Python 3.13, CPU only. Install PyTorch from the CPU index to avoid the large CUDA build:
+#   pip install torch==2.14.1 --index-url https://download.pytorch.org/whl/cpu  &&  pip install -r requirements.txt
 mujoco==3.14.0
 torch==2.14.1
 numpy==2.5.3
@@ -17,3 +18,4 @@ onnxscript==0.7.2
 PyYAML==6.0.3
 matplotlib==3.11.2
 pillow==12.3.0
+PyOpenGL==3.1.10          # MuJoCo offscreen rendering (MUJOCO_GL=osmesa / egl), videos only

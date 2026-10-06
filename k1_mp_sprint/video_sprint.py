@@ -17,9 +17,16 @@ FPS = 50
 W, H = 1280, 600
 BG, PANEL, INK, INK2 = (16, 16, 15), (26, 26, 25), (255, 255, 255), (195, 194, 183)
 COL, C_HEEL, C_FORE, C_QD = (0x19, 0x9e, 0x70), (0xe5, 0x8a, 0x39), (0x39, 0x87, 0xe5), (0xd8, 0x4a, 0x4a)
-CJK = '/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc'
-CJKB = '/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc'
-F = lambda s, b=False: ImageFont.truetype(CJKB if (b and os.path.exists(CJKB)) else CJK, s)
+CJK = os.environ.get('K1_FONT', '/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc')  # Noto Sans CJK (fonts-noto-cjk)
+CJKB = os.environ.get('K1_FONT_BOLD', '/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc')
+
+def _truetype(path, size):
+    """font with a fallback: without Noto Sans CJK the captions are drawn with Pillow's default font"""
+    try:
+        return ImageFont.truetype(path, size)
+    except OSError:
+        return ImageFont.load_default(size)
+F = lambda s, b=False: _truetype(CJKB if (b and os.path.exists(CJKB)) else CJK, s)
 PROFILE = [(0.0, 2.0), (3.0, 3.0), (6.0, 4.0), (9.0, 5.5), (15.0, None)]
 
 
@@ -116,7 +123,7 @@ def render(R, env, out, label):
             dr.line([bx + 150, y0 + 30, bx + 150, y0 + 62], fill=INK, width=2)
             dr.text((bx + 310, y0 + 36), f'{100 * r:4.0f} %', font=f_s, fill=INK)
             dr.text((bx, y0 + 70), 'MuJoCo sim only · mocap.cs.cmu.edu (NSF EIA-0196217)', font=f_s, fill=INK2)
-            dr.text((bx, y0 + 92), 'Idea: Takeyuki-K · Implementation: Claude', font=f_s, fill=INK2)
+            dr.text((bx, y0 + 92), 'Idea: Takeyuki-K · Impl.: generated with Claude', font=f_s, fill=INK2)
             wr.append_data(np.array(im))
     wr.close()
 

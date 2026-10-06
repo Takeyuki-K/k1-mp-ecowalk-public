@@ -14,9 +14,16 @@ from k1env_run2 import MG
 W, H = 1280, 600
 BG, PANEL, INK, INK2 = (16, 16, 15), (26, 26, 25), (255, 255, 255), (195, 194, 183)
 C_WALK, C_RUN, C_HEEL, C_FORE = (0x19, 0x9e, 0x70), (0xe5, 0x5a, 0x39), (0xe5, 0x8a, 0x39), (0x39, 0x87, 0xe5)
-CJK = '/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc'
-CJKB = '/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc'
-F = lambda s, b=False: ImageFont.truetype(CJKB if (b and os.path.exists(CJKB)) else CJK, s)
+CJK = os.environ.get('K1_FONT', '/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc')  # Noto Sans CJK (fonts-noto-cjk)
+CJKB = os.environ.get('K1_FONT_BOLD', '/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc')
+
+def _truetype(path, size):
+    """font with a fallback: without Noto Sans CJK the captions are drawn with Pillow's default font"""
+    try:
+        return ImageFont.truetype(path, size)
+    except OSError:
+        return ImageFont.load_default(size)
+F = lambda s, b=False: _truetype(CJKB if (b and os.path.exists(CJKB)) else CJK, s)
 
 
 def trailing(x, n):
@@ -81,7 +88,7 @@ def main():
         dr.text((bx, y0 + 8), f'脚の剛性 Kp {L["kp"][k, 0]:4.2f}   消費電力 power (1 s) {Pw[k]:5.0f} W', font=f_s, fill=INK)
         dr.text((bx, y0 + 40), 'walking: eco reward · running: stability & speed', font=f_s, fill=INK2)
         dr.text((bx, y0 + 64), 'MuJoCo sim · mocap.cs.cmu.edu (NSF EIA-0196217)', font=f_s, fill=INK2)
-        dr.text((bx, y0 + 88), 'Idea: Takeyuki-K · Implementation: Claude', font=f_s, fill=INK2)
+        dr.text((bx, y0 + 88), 'Idea: Takeyuki-K · Impl.: generated with Claude', font=f_s, fill=INK2)
         wr.append_data(np.array(im))
     wr.close()
     print('saved', out)

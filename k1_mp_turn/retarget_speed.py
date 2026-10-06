@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Takeyuki-K
 """Retarget human gait (BMC walk2.trc) to K1+MP.
 
 Rules (as requested):

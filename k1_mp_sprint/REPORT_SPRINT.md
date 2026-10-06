@@ -1,7 +1,7 @@
 # Fast running to 5 m/s (CMU style prior): report and decision log
 
 **K1 + passive MP toe joints + CMU running data as style prior + speed curriculum.**
-Idea & direction: Takeyuki-K · Implementation: Claude (Anthropic) · MuJoCo simulation only
+Idea & direction: Takeyuki-K · Implementation generated with Claude (Anthropic) under Takeyuki-K's direction · MuJoCo simulation only
 
 User instruction: with the current CMU data, aim for **5.0 m/s**; running = **stability and speed first**, power is only
 evaluated as a result (no energy reward). The 1.35–1.65 m/s range is covered by fast walking instead
@@ -87,3 +87,8 @@ Total ≈ 57 M environment steps.
 `retarget_sprint.py` (speed library from CMU 09_04 → `ref_sprint_lib.npz`), `k1env_sprint.py` (env: speed command,
 joint-speed penalty), `ppo_sprint.py` (curriculum), `eval_sprint.py`, `video_sprint.py`; base files from `k1_mp_run`.
 Mocap: The data used in this project was obtained from mocap.cs.cmu.edu. The database was created with funding from NSF EIA-0196217.
+
+## Reproducibility
+Evaluation of the released checkpoints is reproducible with the included code. The training was staged; the exact
+commands, the checkpoints carried over and the code changes between stages are listed in
+[TRAINING_HISTORY.md](TRAINING_HISTORY.md). Stages that ran with earlier code cannot be replayed identically.

@@ -153,6 +153,17 @@ def transfer_add_action(src, net, at=72):
     net.load_state_dict(dst)
 
 
+def transfer_eco_to_final(src, net):
+    """eco policy (70 obs / 36 actions) -> final speed policy (74 obs / 37 actions) in one step, composing the three
+    transfers used historically (stage A: +v_cmd/v_ref inputs, stage C: +gait-speed action, stage G: +heading error).
+    New inputs / outputs start at zero, so iteration 0 behaves like the eco policy. Used for the end-to-end
+    re-training with the final code (see TRAINING_HISTORY.md)."""
+    na0 = src['na_norm.mean'].shape[0]; nc0 = src['nc_norm.mean'].shape[0]
+    n1 = ACEco(na0 + 2, nc0 + 2, 36); transfer_eco_to_speed(src, n1)
+    n2 = ACEco(na0 + 3, nc0 + 3, 37); transfer_add_action(n1.state_dict(), n2, at=na0 + 2)
+    transfer_insert_obs(n2.state_dict(), net, at=10)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--stage', type=int, default=1)
@@ -170,6 +181,7 @@ def main():
     ap.add_argument('--lr_min', type=float, default=1e-5)
     ap.add_argument('--add_heading_obs', action='store_true', help='init from policy without heading-error input')
     ap.add_argument('--from_speed36', action='store_true', help='init from a 36-action speed policy (adds gait-speed action)')
+    ap.add_argument('--from_eco_full', action='store_true', help='init the final architecture directly from the eco policy')
     args = ap.parse_args()
     os.makedirs(args.out, exist_ok=True)
     env = K1SpeedBatch(args.n, stage=2, randomize=True, seed=args.seed, w_energy=args.w_energy)
@@ -177,7 +189,9 @@ def main():
     net = ACEco(oa.shape[1], oc.shape[1], env.nact)
     if args.init:
         sd = torch.load(args.init, map_location='cpu')
-        if args.add_heading_obs:
+        if args.from_eco_full:
+            transfer_eco_to_final(sd['model'], net)
+        elif args.add_heading_obs:
             transfer_insert_obs(sd['model'], net, at=10)
         elif args.from_speed36:
             transfer_add_action(sd['model'], net)
