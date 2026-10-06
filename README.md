@@ -19,7 +19,7 @@ Idea & direction: **Takeyuki-K** · Implementation generated with Claude (Anthro
 **Latest (v5):** automatic walk ⇄ run switching, stand → run and forefoot running up to 4.9 m/s with the motor drive
 torque kept inside a modelled K1 torque–speed envelope (joints can still be back-driven above the speed limit by impacts) — see
 [Road to running](#road-to-running--走行に至るまでv3--v4--v5) and [v5](#walk--run-switching-forefoot-running-within-a-modelled-motor-drive-envelope--歩行走行の切替v5) (simulation only, not tested on a real robot).
-最新（v5）: 歩行⇄走行の自動切替・立位からの走り出し・モーター仕様（モデル）内での前足着地走行（シミュレーションのみ、実機未検証）。
+最新（v5）: 歩行⇄走行の自動切替・立位からの走り出し・モーター駆動トルクを仮定したトルク–速度包絡線内に保った前足着地走行（着地衝撃で関節が速度上限を超えて回されることはあり）（シミュレーションのみ、実機未検証）。
 
 ---
 
@@ -126,7 +126,7 @@ Note: this braking effect is the motivating hypothesis and was **not measured di
 analysis); also, many recreational runners do land heel first, while fore/midfoot landing is typical at higher speeds.
 What was measured is the outcome: a higher top speed with the motor drive torque inside the modelled envelope and a similar or slightly lower estimated
 cost of transport at the same command (v5 table below).
-**前足着地にした理由（アイディア: Takeyuki-K）**: 速く走る人は前足〜中足で、体の真下に近い位置に着地する。体の前方での踵着地は前向きの慣性にブレーキをかけやすい、という仮説。この「ブレーキ効果」自体は本プロジェクトでは直接測定していません。測定したのは結果（モーター制限内での最高速度の向上、同一指令でのCoTが同等〜やや低い）です。
+**前足着地にした理由（アイディア: Takeyuki-K）**: 速く走る人は前足〜中足で、体の真下に近い位置に着地する。体の前方での踵着地は前向きの慣性にブレーキをかけやすい、という仮説。この「ブレーキ効果」自体は本プロジェクトでは直接測定していません。測定したのは結果（モーター駆動トルクを仮定したトルク–速度包絡線内に保ったままでの最高速度の向上、同一指令でのCoTが同等〜やや低い）です。
 
 ## Running (jog) / 走行（v3）
 
@@ -186,7 +186,7 @@ Running now lands **forefoot first (84–99 % of touchdowns, the rest midfoot; 0
 **model of the K1 URDF torque–speed limits** (96.9 Nm, 11.5 rad/s, assumed curve with back-EMF braking), the robot can
 start running **from standing**, and a gait manager switches **walk → run** when the command exceeds 1.8 m/s
 (reference jumps 1.6 → 2.0 m/s) and **run → walk** when slowing down. Details: [REPORT_GAIT.md](k1_mp_gait/REPORT_GAIT.md).
-走行は前足着地（残りは中足、踵着地0 %）、モーター仕様（モデル）の範囲内、立位からの走り出し、歩行⇄走行の自動切替に対応しました。
+走行は前足着地（残りは中足、踵着地0 %）、モーター駆動トルクは仮定したトルク–速度包絡線内（関節が衝撃で速度上限を超えて回されることはあり）、立位からの走り出し、歩行⇄走行の自動切替に対応しました。
 
 ![stand → walk (0.15 m/s steps) → run → walk → stop](media/K1_walk_to_run.gif)
 
