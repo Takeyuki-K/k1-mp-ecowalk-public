@@ -3,6 +3,10 @@
 **K1 + passive MP toe joints + human-running imitation (CMU mocap) + learned relaxation.**
 Idea & direction: Takeyuki-K · Implementation generated with Claude (Anthropic) under Takeyuki-K's direction · MuJoCo simulation only
 
+> **Position in the project:** step 1 of the road to running (v3 → v4 → v5, see the main README). Finding that shaped the
+> next steps: near 1.5 m/s walking is much cheaper than this jog (v4 fast walk 216 W vs 342 W here). Simulation only,
+> not tested on a real robot.
+
 Goal (user instruction): first imitate human running and make it **stable**; give impact absorption and stability
 more weight than power ("eco is a result"); land **heel first** from the flight phase, let the heel act as a pivot so
 that the body rotates forward over it without the upper body collapsing; speed tracking is not required.

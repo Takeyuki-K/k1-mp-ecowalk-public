@@ -16,6 +16,10 @@ Idea & direction: **Takeyuki-K** · Implementation generated with Claude (Anthro
 > **Simulation only (MuJoCo).** Independent personal research, **not affiliated with or endorsed by ROBOTIS.**
 > MuJoCoによるシミュレーションのみ（実機ではありません）。個人の独自研究であり、ROBOTIS社とは無関係で、同社の承認・推奨を受けたものではありません。
 
+**Latest (v5):** automatic walk ⇄ run switching, stand → run and forefoot running up to 4.9 m/s within a model of the
+K1 motor limits — see [Road to running](#road-to-running--走行に至るまでv3--v4--v5) and [v5](#walk--run-switching-forefoot-running-within-modelled-motor-limits--歩行走行の切替v5) (simulation only, not tested on a real robot).
+最新（v5）: 歩行⇄走行の自動切替・立位からの走り出し・モーター仕様（モデル）内での前足着地走行（シミュレーションのみ、実機未検証）。
+
 ---
 
 ## Idea / アイディア
@@ -102,11 +106,35 @@ The speed-command walker now also follows a **yaw-rate command**: walking turns,
 
 Full video: [`media/K1_turning.mp4`](media/K1_turning.mp4).
 
+## Road to running / 走行に至るまで（v3 → v4 → v5）
+
+Running was developed in three steps; each step answers a problem found in the previous one. The final result is v5.
+All numbers are **MuJoCo simulation estimates; nothing has been tested on a real K1**.
+走行は3段階で作りました。各段階で見つかった問題を次の段階で解決し、最終成果がv5です（すべてシミュレーション、実機未検証）。
+
+| step | what was tried | what was found | what it led to |
+|---|---|---|---|
+| **v3** jog | imitate a CMU jog, heel-first landing, stability over power | jogging at 1.54 m/s costs 342 W (CoT 0.64); **walking at about the same speed is much cheaper** (v4 fast walk at 1.63 m/s: 216 W, CoT 0.38, ≈ 40 % less) | walk as long as walking can go (up to ~1.6 m/s), run only above that |
+| **v4** fast walk + fast run | fast walking 1.35–1.65 m/s (energy reward kept); running up to 5.2 m/s, heel-first landing kept | 5.2 m/s only by running the leg joints **above the K1 URDF speed limit (11.5 rad/s) 28 % of the time** → possibly beyond the motor specification; with the limit as a penalty: 4.6 m/s | model the motor torque–speed limit physically; reconsider the heel landing |
+| **v5** walk ⇄ run | fore/midfoot landing, physical motor model, stand → run, automatic walk ⇄ run switching | 4.9 m/s within the modelled motor limit, 0 % heel-first landings, 100 % switching success without pushes | current state (see the v5 section) |
+
+**Why the forefoot (idea: Takeyuki-K).** When running fast, humans tend to land on the fore/midfoot with the foot closer
+under the body; a heel landing far in front of the body is expected to act more like a brake on the forward momentum.
+v5 therefore lands like the human runner in the CMU data instead of the heel landing used in v3/v4.
+Note: this braking effect is the motivating hypothesis and was **not measured directly** in this project (no braking-impulse
+analysis); also, many recreational runners do land heel first, while fore/midfoot landing is typical at higher speeds.
+What was measured is the outcome: a higher top speed within the motor limit and a similar or slightly lower estimated
+cost of transport at the same command (v5 table below).
+**前足着地にした理由（アイディア: Takeyuki-K）**: 速く走る人は前足〜中足で、体の真下に近い位置に着地する。体の前方での踵着地は前向きの慣性にブレーキをかけやすい、という仮説。この「ブレーキ効果」自体は本プロジェクトでは直接測定していません。測定したのは結果（モーター制限内での最高速度の向上、同一指令でのCoTが同等〜やや低い）です。
+
 ## Running (jog) / 走行（v3）
 
 Running imitated from **CMU motion-capture data** (subject 16, "run/jog"), with the landing changed to **heel first**
 as requested; stability and impact absorption weighted over power. Details: [k1_mp_run/REPORT_RUN.md](k1_mp_run/REPORT_RUN.md).
 CMUの走行モーションを模倣し、かかと着地・安定性・衝撃吸収を重視して学習しました。
+**Finding:** at this speed walking is cheaper than running (jog 342 W, CoT 0.64 at 1.54 m/s vs fast walk 216 W, CoT 0.38 at
+1.63 m/s), which led to the fast-walking range of v4 and the walk ⇄ run switching of v5.
+この速度域では歩行のほうが消費電力が少ない、という結果がv4の速歩きとv5の歩行⇄走行切替につながりました。
 
 ![running: CMU-derived reference vs learned policy, slow motion](media/K1_running.gif)
 
@@ -140,15 +168,24 @@ and speed first, power only measured. Details: [REPORT_FASTWALK.md](k1_mp_fastwa
 | fast running gait at top speed | 239 steps/min, step 1.31 m, 45 % flight, heel-first 99 %, trunk +4.5° ± 1.0° |
 | **motor-speed limit (URDF 11.5 rad/s)** | exceeded 28 % of the time at 5.2 m/s; a limit-respecting policy reaches **4.6 m/s** |
 
+**Finding:** the 5.2 m/s run is only possible by driving the leg joints above the K1 URDF speed limit, i.e. probably
+beyond what the real motors can do; in v4 the motors are not modelled (no torque–speed curve) and the landing is still
+heel first. Both points led to v5.
+5.2 m/sはモーターの速度仕様を超えて関節を動かした結果で、実機のモーターでは出せない可能性が高い。これと踵着地の見直しがv5につながりました。
+
 Full video: [`media/K1_sprint.mp4`](media/K1_sprint.mp4).
 
-## Walk ⇄ run switching, forefoot running within motor limits / 歩行⇄走行の切替（v5）
+## Walk ⇄ run switching, forefoot running within modelled motor limits / 歩行⇄走行の切替（v5）
 
-Running now lands on the **mid/forefoot** (heel strike penalised: 0 % heel-first), the leg motors follow the
-**K1 URDF torque–speed limits** (96.9 Nm, 11.5 rad/s, physical model with back-EMF braking), the robot can start
-running **from standing**, and a gait manager switches **walk → run** when the command exceeds 1.8 m/s
+> **Simulation only — not tested on a real robot.** The motor limits below are a *model* of the K1 URDF values with an
+> assumed torque–speed curve; whether a real K1 can run like this has not been tested.
+> **シミュレーションのみ・実機未検証です。** モーター制限はK1 URDFの値と仮定したトルク–速度特性によるモデルで、実機で同じ走行ができるかは試験していません。
+
+Running now lands **forefoot first (84–99 % of touchdowns, the rest midfoot; 0 % heel-first)**, the leg motors follow a
+**model of the K1 URDF torque–speed limits** (96.9 Nm, 11.5 rad/s, assumed curve with back-EMF braking), the robot can
+start running **from standing**, and a gait manager switches **walk → run** when the command exceeds 1.8 m/s
 (reference jumps 1.6 → 2.0 m/s) and **run → walk** when slowing down. Details: [REPORT_GAIT.md](k1_mp_gait/REPORT_GAIT.md).
-走行はミッドフット〜前足着地、モーター仕様の速度限界内、立位からの走り出し、歩行⇄走行の自動切替に対応しました。
+走行は前足着地（残りは中足、踵着地0 %）、モーター仕様（モデル）の範囲内、立位からの走り出し、歩行⇄走行の自動切替に対応しました。
 
 ![stand → walk (0.15 m/s steps) → run → walk → stop](media/K1_walk_to_run.gif)
 
@@ -158,7 +195,42 @@ running **from standing**, and a gait manager switches **walk → run** when the
 | stand → run 3 m/s directly → 4.5 → walk → stop | 100 %, 93.8 % with pushes |
 | top running speed within the motor limit | **4.9 m/s** (v4 heel strike: 4.6 m/s) |
 | touchdowns while running | 84–99 % forefoot first, rest midfoot, **0 % heel first** |
-| at the switching speed | walking 219 W (1.6 m/s, CoT 0.39) vs running 650 W (1.9 m/s, CoT 1.04) |
+| at the switching speed | walking 219 W (1.6 m/s, CoT 0.39) vs running 650 W (1.9 m/s, CoT 0.99) |
+
+**Energy (estimated, simulation).** v5 did not add a further power reduction to walking (the walking policy has the same
+power as v4; the −37 % of v1/v2 remains the energy result of this project), and the running policy has **no energy
+reward**. Compared with the v4 policy that respects the joint-speed limit (heel first), running cost is similar at 3 m/s
+and slightly lower at the higher commands, while v5 runs faster:
+
+| command | v4 (heel first, speed limit as penalty) | v5 (forefoot, motor model) |
+|---|---|---|
+| 3.0 m/s | 2.93 m/s, CoT 0.93 | 2.97 m/s, CoT 0.95 |
+| 4.0 m/s | 3.79 m/s, CoT 0.97 | 3.94 m/s, CoT 0.96 |
+| 5.0 m/s | 4.43 m/s, CoT 1.04 | 4.67 m/s, CoT 1.03 |
+| 5.5 m/s | 4.60 m/s, CoT 1.11 | 4.92 m/s, CoT 1.07 |
+
+Sources: `k1_mp_sprint/out/final_eval_motorlimit.json` (start running at 2 m/s) and `k1_mp_gait/out/ew_rn6.json` (start from
+fast walking); the start conditions differ, so this is not a controlled comparison. The main energy contribution of v5
+is the **switching rule**: walking is used up to ~1.6 m/s because running at about the same speed costs ~3× more.
+v5で歩行の消費電力がさらに下がったわけではありません（v4と同じ）。走行は省エネ報酬なしで、v4と比べて同等〜やや低いCoTで、より速く走れています。v5の省エネ面の主な貢献は「歩ける速度までは歩き、走りは必要なときだけ」という切替です。
+
+**Motor speed: what the model guarantees and what it does not.** The motor model never *drives* a joint beyond its speed
+limit: in every sample where a joint was above the limit, the motor torque was braking against the motion (0 % motoring,
+`k1_mp_gait/out/joint_speed_audit.json`, `audit_joint_speed.py`). The joints are, however, **pushed above the limit by
+landing impacts and swing inertia**:
+
+| command | speed | time with any leg joint above its limit | knee p99 / peak | ankle pitch p99 / peak | ankle roll (limit 20.9) p99 / peak |
+|---|---|---|---|---|---|
+| 2.0 | 1.87 m/s | 0.0 % | 11.3 / 11.5 rad/s | 10.0 / 10.8 | 9.5 / 13.0 |
+| 3.0 | 2.97 | 1.3 % | 11.4 / 11.7 | 11.7 / 12.1 | 15.9 / 22.1 |
+| 4.0 | 3.94 | 6.2 % | 11.9 / 12.3 | 11.9 / 14.3 | 19.4 / 25.6 |
+| 5.0 | 4.67 | 16.0 % | 12.4 / 12.9 | 12.2 / 17.5 | 20.1 / 33.9 |
+| 5.5 | 4.92 | 19.1 % | 12.6 / 13.3 | 12.4 / 17.8 | 21.2 / 40.6 |
+
+The excess is usually small (median 0.4–0.6 rad/s), but short peaks reach 1.5× (ankle pitch) and 1.9× (ankle roll) the
+limit at top speed. Whether the real gearboxes, motors and drivers tolerate this back-driving (and the regenerated
+energy) is **unknown and untested**; for a real robot, 3 m/s or below is the range closest to the specification.
+モーターが自ら仕様以上の速度で関節を回すことはありません（超過時は常にブレーキ側のトルク）。ただし着地衝撃や振り脚の慣性で、関節は仕様を超えて回されます（最高速度で19 %の時間、足首は瞬間的に1.5〜1.9倍）。実機のギア・モーター・ドライバがこれに耐えられるかは**未検証**です。
 
 Videos: [`media/K1_walk_to_run.mp4`](media/K1_walk_to_run.mp4), [`media/K1_stand_to_run.mp4`](media/K1_stand_to_run.mp4).
 

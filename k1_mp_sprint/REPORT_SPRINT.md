@@ -3,6 +3,11 @@
 **K1 + passive MP toe joints + CMU running data as style prior + speed curriculum.**
 Idea & direction: Takeyuki-K · Implementation generated with Claude (Anthropic) under Takeyuki-K's direction · MuJoCo simulation only
 
+> **Position in the project:** step 2 of the road to running (v3 → v4 → v5, see the main README). Findings that shaped v5:
+> 5.2 m/s needs joint speeds above the K1 URDF limit (probably beyond the real motors), the motors are not modelled here,
+> and the landing is still heel first. v5 (`k1_mp_gait/`) adds a motor model and a forefoot landing. Simulation only,
+> not tested on a real robot.
+
 User instruction: with the current CMU data, aim for **5.0 m/s**; running = **stability and speed first**, power is only
 evaluated as a result (no energy reward). The 1.35–1.65 m/s range is covered by fast walking instead
 (`k1_mp_fastwalk/REPORT_FASTWALK.md`).
