@@ -23,6 +23,12 @@ torque kept inside a modelled K1 torque–speed envelope (joints can still be ba
 [Road to running](#road-to-running--走行に至るまでv3--v4--v5) and [v5](#walk--run-switching-forefoot-running-within-a-modelled-motor-drive-envelope--歩行走行の切替v5) (simulation only, not tested on a real robot).
 最新（v5）: 歩行⇄走行の自動切替・立位からの走り出し・モーター駆動トルクを仮定したトルク–速度包絡線内に保った前足着地走行（着地衝撃で関節が速度上限を超えて回されることはあり）（シミュレーションのみ、実機未検証）。
 
+**v5.5 (branch `v5.5-turn-run`, under review):** turning while walking *and running* (yaw-rate command up to 1 rad/s),
+in-place turning, an automatic speed governor (v·|ω| ≤ 3 m/s² while running) with the body leaning into the turn
+(measured lean ≈ atan(vω/g)), and hard braking (4.5 m/s → standing in 4.4 s / 6.2 m instead of 5.9 s / 8.7 m) —
+see [k1_mp_gait55/REPORT_GAIT55.md](k1_mp_gait55/REPORT_GAIT55.md). Simulation only.
+v5.5（ブランチ `v5.5-turn-run`、確認中）: 歩行・走行中の旋回、その場旋回、旋回時の自動減速と旋回内側への体の傾け、急停止。
+
 ---
 
 ## Idea / アイディア
