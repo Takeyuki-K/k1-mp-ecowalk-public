@@ -1,4 +1,4 @@
-# v5: mid/forefoot running within the motor limits, stand → run, and walk ⇄ run switching
+# v5: mid/forefoot running within a modelled motor drive envelope, stand → run, and walk ⇄ run switching
 
 **K1 + passive MP toes. Eco walking policy (heel strike) ⇄ running policy (mid/forefoot strike), gait manager.**
 Idea & direction: Takeyuki-K · Implementation generated with Claude (Anthropic) under Takeyuki-K's direction · MuJoCo simulation only
@@ -32,7 +32,7 @@ User instructions (v5):
   starts at 2.0 m/s. Run → walk: running slows to 1.8 m/s, switch at the right touchdown, walking continues at 1.6 m/s.
 - Walking speed steps of 0.15 m/s are followed (measured 0.45 / 0.60 / 0.75 / 0.89 / 1.04 / 1.21 / 1.36 / 1.49 m/s).
 
-### Running policy (motor limit on, start from recorded walking states at 1.6 m/s, accelerate, 16 robots, 12 s)
+### Running policy (motor model on, start from recorded walking states at 1.6 m/s, accelerate, 16 robots, 12 s)
 | command | survival | speed | forefoot-first touchdowns | heel-first | trunk lean | torque saturated | leg power |
 |---|---|---|---|---|---|---|---|
 | 2.0 | 100 % | 1.87 m/s | 99 % | **0 %** | 4–5° ± 1.2 | 6 % | 0.65 kW |
@@ -43,7 +43,7 @@ User instructions (v5):
 
 - **Heel-first landing eliminated** (0 of all touchdowns); 84–99 % forefoot-first, the rest midfoot (heel and forefoot in
   the same 20 ms).
-- **Top speed within the motor limit: 4.9 m/s** (v4 heel-strike with only a speed penalty: 4.6 m/s). At the top speed the
+- **Top speed with the motor drive torque inside the modelled torque–speed envelope: 4.9 m/s** (v4 heel-strike with only a speed penalty: 4.6 m/s). "Inside the envelope" refers to the torque the motor *drives*; joints are still back-driven above the speed limit by impacts and inertia (see below). At the top speed the
   motors are on their torque–speed limit 59 % of the time; this, not stability, sets the limit.
 - Evaluation start: robots start from recorded fast-walking states (the real use case through the gait manager).
   With an artificial kinematic start directly inside the running cycle at 2 m/s (reference-state initialisation),
@@ -59,7 +59,7 @@ User instructions (v5):
   13.3 rad/s (knee), 17.8 rad/s (ankle pitch, 1.5× limit) and 40.6 rad/s (ankle roll, 1.9× its 20.9 rad/s limit).
   Whether real gearboxes, motors and drivers tolerate this back-driving is untested.
 
-### Walking policy (eco reward kept, motor limit on; same protocol as v2/v4)
+### Walking policy (eco reward kept, motor model on; same protocol as v2/v4)
 0.30 → 0.32, 0.60 → 0.61, 0.90 → 0.91, 1.20 → 1.22, 1.35 → 1.35, 1.50 → 1.48, 1.65 → 1.62 m/s; no falls; heel
 strike 100 %; leg power 69 / 92 / 114 / 146 / 168 / 191 / 219 W (CoT 0.34–0.39 from 0.9 m/s), same as v4.
 At the switching speed walking costs 219 W at 1.62 m/s, running 650 W at 1.87 m/s (CoT 0.39 vs 0.99; `out/ew_rn6.json`;
@@ -103,7 +103,7 @@ Videos: `out/K1_walk_to_run.mp4` (test A), `out/K1_stand_to_run.mp4` (test B), G
 - The "forefoot landing brakes less" hypothesis was not measured directly (no braking-impulse analysis).
 - Running has no heading control (drift is corrected by the walking policy after the switch); no turning while running.
 - Under continuous pushes 2 of 32 robots still fall per 18–43 s test (stand → run start, or just after run → walk).
-- 5.0 m/s is not reached within the motor limit (4.9 m/s); faster motors or a gait with smaller joint excursions are needed.
+- 5.0 m/s is not reached with the motor drive inside the modelled envelope (4.9 m/s); faster motors or a gait with smaller joint excursions are needed.
 
 ## 5. Files
 `retarget_sprint.py` (STRIKE='fore' library), `motor.py` (torque–speed model), `k1env_run2.py` (running env),

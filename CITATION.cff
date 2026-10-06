@@ -6,7 +6,7 @@ authors:
 type: software
 license: Apache-2.0
 date-released: "2026-10-06"
-repository-code: "https://github.com/Takeyuki-K/k1-mp-ecowalk"
+repository-code: "https://github.com/Takeyuki-K/k1-mp-ecowalk-public"
 abstract: "Simulation study (MuJoCo) on the ROBOTIS AI Sapiens K1 humanoid model: passive spring toe (MP) joints, imitation of human gait data and learned joint relaxation for energy-efficient walking, extended to speed-command walking, turning, running and walk-run switching. Implementation generated with Claude (Anthropic) under the direction of Takeyuki-K."
 keywords:
   - humanoid
