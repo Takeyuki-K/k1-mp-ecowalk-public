@@ -6,7 +6,7 @@
 
 **受動バネのMP関節（つま先関節） × 人の歩行の模倣 × 学習による脱力で、ヒューマノイドの省エネ歩行を実現する（MuJoCoシミュレーション）**
 
-アイディア・方向付け: **Takeyuki-K** · 実装: Takeyuki-K の指示のもと Claude（Anthropic）で生成 · シミュレーションのみ
+アイディア・方針決め: **Takeyuki-K** · 実装: Takeyuki-K の指示のもと Claude（Anthropic）で生成 · シミュレーションのみ
 
 > **ライセンス:** コードと独自アセットは **Apache-2.0**、人の歩行データ由来の参照軌道は **CC BY 4.0**
 > （Marcos Duarte & Renato Naville Watanabe, BMC）、CMUモーションキャプチャは自由利用（謝辞は下記）。
@@ -305,7 +305,7 @@ python3 ppo_speed.py --iters 9300 --init ../k1_mp_eco/runs/eco1/model.pt --from_
 
 ## 役割分担
 
-**アイディア・方向付け — Takeyuki-K**
+**アイディア・方針決め — Takeyuki-K**
 - 構想: 受動バネのMP（つま先）関節 × 人の歩行の模倣 × アクチュエータの脱力による省エネなヒューマノイド
 - 主な仕様: 体重が前に移ると曲がるが足を持ち上げることはないモーターなしのバネMP関節。かかと → 足裏全体 → つま先の接地順序。股関節→足首の動きだけを模倣して残りはIKで解く。立位→歩行の遷移は別の強化学習。遅い歩行は小股。走行は別の歩容として扱う。
   歩行中とその場の両方での旋回、停止指令での安全停止、旋回時の衝撃吸収に脱力を使う。走行: 人の模倣と安定性を優先、空中期からかかとで着地し、かかとを支点に上体を崩さず体を前に回す、電力は二の次（「省エネは結果」）。
@@ -315,7 +315,7 @@ python3 ppo_speed.py --iters 9300 --init ../k1_mp_eco/runs/eco1/model.pt --from_
 
 **実装 — Claude（Anthropic）で生成**
 - コード、改変したロボットモデル（MJCF/URDF、分割メッシュ）、歩行のリターゲット、強化学習、評価ツール、動画、図、文書の生成と実装に、Takeyuki-K の指示・選択・試験・統合のもとで Claude（Anthropic）を広く使いました。これは作り方の説明であり、AI生成物の著作権の帰属についての主張ではありません（国によって異なります）。
-- その方向付けの中で Claude が行った設計判断は、理由とともに次に記録しています:
+- その方針のもとで Claude が行った設計判断は、理由とともに次に記録しています:
   [k1_mp_speed/REPORT_SPEED.md](k1_mp_speed/REPORT_SPEED.md)（D1〜D12）、[k1_mp_turn/REPORT_TURN.md](k1_mp_turn/REPORT_TURN.md)（T1〜T9）、
   [k1_mp_run/REPORT_RUN.md](k1_mp_run/REPORT_RUN.md)（R1〜R12）、[k1_mp_fastwalk/REPORT_FASTWALK.md](k1_mp_fastwalk/REPORT_FASTWALK.md)（F1〜F4）、
   [k1_mp_sprint/REPORT_SPRINT.md](k1_mp_sprint/REPORT_SPRINT.md)（S1〜S12）、[k1_mp_gait/REPORT_GAIT.md](k1_mp_gait/REPORT_GAIT.md)（G1〜G10）、
@@ -334,6 +334,6 @@ Zenodoにアーカイブ済み: **DOI [10.5281/zenodo.23178357](https://doi.org/
 - **人の歩行データ**: Marcos Duarte and Renato Naville Watanabe, "Notes on Scientific Computing for Biomechanics and Motor Control" (BMC)、[BMClab/BMC](https://github.com/BMClab/BMC)、DOI [10.5281/zenodo.4599319](https://doi.org/10.5281/zenodo.4599319)、コミット `50a05ae`、[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) — ロボットにリターゲット。派生した参照ファイルは CC BY 4.0 のまま（一覧は [NOTICE](NOTICE)）。
 - **走行モーションデータ**: CMU Graphics Lab Motion Capture Database、[mocap.cs.cmu.edu](http://mocap.cs.cmu.edu)（被験者16 試行35、被験者9 試行4）、BVH変換 B. Hahne — 研究・商用ともに自由利用。*The data used in this project was obtained from mocap.cs.cmu.edu. The database was created with funding from NSF EIA-0196217.*
 - **使用ソフトウェア**（再配布なし）: [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md) を参照。
-- アイディア・方向付け・統合: Takeyuki-K。実装は Claude（Anthropic）で生成 — [役割分担](#役割分担) を参照。
+- アイディア・方針決め・統合: Takeyuki-K。実装は Claude（Anthropic）で生成 — [役割分担](#役割分担) を参照。
 
 「ROBOTIS」と「AI Sapiens」はそれぞれの所有者の商標である可能性があり、ここではロボットモデルを示すためだけに使用しています。
