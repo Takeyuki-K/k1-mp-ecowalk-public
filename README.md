@@ -17,11 +17,11 @@ Idea & direction: **Takeyuki-K** · Implementation generated with Claude (Anthro
 
 > **Simulation only (MuJoCo).** Independent personal research, **not affiliated with or endorsed by ROBOTIS.**
 
-**Latest (v5):** automatic walk ⇄ run switching, stand → run and forefoot running up to 4.9 m/s with the motor drive
+**v5:** automatic walk ⇄ run switching, stand → run and forefoot running up to 4.9 m/s with the motor drive
 torque kept inside a modelled K1 torque–speed envelope (joints can still be back-driven above the speed limit by impacts) — see
 [Road to running](#road-to-running) and [v5](#walk--run-switching-forefoot-running-within-a-modelled-motor-drive-envelope) (simulation only, not tested on a real robot).
 
-**v5.5 (branch `v5.5-turn-run`, under review):** turning while walking *and running* (yaw-rate command up to 1 rad/s),
+**Latest (v5.5):** turning while walking *and running* (yaw-rate command up to 1 rad/s),
 in-place turning, an automatic speed governor (v·|ω| ≤ 3 m/s² while running) with the body leaning into the turn
 (measured lean ≈ atan(vω/g)), and hard braking (4.5 m/s → standing in 4.4 s / 6.2 m instead of 5.9 s / 8.7 m) —
 see [k1_mp_gait55/REPORT_GAIT55.md](k1_mp_gait55/REPORT_GAIT55.md). Simulation only.
