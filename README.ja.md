@@ -19,7 +19,7 @@
 **v5:** 歩行⇄走行の自動切替、立位からの走り出し、最高4.9 m/sの前足着地走行。モーター駆動トルクは、仮定したK1のトルク–速度包絡線の内側に保っています（着地衝撃で関節が速度上限を超えて回されることはあります）。
 [走行に至るまで](#走行に至るまでv3--v4--v5) と [v5](#歩行走行の切替モーター駆動包絡線内の前足着地走行v5) を参照（シミュレーションのみ、実機未検証）。
 
-**v5.6（ブランチ `v5.6-level-walk`、確認中）:** 歩行時の左右の揺れを人並みに抑制（骨盤ロールの振れ幅 12° → 5.5°）、遊脚の足上げを高く、腕振りをポリシーが制御、停止前に足を揃える置き直し。押し外乱への強さも向上（通しコース 12/16 → 15/16、その場旋回 6/16 → 10/16）。ただし**歩行の脚電力は +6〜11 %**（K1 の広い腰幅で骨盤を水平に保つには股関節ロールのトルクが要るため）。
+**v5.6（ブランチ `v5.6-level-walk`、確認中）:** 歩行時の左右の揺れを人並みに抑制（骨盤ロールの振れ幅 12° → 5.5°）、遊脚の足上げを高く、腕振りをポリシーが制御、停止前に足を揃える置き直し（関節角の順運動学・逆運動学と足裏接触センサーで計算）。押し外乱への強さも向上（通しコース 12/16 → 15/16、その場旋回 6/16 → 8〜10/16）。ただし**歩行の脚電力は +6〜11 %**（K1 の広い腰幅で骨盤を水平に保つには股関節ロールのトルクが要るため）。
 詳細は [k1_mp_gait56/REPORT_GAIT56.md](k1_mp_gait56/REPORT_GAIT56.md)。シミュレーションのみ。
 
 ![同じ 1.0 m/s 指令を正面から: v5.5（左）と v5.6（右）](media/K1_v55_v56_straight.gif)
@@ -326,7 +326,7 @@ python3 ppo_speed.py --iters 9300 --init ../k1_mp_eco/runs/eco1/model.pt --from_
   [k1_mp_speed/REPORT_SPEED.md](k1_mp_speed/REPORT_SPEED.md)（D1〜D12）、[k1_mp_turn/REPORT_TURN.md](k1_mp_turn/REPORT_TURN.md)（T1〜T9）、
   [k1_mp_run/REPORT_RUN.md](k1_mp_run/REPORT_RUN.md)（R1〜R12）、[k1_mp_fastwalk/REPORT_FASTWALK.md](k1_mp_fastwalk/REPORT_FASTWALK.md)（F1〜F4）、
   [k1_mp_sprint/REPORT_SPRINT.md](k1_mp_sprint/REPORT_SPRINT.md)（S1〜S12）、[k1_mp_gait/REPORT_GAIT.md](k1_mp_gait/REPORT_GAIT.md)（G1〜G10）、
-  [k1_mp_gait55/REPORT_GAIT55.md](k1_mp_gait55/REPORT_GAIT55.md)（S1〜S12、v5.5）、[k1_mp_gait56/REPORT_GAIT56.md](k1_mp_gait56/REPORT_GAIT56.md)（S1〜S11、v5.6）。
+  [k1_mp_gait55/REPORT_GAIT55.md](k1_mp_gait55/REPORT_GAIT55.md)（S1〜S12、v5.5）、[k1_mp_gait56/REPORT_GAIT56.md](k1_mp_gait56/REPORT_GAIT56.md)（S1〜S12、v5.6）。
 
 ## このアイディアの利用について
 自由に使い、改変し、発展させてください（コード: Apache-2.0。データファイルはそれぞれのライセンスに従います。[THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md) を参照）。

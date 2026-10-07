@@ -77,9 +77,14 @@ def run(net, env, v, w, T, stop_at=None, t0=4.0):
                    w_meas=float(np.mean((yaw[-1, al] - yaw[0, al]) / (len(yaw) / 50))),
                    v_meas=float(L['vx'][:, al].mean()), P_leg=float(L['Pl'][:, al].mean()), P_arm=float(L['Pa'][:, al].mean()))
     if stop_at is not None:
-        a = np.stack([env.s('left_ankle_rel'), env.s('right_ankle_rel')], 1)
-        fyaw = np.arctan2(env.s('left_foot_x')[:, 1], env.s('left_foot_x')[:, 0]) - np.arctan2(env.s('right_foot_x')[:, 1], env.s('right_foot_x')[:, 0])
-        fyaw = np.degrees(np.arctan2(np.sin(fyaw), np.cos(fyaw)))
+        # ground truth (world poses of the feet), in the frame of the feet's mean heading
+        fl, fr = env.s('left_foot_x'), env.s('right_foot_x')
+        yl, yr = np.arctan2(fl[:, 1], fl[:, 0]), np.arctan2(fr[:, 1], fr[:, 0])
+        fyaw = np.arctan2(np.sin(yl - yr), np.cos(yl - yr)); ym = yr + fyaw / 2
+        d = env.s('left_foot_pos') - env.s('right_foot_pos')
+        a = np.stack([np.cos(ym) * d[:, 0] + np.sin(ym) * d[:, 1], -np.sin(ym) * d[:, 0] + np.cos(ym) * d[:, 1]], 1)[:, None, :]
+        a = np.concatenate([a, np.zeros_like(a)], 1)
+        fyaw = np.degrees(fyaw)
         out.update(standing=float(((env.alpha == 0) & alive).mean()),
                    foot_dx_cm=float(np.mean(np.abs(100 * (a[alive, 0, 0] - a[alive, 1, 0])))) if alive.any() else None,
                    foot_sep_cm=float(np.mean(100 * (a[alive, 0, 1] - a[alive, 1, 1]))) if alive.any() else None,

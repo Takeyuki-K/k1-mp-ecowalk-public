@@ -23,6 +23,7 @@ import numpy as np
 from k1env import ACT_JOINTS, KP, KD
 from k1env_speed import RefLib
 from k1env_walk3 import K1Walk3Batch
+from legkin import LegFK
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ARM = [ACT_JOINTS.index(j) for j in ('left_shoulder_pitch_joint', 'left_shoulder_roll_joint',
@@ -51,7 +52,8 @@ class K1Walk4Batch(K1Walk3Batch):
         self.home_cnt = np.zeros(n, int)
         self.P_arm = np.zeros(n)
         self._prev_ph = self.ph.copy()
-        self.ds_dx = np.zeros(n); self.ds_dyaw = np.zeros(n); self.corr = np.zeros((n, 4))
+        self.ds_dx = np.zeros(n); self.ds_dyaw = np.zeros(n); self.corr = np.zeros((n, 12))
+        self.legfk = LegFK(self.m)
         self.aadr = np.array([self.m.jnt_qposadr[self.m.joint(ACT_JOINTS[i]).id] for i in ARM_ALL])
         self.aadr_d = np.array([self.m.jnt_dofadr[self.m.joint(ACT_JOINTS[i]).id] for i in ARM_ALL])
         self._v56 = True
@@ -66,17 +68,11 @@ class K1Walk4Batch(K1Walk3Batch):
 
     # ---- 4. re-place the feet before closing the legs ----
     def foot_offsets(self):
-        """front-back offset [m], separation [m] and relative yaw [rad] of the feet, measured in the frame of the
-        feet's mean heading (not the pelvis frame: a pelvis twisted relative to two parallel, side-by-side feet would
-        otherwise look like a stagger of 0.25 m * sin(twist))"""
-        a = self.s('left_ankle_rel'); b = self.s('right_ankle_rel')
-        fl = self.s('left_foot_x'); fr = self.s('right_foot_x')
-        yl = np.arctan2(fl[:, 1], fl[:, 0]); yr = np.arctan2(fr[:, 1], fr[:, 0])
-        dyaw = np.arctan2(np.sin(yl - yr), np.cos(yl - yr))
-        ym = yr + 0.5 * dyaw
-        d = a - b
-        c, s_ = np.cos(ym), np.sin(ym)
-        return c * d[:, 0] + s_ * d[:, 1], -s_ * d[:, 0] + c * d[:, 1], dyaw
+        """front-back offset [m], separation [m] and relative yaw [rad] of the feet (left minus right), in the frame of
+        the feet's mean heading. Forward kinematics of the 12 leg joint angles only (legkin.py) - computable from
+        joint encoders on a real robot; no simulator world poses. (Before the fix, pelvis-frame ankle positions were
+        rotated by the world-frame foot heading, which was wrong whenever the robot did not face the world x axis.)"""
+        return self.legfk.foot_offsets(self.qpos()[:, self.qadr[:12]])
 
     def _close_ok(self, settled, walking):
         """stage w56c: keep stepping in place (zero yaw rate) until the feet are actually re-aligned
@@ -99,25 +95,38 @@ class K1Walk4Batch(K1Walk3Batch):
         return ok | (self.alpha < 1.0)
 
     def _place_ff(self, tgt):
-        """stage w56d: foot re-placement feed-forward while stepping in place to stop. The front-back offset and the
-        relative yaw of the feet are measured at the last double support; the leg that swings next is placed beside
-        the stance foot (hip pitch with ankle compensation: 0.63 m per rad, hip yaw: ~1 deg per deg; signs from
-        forward kinematics). Added because the w56c policy kept a ~10 cm stagger while stepping in place."""
+        """foot re-placement feed-forward while stepping in place to stop (user decision, option 2).
+        * offsets (front-back, relative yaw) of the feet at the last double support (forward kinematics, latched;
+          used by ALIGN_CHECK). Double support = foot contact sensors (heel / ball / toe on each foot;
+          user decision: the real robot will get foot contact sensors).
+        * the swing foot is placed beside the stance foot: forward kinematics of the stance leg (measured angles) and
+          of the swing leg (current joint target) give the swing target seen from the stance foot; its front-back
+          offset and relative yaw are removed with inverse kinematics of the swing leg (legkin.ik_shift; height,
+          sideways distance, pitch and roll of the foot kept). Gain PLACE_GAIN (the policy partly fights it)."""
         touch = np.concatenate([self.s(f'{s}_{p}_touch') for s in ('left', 'right') for p in ('heel', 'meta', 'toe')], 1)
         ds = (touch[:, :3].sum(1) > 5) & (touch[:, 3:].sum(1) > 5)
-        dx, _, dyaw = self.foot_offsets()
+        q12 = self.qpos()[:, self.qadr[:12]]
+        dx, _, dyaw = self.legfk.foot_offsets(q12)
         self.ds_dx = np.where(ds, dx, self.ds_dx); self.ds_dyaw = np.where(ds, dyaw, self.ds_dyaw)
         stopping = (self.cmd < 0.5) & (self.v_ref < 0.05) & (np.abs(self.w_ref) < 0.05) & (self.alpha > 0)
-        c = self.lib.sample(self.ph, self.v_lib)['contact']                  # (n, leg, heel/fore)
-        swl = ~(c[:, 0] > 0.5).any(1); swr = ~(c[:, 1] > 0.5).any(1)
-        kx = np.clip(self.PLACE_GAIN * self.ds_dx / 0.63, -0.25, 0.25); ky = np.clip(self.PLACE_GAIN * self.ds_dyaw, -0.3, 0.3)
-        want = np.zeros((self.n, 4))                                            # hipL, yawL, hipR, yawR
-        want[:, 0] = np.where(swl, kx, 0.0); want[:, 1] = np.where(swl, -ky, 0.0)
-        want[:, 2] = np.where(swr, -kx, 0.0); want[:, 3] = np.where(swr, ky, 0.0)
-        want *= stopping[:, None]
+        c = self.lib.sample(self.ph, self.v_lib)['contact']                  # reference schedule (n, leg, heel/fore)
+        swl = ~(c[:, 0] > 0.5).any(1) & stopping; swr = ~(c[:, 1] > 0.5).any(1) & stopping
+        want = np.zeros((self.n, 12))
+        for side, sw, k0, o0 in (('left', swl, 0, 6), ('right', swr, 6, 0)):
+            if not sw.any():
+                continue
+            i = np.where(sw)[0]
+            po, Ro = self.legfk.fk('right' if side == 'left' else 'left', q12[i, o0:o0 + 6])   # stance foot (measured)
+            ps, Rs = self.legfk.fk(side, tgt[i, k0:k0 + 6])                                    # swing foot (target)
+            d = np.einsum('nji,nj->ni', Ro, ps - po)                    # swing target seen from the stance foot
+            Rrel = np.swapaxes(Ro, 1, 2) @ Rs
+            ryaw = np.arctan2(Rrel[:, 1, 0], Rrel[:, 0, 0])
+            sx = np.clip(-self.PLACE_GAIN * d[:, 0], -0.15, 0.15); sy = np.clip(-self.PLACE_GAIN * ryaw, -0.3, 0.3)
+            dp = Ro[:, :, 0] * sx[:, None]                               # along the stance foot's heading
+            dq, res = self.legfk.ik_shift(side, tgt[i, k0:k0 + 6], dp, sy)
+            want[i, k0:k0 + 6] = np.clip(dq, -0.4, 0.4)
         self.corr += 0.2 * (want - self.corr)
-        tgt[:, 0] += self.corr[:, 0]; tgt[:, 4] -= self.corr[:, 0]; tgt[:, 2] += self.corr[:, 1]
-        tgt[:, 6] += self.corr[:, 2]; tgt[:, 10] -= self.corr[:, 2]; tgt[:, 8] += self.corr[:, 3]
+        tgt[:, :12] += self.corr
 
     # ---- 3. arm residuals ----
     def _extra_targets(self, tgt, a):

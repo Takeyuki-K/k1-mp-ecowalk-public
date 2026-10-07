@@ -1,0 +1,156 @@
+{
+ "inplace+0.6_stop": {
+  "survival": 1.0,
+  "standing": 1.0,
+  "t_to_stand": 3.35,
+  "dx_cm": [
+   2.3,
+   5.1
+  ],
+  "dyaw_deg": [
+   2.6,
+   5.4
+  ],
+  "dx_cm_end": [
+   2.9,
+   5.7
+  ],
+  "dyaw_deg_end": [
+   2.6,
+   3.3
+  ],
+  "sep_cm": 23.1
+ },
+ "inplace-1.0_stop": {
+  "survival": 1.0,
+  "standing": 1.0,
+  "t_to_stand": 5.52,
+  "dx_cm": [
+   3.8,
+   5.6
+  ],
+  "dyaw_deg": [
+   13.8,
+   21.1
+  ],
+  "dx_cm_end": [
+   2.0,
+   3.6
+  ],
+  "dyaw_deg_end": [
+   15.0,
+   21.7
+  ],
+  "sep_cm": 26.4
+ },
+ "inplace+-0.6_stop": {
+  "survival": 1.0,
+  "standing": 1.0,
+  "t_to_stand": 3.38,
+  "dx_cm": [
+   2.7,
+   5.0
+  ],
+  "dyaw_deg": [
+   2.9,
+   4.2
+  ],
+  "dx_cm_end": [
+   5.9,
+   9.0
+  ],
+  "dyaw_deg_end": [
+   12.1,
+   15.2
+  ],
+  "sep_cm": 25.6
+ },
+ "walk1.2_stop": {
+  "survival": 1.0,
+  "standing": 1.0,
+  "t_to_stand": 8.39,
+  "dx_cm": [
+   1.7,
+   2.4
+  ],
+  "dyaw_deg": [
+   6.9,
+   7.2
+  ],
+  "dx_cm_end": [
+   1.7,
+   2.6
+  ],
+  "dyaw_deg_end": [
+   6.1,
+   6.8
+  ],
+  "sep_cm": 19.4
+ },
+ "turnwalk_stop": {
+  "survival": 1.0,
+  "standing": 1.0,
+  "t_to_stand": 5.87,
+  "dx_cm": [
+   3.2,
+   3.6
+  ],
+  "dyaw_deg": [
+   3.0,
+   3.2
+  ],
+  "dx_cm_end": [
+   3.6,
+   4.0
+  ],
+  "dyaw_deg_end": [
+   7.0,
+   7.5
+  ],
+  "sep_cm": 18.1
+ },
+ "run4.5_stop": {
+  "survival": 1.0,
+  "standing": 1.0,
+  "t_to_stand": 9.97,
+  "dx_cm": [
+   3.5,
+   4.8
+  ],
+  "dyaw_deg": [
+   2.4,
+   4.4
+  ],
+  "dx_cm_end": [
+   3.9,
+   5.3
+  ],
+  "dyaw_deg_end": [
+   2.3,
+   3.8
+  ],
+  "sep_cm": 19.4
+ },
+ "run4.5_brake": {
+  "survival": 1.0,
+  "standing": 1.0,
+  "t_to_stand": 7.06,
+  "dx_cm": [
+   0.6,
+   1.3
+  ],
+  "dyaw_deg": [
+   3.8,
+   5.3
+  ],
+  "dx_cm_end": [
+   0.6,
+   1.3
+  ],
+  "dyaw_deg_end": [
+   2.3,
+   4.7
+  ],
+  "sep_cm": 24.5
+ }
+}

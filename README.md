@@ -23,7 +23,7 @@ torque kept inside a modelled K1 torque–speed envelope (joints can still be ba
 
 **v5.6 (branch `v5.6-level-walk`, under review):** less side-to-side rocking while walking (pelvis roll 12° → 5.5°
 peak-to-peak, human level), higher swing foot, policy-controlled arm swing, feet re-placed beside each other before
-standing; more robust under pushes (full profile 12/16 → 15/16, in-place turning 6/16 → 10/16), at **+6 … +11 % walking
+standing (joint-angle kinematics + foot contact sensors); more robust under pushes (full profile 12/16 → 15/16, in-place turning 6/16 → 8–10/16), at **+6 … +11 % walking
 leg power** (holding a level pelvis on K1's wide hips costs hip-roll torque) — see
 [k1_mp_gait56/REPORT_GAIT56.md](k1_mp_gait56/REPORT_GAIT56.md). Simulation only.
 
@@ -393,7 +393,7 @@ Exact historical commands per stage, carried-over checkpoints and code changes b
   [k1_mp_sprint/REPORT_SPRINT.md](k1_mp_sprint/REPORT_SPRINT.md) (S1–S12)
   [k1_mp_gait/REPORT_GAIT.md](k1_mp_gait/REPORT_GAIT.md) (G1–G10)
   [k1_mp_gait55/REPORT_GAIT55.md](k1_mp_gait55/REPORT_GAIT55.md) (S1–S12, v5.5)
-  and [k1_mp_gait56/REPORT_GAIT56.md](k1_mp_gait56/REPORT_GAIT56.md) (S1–S11, v5.6).
+  and [k1_mp_gait56/REPORT_GAIT56.md](k1_mp_gait56/REPORT_GAIT56.md) (S1–S12, v5.6).
 
 
 ## Use this idea
