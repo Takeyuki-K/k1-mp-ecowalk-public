@@ -6,23 +6,23 @@ The stance is MEASURED with simulator ground truth (world poses of both feet), i
 uses (the controller only uses joint-angle kinematics and foot contact sensors):
   dx   front-back offset of the ankles along the feet's mean heading [cm]
   dyaw relative yaw of the feet [deg]
-measured when the robot reaches standing (alpha = 0) and at the end of the case ("_end", several seconds later);
+measured when the robot first reaches standing (alpha = 0) and at the end of the case (after a re-stance, if any) ("_end", several seconds later);
 values are [mean, max] over the robots.
 python3 eval_stance56.py runs/final/walk.pt runs/final/run.pt [--json out.json]
-(PLACE_FF=0 switches the re-placement feed-forward off, PLACE_GAIN sets its gain)
+(RESTANCE=0 restores the v5.6 stop with re-placement steps before standing; PLACE_FF=0 switches the re-placement feed-forward off, PLACE_GAIN sets its gain)
 """
 import argparse, json
 import numpy as np
 from eval_gait56 import Gait55, run_profile, HZ
 
 CASES = {
-    'inplace+0.6_stop': [(2, 'cmd', 0.0, 0.0), (12, 'cmd', 0.0, 0.6), (10, 'stop', 0, 0)],
-    'inplace-1.0_stop': [(2, 'cmd', 0.0, 0.0), (4.1, 'cmd', 0.0, -1.0), (10, 'stop', 0, 0)],
-    'inplace+-0.6_stop': [(2, 'cmd', 0.0, 0.0), (12, 'cmd', 0.0, 0.6), (12, 'cmd', 0.0, -0.6), (10, 'stop', 0, 0)],
-    'walk1.2_stop': [(2, 'cmd', 0.0, 0.0), (8, 'cmd', 1.2, 0.0), (10, 'stop', 0, 0)],
-    'turnwalk_stop': [(2, 'cmd', 0.0, 0.0), (8, 'cmd', 0.8, 0.5), (10, 'stop', 0, 0)],
-    'run4.5_stop': [(2, 'cmd', 0.0, 0.0), (5, 'cmd', 1.65, 0.0), (6, 'cmd', 4.5, 0.0), (12, 'stop', 0, 0)],
-    'run4.5_brake': [(2, 'cmd', 0.0, 0.0), (5, 'cmd', 1.65, 0.0), (6, 'cmd', 4.5, 0.0), (12, 'brake', 0, 0)],
+    'inplace+0.6_stop': [(2, 'cmd', 0.0, 0.0), (12, 'cmd', 0.0, 0.6), (14, 'stop', 0, 0)],
+    'inplace-1.0_stop': [(2, 'cmd', 0.0, 0.0), (4.1, 'cmd', 0.0, -1.0), (14, 'stop', 0, 0)],
+    'inplace+-0.6_stop': [(2, 'cmd', 0.0, 0.0), (12, 'cmd', 0.0, 0.6), (12, 'cmd', 0.0, -0.6), (14, 'stop', 0, 0)],
+    'walk1.2_stop': [(2, 'cmd', 0.0, 0.0), (8, 'cmd', 1.2, 0.0), (14, 'stop', 0, 0)],
+    'turnwalk_stop': [(2, 'cmd', 0.0, 0.0), (8, 'cmd', 0.8, 0.5), (14, 'stop', 0, 0)],
+    'run4.5_stop': [(2, 'cmd', 0.0, 0.0), (5, 'cmd', 1.65, 0.0), (6, 'cmd', 4.5, 0.0), (16, 'stop', 0, 0)],
+    'run4.5_brake': [(2, 'cmd', 0.0, 0.0), (5, 'cmd', 1.65, 0.0), (6, 'cmd', 4.5, 0.0), (16, 'brake', 0, 0)],
 }
 
 
@@ -45,22 +45,27 @@ def main():
         alive = L['alive'].copy()
         T, kind = prof[-1][0], prof[-1][1]
         g.stop() if kind == 'stop' else g.brake()
-        t_st = np.full(g.n, np.nan); at_stand = np.full((3, g.n), np.nan)
+        t_st = np.full(g.n, np.nan); at_stand = np.full((3, g.n), np.nan); t_last = np.full(g.n, np.nan)
+        prev = np.zeros(g.n, bool)
         for k in range(int(T * HZ)):
             term, _ = g.step(); alive &= ~term
-            st = alive & (g.mode == 0) & (g.W.alpha == 0) & np.isnan(t_st)
-            if st.any():
-                t_st[st] = k / HZ
-                at_stand[:, st] = np.array(stance_truth(g.W))[:, st]
+            st = alive & (g.mode == 0) & (g.W.alpha == 0)
+            new = st & ~prev; prev = st
+            first = new & np.isnan(t_st)
+            if first.any():
+                t_st[first] = k / HZ
+                at_stand[:, first] = np.array(stance_truth(g.W))[:, first]
+            t_last[new] = k / HZ
         end = np.array(stance_truth(g.W))
         s_ = alive & ~np.isnan(t_st)
-        r = dict(survival=float(alive.mean()), standing=float(s_.mean()),
-                 t_to_stand=round(float(np.nanmean(t_st[s_])), 2) if s_.any() else None)
+        r = dict(survival=float(alive.mean()), standing=float((s_ & prev).mean()),
+                 t_to_stand=round(float(np.nanmean(t_st[s_])), 2) if s_.any() else None,
+                 t_to_final_stance=round(float(np.nanmean(t_last[s_])), 2) if s_.any() else None)
         if s_.any():
             for tag, v in (('', at_stand), ('_end', end)):
                 r.update({f'dx_cm{tag}': [round(float(np.abs(100 * v[0, s_]).mean()), 1), round(float(np.abs(100 * v[0, s_]).max()), 1)],
-                          f'dyaw_deg{tag}': [round(float(np.degrees(np.abs(v[2, s_])).mean()), 1), round(float(np.degrees(np.abs(v[2, s_])).max()), 1)]})
-            r['sep_cm'] = round(float(100 * at_stand[1, s_].mean()), 1)
+                          f'dyaw_deg{tag}': [round(float(np.degrees(np.abs(v[2, s_])).mean()), 1), round(float(np.degrees(np.abs(v[2, s_])).max()), 1)],
+                          f'sep_cm{tag}': round(float(100 * v[1, s_].mean()), 1)})
         res[name] = r
         print(name, json.dumps(r), flush=True)
     if a.json:

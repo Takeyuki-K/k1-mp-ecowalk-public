@@ -35,6 +35,8 @@ PROFILES = {
     'inplace': (E.INPLACE, 'その場旋回 ±0.6 rad/s (v5.6)', 150),
     'straight': ([(2, 'cmd', 0.0, 0.0), (10, 'cmd', 1.0, 0.0), (5, 'stop', 0, 0)], '直進 1.0 m/s を正面から (v5.6)', 180),
     'inplace_stop': ([(2, 'cmd', 0.0, 0.0), (6, 'cmd', 0.0, 0.6), (6, 'stop', 0, 0)], 'その場旋回 → 停止 (v5.6)', 150),
+    'inplace_restance': ([(2, 'cmd', 0.0, 0.0), (8, 'cmd', 0.0, 0.6), (5, 'cmd', 0.0, -1.0), (11, 'stop', 0, 0)],
+                         'その場旋回（人のリズム）→ すぐ停止 → 1 秒後に足を揃える (v5.6)', 150),
     'brake': ([(2, 'cmd', 0.0, 0.0), (5, 'cmd', 1.65, 0.0), (6, 'cmd', 4.5, 0.0), (7, 'brake', 0, 0)],
               '4.5 m/s からの急停止 (v5.6、側面)', 90),
 }
@@ -44,7 +46,7 @@ LABEL = {'cmd': '指令', 'stop': '停止', 'brake': '急停止'}
 def record(g, prof):
     g.reset(); E.stand_noise(g)
     g._oaw, _ = g.W.obs(); g._oar, _ = g.R.obs()
-    L = {k: [] for k in ('q', 'mode', 'brake', 'vu', 'wu', 'vgov', 'vref', 'v', 'wref', 'w', 'lean', 'phi', 'act', 'P')}
+    L = {k: [] for k in ('q', 'mode', 'brake', 'vu', 'wu', 'vgov', 'vref', 'v', 'wref', 'w', 'lean', 'phi', 'act', 'P', 'rs')}
     for T, act, v, w in prof:
         {'cmd': lambda: g.command(v, w), 'stop': g.stop, 'brake': g.brake}[act]()
         for _ in range(int(T * 50)):
@@ -60,6 +62,7 @@ def record(g, prof):
             L['lean'].append(np.degrees(np.arcsin(np.clip(gv[0, 1], -1, 1))))
             L['phi'].append(np.degrees(np.arctan2(e.v_ref[0] * e.w_ref[0], 9.81)))
             L['act'].append(LABEL[act]); L['P'].append(float(e.P_elec[0]))
+            L['rs'].append(int(getattr(g.W, 'rs', np.zeros(1))[0]) if g.mode[0] == 0 else 0)
     return {k: (np.array(v_) if k != 'act' else v_) for k, v_ in L.items()}, list(g.switches)
 
 
@@ -106,7 +109,7 @@ def main():
         # left box: mode and speeds
         dr.rounded_rectangle([14, HDR + 14, 470, HDR + 196], radius=8, fill=(0, 0, 0, 160))
         standing = (not run) and abs(v[k]) < 0.05 and abs(w[k]) < 0.1 and L['vu'][k] == 0 and L['wu'][k] == 0
-        lab = '急停止 BRAKE' if braking else ('走行 RUN' if run else ('停止 STAND' if standing else '歩行 WALK'))
+        lab = '急停止 BRAKE' if braking else ('走行 RUN' if run else ('足を揃え中 RE-STANCE' if L['rs'][k] > 0 else ('停止 STAND' if standing else '歩行 WALK')))
         dr.text((26, HDR + 16), lab, font=f_b, fill=col)
         gov = L['vu'][k] > L['vgov'][k] + 0.05 and L['act'][k] == '指令'
         dr.text((26, HDR + 70), f"{L['act'][k]}  v {L['vu'][k]:4.2f} m/s   ω {L['wu'][k]:+4.2f} rad/s", font=f_m, fill=INK)

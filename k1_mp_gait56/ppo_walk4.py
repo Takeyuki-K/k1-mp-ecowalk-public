@@ -197,6 +197,7 @@ def main():
     ap.add_argument('--kv_walk', type=float, default=15.0)
     ap.add_argument('--lr_min', type=float, default=1e-5)
     ap.add_argument('--from_v55', action='store_true', help='init from the v5.5 walking policy (adds 4 arm actions)')
+    ap.add_argument('--add_rs_obs', action='store_true', help='w56i: append 4 zero-weight re-stance inputs')
     ap.add_argument('--add_brake', action='store_true', help='init from a v5.5 walking policy without the brake input')
     ap.add_argument('--from_v5', action='store_true', help='init from the v5 walking policy (adds w_cmd/w_ref inputs)')
     ap.add_argument('--add_heading_obs', action='store_true', help='init from policy without heading-error input')
@@ -211,6 +212,8 @@ def main():
         sd = torch.load(args.init, map_location='cpu')
         if args.from_v55:
             transfer_add_actions(sd['model'], net)
+        elif args.add_rs_obs:
+            transfer_insert_obs(sd['model'], net, at=sd['model']['actor.0.weight'].shape[1], add=4)
         elif args.add_brake:
             transfer_insert_obs(sd['model'], net, at=13, add=1)
         elif args.from_v5:
@@ -246,8 +249,9 @@ def main():
             with torch.no_grad():
                 dist = net.dist(ta); a = dist.sample(); lp = dist.log_prob(a).sum(-1); v = net.value(tc)
             rew, term, trunc, info = env.step(a.numpy().astype(np.float64))
-            for k in ('r_q', 'r_ank', 'r_vel', 'r_up', 'r_contact', 'hs_bad', 'vx', 'verr', 'v_cmd', 'head_err', 'v_lib_ratio', 'P_elec', 'kp_mean', 'kd_mean', 'werr', 'w_ref', 'impact', 'lean', 'brake', 'r_place', 'r_level', 'roll_deg', 'r_home', 'r_align', 'P_arm', 'P_leg', 'arm_act'):
-                infos.setdefault(k, []).append(float(np.mean(info[k])))
+            for k in ('r_q', 'r_ank', 'r_vel', 'r_up', 'r_contact', 'hs_bad', 'vx', 'verr', 'v_cmd', 'head_err', 'v_lib_ratio', 'P_elec', 'kp_mean', 'kd_mean', 'werr', 'w_ref', 'impact', 'lean', 'brake', 'r_place', 'r_level', 'roll_deg', 'r_home', 'r_align', 'P_arm', 'P_leg', 'arm_act', 'r_lift', 'pivot', 'rs', 'r_rsp'):
+                if k in info:
+                    infos.setdefault(k, []).append(float(np.mean(info[k])))
             rew = rew.copy()
             if trunc.any():  # bootstrap on time-out
                 _, oc_end = env.obs()

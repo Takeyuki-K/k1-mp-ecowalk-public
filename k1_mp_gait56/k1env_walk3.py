@@ -59,7 +59,8 @@ class K1Walk3Batch(K1Walk2Batch):
             self.brake[ids[hb]] = 1.0; self.cmd[ids[hb]] = 0.0; self.v_cmd[ids[hb]] = 0.0
 
     def _new_motion(self, i):
-        u = self.rng.random(); sgn = self.rng.choice([-1.0, 1.0])
+        u = self.rng.random()
+        sgn = 1.0 if self.rng.random() < float(os.environ.get('TURN_POS_P', '0.5')) else -1.0   # w56g: bias to the weak side
         if os.environ.get('TURN_MIX') == 'inplace':       # v3 T6 curriculum: mostly in-place turning (15/20/55/10 %)
             u = 0.1 if u < 0.15 else (0.4 if u < 0.35 else (0.7 if u < 0.90 else 0.95))
         if u < 0.25:
@@ -67,7 +68,7 @@ class K1Walk3Batch(K1Walk2Batch):
         elif u < 0.60:                          # walking turn, including commands the governor has to slow down
             self.v_cmd[i] = self.rng.uniform(V_MIN, V_MAX); self.w_cmd[i] = sgn * self.rng.uniform(0.15, W_MAX)
         elif u < 0.90:                          # in-place turn
-            self.v_cmd[i] = 0.0; self.w_cmd[i] = sgn * self.rng.uniform(0.2, W_MAX)
+            self.v_cmd[i] = 0.0; self.w_cmd[i] = sgn * (self.rng.uniform(0.2, W_MAX) if self.rng.random() > float(os.environ.get('P_FAST_IP', '0')) else self.rng.uniform(0.7, W_MAX))
         else:                                   # stepping in place
             self.v_cmd[i] = 0.0; self.w_cmd[i] = 0.0
 
@@ -132,13 +133,13 @@ class K1Walk3Batch(K1Walk2Batch):
         close = settled & self._close_ok(settled, walking)                  # hook (v5.6: re-place the feet first)
         self.alpha = np.clip(self.alpha + np.where(walking, rate, np.where(close, -rate, 0.0)), 0, 1)
         moving = self.alpha > 0
-        self.ph = np.where(moving, (self.ph + rate) % 1.0, self.ph)
+        self.ph = np.where(moving, (self.ph + rate * self._rate_mult(Tv)) % 1.0, self.ph)   # hook (v5.6e: rhythm)
         r = self.lib.sample(self.ph, self.v_lib)
         al = self.alpha[:, None]
         qbase = (1 - al) * DEFAULT_POSE[None] + al * r['q']
         # v3 in-place turning pattern (T4)
         k_ip = np.clip(1.0 - self.v_ref / 0.4, 0.0, 1.0) * self.alpha
-        dpsi = 0.5 * self.w_ref * Tv * k_ip
+        dpsi = self._ip_dpsi(Tv, k_ip)                                      # hook (v5.6e)
         cph = np.cos(2 * np.pi * self.ph)
         qbase[:, 8] += 0.5 * dpsi * cph
         qbase[:, 2] -= 0.5 * dpsi * cph
@@ -170,7 +171,7 @@ class K1Walk3Batch(K1Walk2Batch):
         self.state = st[:, -1].copy(); self.sdata = sd[:, -1].copy()
         self.sd_out_all = sd
         if self.stage >= 2 and self.pushes:
-            kk = np.where(self.rng.random(n) < 1.0 / 200)[0]
+            kk = np.where(self.rng.random(n) < float(os.environ.get('PUSH_P', '0.005')))[0]      # w56h: PUSH_P
             if len(kk):
                 vo = 1 + m.nq
                 self.state[kk, vo:vo + 2] += self.rng.uniform(-0.35, 0.35, (len(kk), 2))
@@ -194,6 +195,12 @@ class K1Walk3Batch(K1Walk2Batch):
     # ---------------- hooks (no-ops in v5.5) ----------------
     def _close_ok(self, settled, walking):
         return np.ones(self.n, bool)
+
+    def _rate_mult(self, Tv):
+        return 1.0
+
+    def _ip_dpsi(self, Tv, k_ip):
+        return 0.5 * self.w_ref * Tv * k_ip
 
     def _extra_targets(self, tgt, a):
         pass

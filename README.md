@@ -21,10 +21,12 @@ Idea & direction: **Takeyuki-K** · Implementation generated with Claude (Anthro
 torque kept inside a modelled K1 torque–speed envelope (joints can still be back-driven above the speed limit by impacts) — see
 [Road to running](#road-to-running) and [v5](#walk--run-switching-forefoot-running-within-a-modelled-motor-drive-envelope) (simulation only, not tested on a real robot).
 
-**v5.6 (branch `v5.6-level-walk`, under review):** less side-to-side rocking while walking (pelvis roll 12° → 5.5°
-peak-to-peak, human level), higher swing foot, policy-controlled arm swing, feet re-placed beside each other before
-standing (joint-angle kinematics + foot contact sensors); more robust under pushes (full profile 12/16 → 15/16, in-place turning 6/16 → 8–10/16), at **+6 … +11 % walking
-leg power** (holding a level pelvis on K1's wide hips costs hip-roll torque) — see
+**v5.6 (branch `v5.6-level-walk`, under review):** less side-to-side rocking while walking (pelvis roll 12° → ~7°
+peak-to-peak, human level), higher swing foot, policy-controlled arm swing; **quick stop** (as fast as v5.5) and
+**re-stance 1 s later** — the feet are stepped back to the standing position with joint-angle kinematics (FK + IK) and
+foot contact sensors; **in-place turning with real alternating steps in the turning rhythm of a human motion capture**
+(before: one foot spun on the floor), in-place turning under pushes 63–75 % → 69–88 %. Costs: walking leg power
++10 … +13 % vs v5.5, in-place stepping up to +40 W at slow turns — see
 [k1_mp_gait56/REPORT_GAIT56.md](k1_mp_gait56/REPORT_GAIT56.md). Simulation only.
 
 ![same 1.0 m/s command from the front: v5.5 (left) vs v5.6 (right)](media/K1_v55_v56_straight.gif)

@@ -1,0 +1,170 @@
+{
+ "inplace+0.6_stop": {
+  "survival": 1.0,
+  "standing": 1.0,
+  "t_to_stand": 1.74,
+  "t_to_final_stance": 10.18,
+  "dx_cm": [
+   4.9,
+   5.1
+  ],
+  "dyaw_deg": [
+   3.4,
+   4.2
+  ],
+  "sep_cm": 16.7,
+  "dx_cm_end": [
+   1.6,
+   1.8
+  ],
+  "dyaw_deg_end": [
+   0.3,
+   0.6
+  ],
+  "sep_cm_end": 21.8
+ },
+ "inplace-1.0_stop": {
+  "survival": 1.0,
+  "standing": 1.0,
+  "t_to_stand": 2.0,
+  "t_to_final_stance": 10.38,
+  "dx_cm": [
+   8.2,
+   8.8
+  ],
+  "dyaw_deg": [
+   6.1,
+   6.4
+  ],
+  "sep_cm": 18.2,
+  "dx_cm_end": [
+   2.0,
+   2.6
+  ],
+  "dyaw_deg_end": [
+   9.9,
+   11.3
+  ],
+  "sep_cm_end": 13.4
+ },
+ "inplace+-0.6_stop": {
+  "survival": 1.0,
+  "standing": 1.0,
+  "t_to_stand": 1.74,
+  "t_to_final_stance": 10.6,
+  "dx_cm": [
+   5.7,
+   5.9
+  ],
+  "dyaw_deg": [
+   5.7,
+   5.9
+  ],
+  "sep_cm": 16.8,
+  "dx_cm_end": [
+   0.4,
+   0.7
+  ],
+  "dyaw_deg_end": [
+   4.2,
+   5.0
+  ],
+  "sep_cm_end": 15.2
+ },
+ "walk1.2_stop": {
+  "survival": 1.0,
+  "standing": 1.0,
+  "t_to_stand": 3.28,
+  "t_to_final_stance": 11.82,
+  "dx_cm": [
+   8.4,
+   8.5
+  ],
+  "dyaw_deg": [
+   5.8,
+   6.2
+  ],
+  "sep_cm": 18.2,
+  "dx_cm_end": [
+   2.2,
+   2.4
+  ],
+  "dyaw_deg_end": [
+   10.4,
+   11.3
+  ],
+  "sep_cm_end": 13.9
+ },
+ "turnwalk_stop": {
+  "survival": 1.0,
+  "standing": 1.0,
+  "t_to_stand": 2.62,
+  "t_to_final_stance": 11.18,
+  "dx_cm": [
+   8.4,
+   8.6
+  ],
+  "dyaw_deg": [
+   6.4,
+   6.6
+  ],
+  "sep_cm": 18.3,
+  "dx_cm_end": [
+   2.4,
+   2.6
+  ],
+  "dyaw_deg_end": [
+   9.8,
+   12.2
+  ],
+  "sep_cm_end": 13.9
+ },
+ "run4.5_stop": {
+  "survival": 1.0,
+  "standing": 1.0,
+  "t_to_stand": 5.99,
+  "t_to_final_stance": 14.95,
+  "dx_cm": [
+   5.8,
+   6.7
+  ],
+  "dyaw_deg": [
+   0.8,
+   1.2
+  ],
+  "sep_cm": 22.7,
+  "dx_cm_end": [
+   1.6,
+   2.2
+  ],
+  "dyaw_deg_end": [
+   1.6,
+   6.2
+  ],
+  "sep_cm_end": 23.2
+ },
+ "run4.5_brake": {
+  "survival": 1.0,
+  "standing": 1.0,
+  "t_to_stand": 3.92,
+  "t_to_final_stance": 12.75,
+  "dx_cm": [
+   2.3,
+   4.5
+  ],
+  "dyaw_deg": [
+   6.1,
+   8.7
+  ],
+  "sep_cm": 20.1,
+  "dx_cm_end": [
+   0.9,
+   1.4
+  ],
+  "dyaw_deg_end": [
+   7.7,
+   9.2
+  ],
+  "sep_cm_end": 13.7
+ }
+}

@@ -1,0 +1,54 @@
+{
+ "source": "motion_and_confidence.npz",
+ "n_bursts": 59,
+ "n_used": 36,
+ "yaw_per_step_deg_median": 25.523747402221947,
+ "yaw_per_step_deg_p25_p75": [
+  16.425311378329237,
+  38.95198922166056
+ ],
+ "burst_duration_s_median": 0.5166666666666666,
+ "step_period_s_min_p10": 0.6833333333333336,
+ "bins": [
+  {
+   "w_rad_s": [
+    0.0,
+    0.4
+   ],
+   "n": 18,
+   "yaw_per_step_deg": 17.22617973822429,
+   "step_period_s": 1.166666666666667,
+   "burst_s": 0.4666666666666667
+  },
+  {
+   "w_rad_s": [
+    0.4,
+    0.7
+   ],
+   "n": 8,
+   "yaw_per_step_deg": 32.25375553328843,
+   "step_period_s": 0.9666666666666686,
+   "burst_s": 0.6
+  },
+  {
+   "w_rad_s": [
+    0.7,
+    1.0
+   ],
+   "n": 6,
+   "yaw_per_step_deg": 37.27152421700418,
+   "step_period_s": 0.8333333333333357,
+   "burst_s": 0.6
+  },
+  {
+   "w_rad_s": [
+    1.0,
+    2.0
+   ],
+   "n": 4,
+   "yaw_per_step_deg": 58.55180704763155,
+   "step_period_s": 0.9166666666666643,
+   "burst_s": 0.6666666666666666
+  }
+ ]
+}

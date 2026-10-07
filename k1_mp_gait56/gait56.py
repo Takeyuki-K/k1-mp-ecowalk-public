@@ -25,6 +25,10 @@ from ppo_run4 import ACEco
 
 V_UP, V_DOWN, V_HAND = 1.8, 1.7, 1.8
 V_WALK_MAX = 1.65
+# re-stance (user decision after the v5.6 review): stop quickly without re-placing the feet; when the robot has been
+# standing for 1 s without a speed command and the feet are not at the standing position (joint-angle FK), step in
+# place with the FK + IK re-placement until aligned (or 6 steps), then close the legs again (K1Walk4Batch.restance_*).
+RESTANCE = os.environ.get('RESTANCE', '1') == '1'
 
 
 def _load(path, env, nact):
@@ -43,8 +47,19 @@ class Gait56:
     def __init__(self, walk_path, run_path, n=1, seed=5, nthread=1):
         torch.set_num_threads(1)
         K1Walk3Batch.P_RUN = 0.0
-        K1Walk3Batch.ALIGN_CHECK = os.environ.get('ALIGN_CHECK', '0') == '1'; K1Walk3Batch.IP_WIDE = True; K1Walk3Batch.ROLL_DEADBAND = 0.045; K1Walk3Batch.PLACE_FF = os.environ.get('PLACE_FF', '1') == '1'; K1Walk3Batch.PLACE_GAIN = float(os.environ.get('PLACE_GAIN', '1.5'))
+        E = os.environ.get
+        C = K1Walk3Batch
+        # deployment settings (TRAINING_HISTORY.md, REPORT_GAIT56.md S13-S20); each can be overridden for experiments
+        C.ALIGN_CHECK = E('ALIGN_CHECK', '0') == '1'; C.IP_WIDE = True; C.ROLL_DEADBAND = 0.045
+        C.PLACE_FF = E('PLACE_FF', '1') == '1'; C.PLACE_GAIN = float(E('PLACE_GAIN', '1.5'))
+        C.PLACE_GAIN_YAW = float(E('PLACE_GAIN_YAW', '1.0')); C.PLACE_LAT = E('PLACE_LAT', '1') == '1'
+        C.RESTANCE = RESTANCE; C.P_STAGGER = 0.0; C.RS_FF_UP = E('RS_FF_UP', '1') == '1'
+        C.RS_MAX = int(E('RS_MAX', '1')); C.ALIGN_MAX = int(E('ALIGN_MAX', '4'))
+        C.RS_DX = float(E('RS_DX', '0.03')); C.RS_DYAW = np.radians(float(E('RS_DYAW_DEG', '6'))); C.RS_DSEP = float(E('RS_DSEP', '0.04'))
+        C.IP_RHYTHM = E('IP_RHYTHM', '1') == '1'
         K1Run4Batch.P_STAND = 0.0; K1Run4Batch.P_WALK = 0.0
+        n_in0 = torch.load(walk_path, map_location='cpu')['model']['actor.0.weight'].shape[1]
+        K1Walk3Batch.RS_OBS = n_in0 == 85                       # w56i policies see the re-stance state
         self.W = K1Walk3Batch(n, stage=2, randomize=False, seed=seed, ep_len=10 ** 9, nthread=nthread)
         self.R = K1Run4Batch(n, v_lo=2.0, v_hi=2.0, stage=2, randomize=False, seed=seed + 1, ep_len=10 ** 9,
                              nthread=nthread)
@@ -80,6 +95,7 @@ class Gait56:
         self.braking = np.zeros(self.n, bool)
         self.calm = np.zeros(self.n, int)          # running cycles completed since the last braking
         self.switches = []
+        self.W.restance_cancel(np.arange(self.n))
         self.t = 0
         self._oaw, _ = self.W.obs(); self._oar, _ = self.R.obs()
 
@@ -99,6 +115,7 @@ class Gait56:
         self.v_user[:] = max(0.0, float(v)); self.w_user[:] = float(w)
         self.go[:] = True; self.braking[:] = False
         self.W.brake[:] = 0.0
+        self.W.restance_cancel(np.arange(self.n))
 
     def stop(self):
         self.go[:] = False; self.braking[:] = False
@@ -113,8 +130,12 @@ class Gait56:
     # ------------------------------------------------------------ step
     def step(self):
         W, R = self.W, self.R
+        busy = W.restance_update(~self.go & (self.mode == 0)) if RESTANCE else np.zeros(self.n, bool)
         for i in range(self.n):
             u = self._run_wanted(i) if self.go[i] else 0.0
+            if busy[i]:
+                self.braking[i] = False
+                continue
             if self.mode[i] == 0:
                 if self.braking[i] and self.W.use_brake and W.alpha[i] > 0:
                     W.brake[i] = 1.0; W.cmd[i] = 0.0; W.v_cmd[i] = 0.0; W.w_cmd[i] = 0.0   # learned hard stop
@@ -174,6 +195,10 @@ class Gait56:
         self._oaw, _ = W.obs(); self._oar, _ = R.obs()
         self.t += 1
         return term, (iw if self.mode[0] == 0 else ir)
+
+    @property
+    def rs(self):
+        return self.W.rs
 
     # ------------------------------------------------------------ views
     def qpos(self):
