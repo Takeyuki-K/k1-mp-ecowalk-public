@@ -10,7 +10,7 @@ User observations and instructions:
   fall later — re-place the feet to the standing position after stopping;
 - decision after the first stage (§2, S3): **human-level sway is allowed**; lateral pelvis travel is fine.
 
-> **Update (§4): `runs/final/walk.pt` is now stage w56h** — quick stop, feet re-placed 1 s after stopping, in-place
+> **v5.6.1 (§4): `runs/final/walk.pt` is now stage w56h** — quick stop, feet re-placed 1 s after stopping, in-place
 > turning with real alternating steps in the human rhythm. §1–§3 describe the first v5.6 result (stage w56c,
 > `runs/init/w56c_model.pt`).
 
@@ -91,7 +91,7 @@ Video: `media/K1_v55_v56_straight.mp4` (same command, front view, v5.5 left / v5
 - In-place turning under pushes (10/16) is still the weakest case.
 - Simulation only.
 
-## 4. Update: quick stop, re-stance after 1 s, in-place turning in the human rhythm (stages w56e–w56i)
+## 4. v5.6.1: quick stop, re-stance after 1 s, in-place turning in the human rhythm (stages w56e–w56i)
 
 User instructions:
 - stopping does not need aligned feet — **stopping quickly is safer**; but about 1 s after stopping, without a speed

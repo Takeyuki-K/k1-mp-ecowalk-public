@@ -21,8 +21,8 @@ Idea & direction: **Takeyuki-K** · Implementation generated with Claude (Anthro
 torque kept inside a modelled K1 torque–speed envelope (joints can still be back-driven above the speed limit by impacts) — see
 [Road to running](#road-to-running) and [v5](#walk--run-switching-forefoot-running-within-a-modelled-motor-drive-envelope) (simulation only, not tested on a real robot).
 
-**v5.6 (branch `v5.6-level-walk`, under review):** less side-to-side rocking while walking (pelvis roll 12° → ~7°
-peak-to-peak, human level), higher swing foot, policy-controlled arm swing; **quick stop** (as fast as v5.5) and
+**v5.6 / v5.6.1 (branches `v5.6-level-walk`, `v5.6.1`, under review):** less side-to-side rocking while walking (pelvis roll 12° → ~7°
+peak-to-peak, human level), higher swing foot, policy-controlled arm swing; v5.6.1: **quick stop** (as fast as v5.5) and
 **re-stance 1 s later** — the feet are stepped back to the standing position with joint-angle kinematics (FK + IK) and
 foot contact sensors; **in-place turning with real alternating steps in the turning rhythm of a human motion capture**
 (before: one foot spun on the floor), in-place turning under pushes 63–75 % → 69–88 %. Costs: walking leg power
