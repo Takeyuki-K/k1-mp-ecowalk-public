@@ -43,7 +43,7 @@ class Gait56:
     def __init__(self, walk_path, run_path, n=1, seed=5, nthread=1):
         torch.set_num_threads(1)
         K1Walk3Batch.P_RUN = 0.0
-        K1Walk3Batch.ALIGN_CHECK = True; K1Walk3Batch.IP_WIDE = True; K1Walk3Batch.ROLL_DEADBAND = 0.045; K1Walk3Batch.PLACE_FF = os.environ.get('PLACE_FF', '1') == '1'
+        K1Walk3Batch.ALIGN_CHECK = os.environ.get('ALIGN_CHECK', '0') == '1'; K1Walk3Batch.IP_WIDE = True; K1Walk3Batch.ROLL_DEADBAND = 0.045; K1Walk3Batch.PLACE_FF = os.environ.get('PLACE_FF', '1') == '1'; K1Walk3Batch.PLACE_GAIN = float(os.environ.get('PLACE_GAIN', '1.5'))
         K1Run4Batch.P_STAND = 0.0; K1Run4Batch.P_WALK = 0.0
         self.W = K1Walk3Batch(n, stage=2, randomize=False, seed=seed, ep_len=10 ** 9, nthread=nthread)
         self.R = K1Run4Batch(n, v_lo=2.0, v_hi=2.0, stage=2, randomize=False, seed=seed + 1, ep_len=10 ** 9,

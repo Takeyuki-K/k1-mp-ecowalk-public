@@ -95,47 +95,47 @@
    {
     "seg": 9,
     "cmd": "brake v=0 w=0",
-    "w_meas": -0.0,
-    "v_meas": 0.332,
+    "w_meas": 0.022,
+    "v_meas": 0.334,
     "v_ref": 0.0,
     "run_frac": 0.06
    }
   ]
  },
  "inplace": {
-  "survival": 0.6875,
+  "survival": 0.625,
   "fall_t": [
    null,
-   29.6,
+   29.76,
    null,
    null,
    null,
    13.92,
    null,
-   7.18,
+   7.42,
    null,
-   21.04,
-   null,
-   null,
-   7.56,
+   20.8,
    null,
    null,
+   7.54,
+   null,
+   14.52,
    null
   ],
   "segments": [
    {
     "seg": 1,
     "cmd": "cmd v=0.0 w=0.6",
-    "w_meas": 0.611,
-    "v_meas": 0.108,
+    "w_meas": 0.61,
+    "v_meas": 0.106,
     "v_ref": 0.0,
     "run_frac": 0.0
    },
    {
     "seg": 2,
     "cmd": "cmd v=0.0 w=-0.6",
-    "w_meas": -0.601,
-    "v_meas": 0.092,
+    "w_meas": -0.606,
+    "v_meas": 0.107,
     "v_ref": 0.0,
     "run_frac": 0.0
    }
@@ -147,9 +147,9 @@
   "survival": 0.9375,
   "t_to_2mps": 2.0,
   "dist_to_2mps": 6.82,
-  "t_to_stand": null,
-  "dist_to_stand": null,
-  "standing_end": 0.0
+  "t_to_stand": 7.23,
+  "dist_to_stand": 8.79,
+  "standing_end": 1.0
  },
  "brake": {
   "kind": "brake",
@@ -157,8 +157,8 @@
   "survival": 1.0,
   "t_to_2mps": 0.91,
   "dist_to_2mps": 3.23,
-  "t_to_stand": 5.81,
-  "dist_to_stand": 5.38,
-  "standing_end": 0.5625
+  "t_to_stand": 5.21,
+  "dist_to_stand": 5.35,
+  "standing_end": 1.0
  }
 }

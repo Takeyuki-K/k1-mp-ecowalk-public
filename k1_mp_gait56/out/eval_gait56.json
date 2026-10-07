@@ -87,8 +87,8 @@
    {
     "seg": 9,
     "cmd": "brake v=0 w=0",
-    "w_meas": -0.009,
-    "v_meas": 0.179,
+    "w_meas": 0.021,
+    "v_meas": 0.181,
     "v_ref": 0.0,
     "run_frac": 0.0
    }
@@ -99,8 +99,8 @@
   "fall_t": [
    null,
    null,
-   19.66,
    null,
+   23.0,
    null,
    null,
    null,
@@ -110,16 +110,16 @@
    {
     "seg": 1,
     "cmd": "cmd v=0.0 w=0.6",
-    "w_meas": 0.605,
-    "v_meas": 0.098,
+    "w_meas": 0.607,
+    "v_meas": 0.1,
     "v_ref": 0.0,
     "run_frac": 0.0
    },
    {
     "seg": 2,
     "cmd": "cmd v=0.0 w=-0.6",
-    "w_meas": -0.603,
-    "v_meas": 0.084,
+    "w_meas": -0.607,
+    "v_meas": 0.088,
     "v_ref": 0.0,
     "run_frac": 0.0
    }
@@ -131,9 +131,9 @@
   "survival": 1.0,
   "t_to_2mps": 2.0,
   "dist_to_2mps": 6.8,
-  "t_to_stand": null,
-  "dist_to_stand": null,
-  "standing_end": 0.0
+  "t_to_stand": 7.26,
+  "dist_to_stand": 8.7,
+  "standing_end": 1.0
  },
  "brake": {
   "kind": "brake",
@@ -141,8 +141,8 @@
   "survival": 1.0,
   "t_to_2mps": 0.88,
   "dist_to_2mps": 3.16,
-  "t_to_stand": 7.61,
-  "dist_to_stand": 5.26,
-  "standing_end": 0.375
+  "t_to_stand": 5.21,
+  "dist_to_stand": 5.28,
+  "standing_end": 1.0
  }
 }

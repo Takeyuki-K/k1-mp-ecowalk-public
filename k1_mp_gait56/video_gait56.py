@@ -3,14 +3,14 @@
 """Video of v5.5 through the gait manager (one robot, no pushes): the eval_gait55 PROFILE
 (stand -> walk -> walking turn -> run -> running turns -> governor -> hard braking) or 'inplace' / 'brake'.
 Overlays: gait mode, command -> governed -> actual speed, yaw rate, lean (measured vs atan(v w / g)), top-view path.
-MUJOCO_GL=osmesa python3 video_gait55.py runs/final/walk.pt runs/final/run.pt profile out/K1_v55_turn_run.mp4
+MUJOCO_GL=osmesa python3 video_gait56.py runs/final/walk.pt runs/final/run.pt profile out/K1_v55_turn_run.mp4
 """
 import os, sys
 os.environ.setdefault('MUJOCO_GL', 'osmesa')
 import numpy as np, mujoco, imageio
 from PIL import Image, ImageDraw, ImageFont
-from gait55 import Gait55
-import eval_gait55 as E
+from gait56 import Gait56 as Gait55
+import eval_gait56 as E
 
 W, H = 1280, 600
 HDR, BOT = 64, 120
@@ -31,11 +31,12 @@ def _tt(path, size):
 F = lambda s, b=False: _tt(CJKB if (b and os.path.exists(CJKB)) else CJK, s)
 
 PROFILES = {
-    'profile': (E.PROFILE, '歩行・走行中の旋回、旋回時の自動減速、急停止 (v5.5)', 150),
-    'inplace': (E.INPLACE, 'その場旋回 ±0.6 rad/s (v5.5)', 150),
-    'straight': ([(2, 'cmd', 0.0, 0.0), (10, 'cmd', 1.0, 0.0), (5, 'stop', 0, 0)], '直進 1.0 m/s を正面から (v5.5)', 180),
+    'profile': (E.PROFILE, '歩行・走行中の旋回、旋回時の自動減速、急停止 (v5.6)', 150),
+    'inplace': (E.INPLACE, 'その場旋回 ±0.6 rad/s (v5.6)', 150),
+    'straight': ([(2, 'cmd', 0.0, 0.0), (10, 'cmd', 1.0, 0.0), (5, 'stop', 0, 0)], '直進 1.0 m/s を正面から (v5.6)', 180),
+    'inplace_stop': ([(2, 'cmd', 0.0, 0.0), (6, 'cmd', 0.0, 0.6), (6, 'stop', 0, 0)], 'その場旋回 → 停止 (v5.6)', 150),
     'brake': ([(2, 'cmd', 0.0, 0.0), (5, 'cmd', 1.65, 0.0), (6, 'cmd', 4.5, 0.0), (7, 'brake', 0, 0)],
-              '4.5 m/s からの急停止 (v5.5、側面)', 90),
+              '4.5 m/s からの急停止 (v5.6、側面)', 90),
 }
 LABEL = {'cmd': '指令', 'stop': '停止', 'brake': '急停止'}
 

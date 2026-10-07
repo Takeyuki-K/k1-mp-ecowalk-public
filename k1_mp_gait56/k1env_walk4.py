@@ -42,6 +42,7 @@ class K1Walk4Batch(K1Walk3Batch):
     HOME_STEPS = 2
     ALIGN_CHECK = os.environ.get('ALIGN_CHECK', '0') == '1'
     PLACE_FF = os.environ.get('PLACE_FF', '0') == '1'
+    PLACE_GAIN = float(os.environ.get('PLACE_GAIN', '1.0'))
 
     def __init__(self, n, **kw):
         self._v56 = False
@@ -65,11 +66,17 @@ class K1Walk4Batch(K1Walk3Batch):
 
     # ---- 4. re-place the feet before closing the legs ----
     def foot_offsets(self):
-        """front-back offset [m], separation [m] and relative yaw [rad] of the feet in the pelvis frame"""
+        """front-back offset [m], separation [m] and relative yaw [rad] of the feet, measured in the frame of the
+        feet's mean heading (not the pelvis frame: a pelvis twisted relative to two parallel, side-by-side feet would
+        otherwise look like a stagger of 0.25 m * sin(twist))"""
         a = self.s('left_ankle_rel'); b = self.s('right_ankle_rel')
         fl = self.s('left_foot_x'); fr = self.s('right_foot_x')
-        dyaw = np.arctan2(fl[:, 1], fl[:, 0]) - np.arctan2(fr[:, 1], fr[:, 0])
-        return a[:, 0] - b[:, 0], a[:, 1] - b[:, 1], np.arctan2(np.sin(dyaw), np.cos(dyaw))
+        yl = np.arctan2(fl[:, 1], fl[:, 0]); yr = np.arctan2(fr[:, 1], fr[:, 0])
+        dyaw = np.arctan2(np.sin(yl - yr), np.cos(yl - yr))
+        ym = yr + 0.5 * dyaw
+        d = a - b
+        c, s_ = np.cos(ym), np.sin(ym)
+        return c * d[:, 0] + s_ * d[:, 1], -s_ * d[:, 0] + c * d[:, 1], dyaw
 
     def _close_ok(self, settled, walking):
         """stage w56c: keep stepping in place (zero yaw rate) until the feet are actually re-aligned
@@ -103,7 +110,7 @@ class K1Walk4Batch(K1Walk3Batch):
         stopping = (self.cmd < 0.5) & (self.v_ref < 0.05) & (np.abs(self.w_ref) < 0.05) & (self.alpha > 0)
         c = self.lib.sample(self.ph, self.v_lib)['contact']                  # (n, leg, heel/fore)
         swl = ~(c[:, 0] > 0.5).any(1); swr = ~(c[:, 1] > 0.5).any(1)
-        kx = np.clip(self.ds_dx / 0.63, -0.25, 0.25); ky = np.clip(self.ds_dyaw, -0.3, 0.3)
+        kx = np.clip(self.PLACE_GAIN * self.ds_dx / 0.63, -0.25, 0.25); ky = np.clip(self.PLACE_GAIN * self.ds_dyaw, -0.3, 0.3)
         want = np.zeros((self.n, 4))                                            # hipL, yawL, hipR, yawR
         want[:, 0] = np.where(swl, kx, 0.0); want[:, 1] = np.where(swl, -ky, 0.0)
         want[:, 2] = np.where(swr, -kx, 0.0); want[:, 3] = np.where(swr, ky, 0.0)

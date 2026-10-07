@@ -21,7 +21,15 @@ Idea & direction: **Takeyuki-K** · Implementation generated with Claude (Anthro
 torque kept inside a modelled K1 torque–speed envelope (joints can still be back-driven above the speed limit by impacts) — see
 [Road to running](#road-to-running) and [v5](#walk--run-switching-forefoot-running-within-a-modelled-motor-drive-envelope) (simulation only, not tested on a real robot).
 
-**Latest (v5.5):** turning while walking *and running* (yaw-rate command up to 1 rad/s),
+**v5.6 (branch `v5.6-level-walk`, under review):** less side-to-side rocking while walking (pelvis roll 12° → 5.5°
+peak-to-peak, human level), higher swing foot, policy-controlled arm swing, feet re-placed beside each other before
+standing; more robust under pushes (full profile 12/16 → 15/16, in-place turning 6/16 → 10/16), at **+6 … +11 % walking
+leg power** (holding a level pelvis on K1's wide hips costs hip-roll torque) — see
+[k1_mp_gait56/REPORT_GAIT56.md](k1_mp_gait56/REPORT_GAIT56.md). Simulation only.
+
+![same 1.0 m/s command from the front: v5.5 (left) vs v5.6 (right)](media/K1_v55_v56_straight.gif)
+
+**v5.5:** turning while walking *and running* (yaw-rate command up to 1 rad/s),
 in-place turning, an automatic speed governor (v·|ω| ≤ 3 m/s² while running) with the body leaning into the turn
 (measured lean ≈ atan(vω/g)), and hard braking (4.5 m/s → standing in 4.4 s / 6.2 m instead of 5.9 s / 8.7 m) —
 see [k1_mp_gait55/REPORT_GAIT55.md](k1_mp_gait55/REPORT_GAIT55.md). Simulation only.
@@ -251,6 +259,7 @@ CoT = P / (m g v). The Joule + mechanical decomposition follows the common pract
 | `k1_mp_sprint/` | **v4 fast running**: CMU 09_04 speed library 1.6–5.5 m/s, speed curriculum, policies `runs/final/model.pt` (speed priority) and `model_motorlimit.pt` |
 | `k1_mp_gait/` | **v5**: forefoot running with motor torque–speed model, stand → run, walk ⇄ run gait manager (`gait.py`), policies `runs/final/walk.pt`, `runs/final/run.pt` |
 | `k1_mp_gait55/` | **v5.5**: turning while walking and running, in-place turning, speed governor, lean into the turn, hard braking; gait manager `gait55.py`, policies `runs/final/walk.pt`, `runs/final/run.pt`, report `REPORT_GAIT55.md` |
+| `k1_mp_gait56/` | **v5.6**: walking with less rocking (LIPM-based reference `make_ref56.py`, roll band), swing clearance, arm residuals, foot re-placement before standing; gait manager `gait56.py`, report `REPORT_GAIT56.md` |
 | `k1_compare/` | 3-way comparison: recording, power evaluation, figures, video composition; results in `results/` |
 | `media/` | videos and GIFs |
 | `scripts/` | `fetch_external.sh` (pinned upstream sources), `smoke_test.sh` |
@@ -338,11 +347,11 @@ End-to-end with the released code only (single stage from the eco policy, same t
 python3 ppo_speed.py --iters 9300 --init ../k1_mp_eco/runs/eco1/model.pt --from_eco_full --lr 1e-4 --lr_min 5e-5 --out runs/repro_final_code
 ```
 
-### E. Turning, running, fast walking, sprint, walk ⇄ run (v3–v5.5)
+### E. Turning, running, fast walking, sprint, walk ⇄ run (v3–v5.6)
 Exact historical commands per stage, carried-over checkpoints and code changes between stages:
 [k1_mp_turn](k1_mp_turn/TRAINING_HISTORY.md) · [k1_mp_run](k1_mp_run/TRAINING_HISTORY.md) ·
 [k1_mp_fastwalk](k1_mp_fastwalk/TRAINING_HISTORY.md) · [k1_mp_sprint](k1_mp_sprint/TRAINING_HISTORY.md) ·
-[k1_mp_gait](k1_mp_gait/TRAINING_HISTORY.md) · [k1_mp_gait55](k1_mp_gait55/TRAINING_HISTORY.md) (v5.5). Reference motions: `retarget_speed.py` (turn / fastwalk),
+[k1_mp_gait](k1_mp_gait/TRAINING_HISTORY.md) · [k1_mp_gait55](k1_mp_gait55/TRAINING_HISTORY.md) (v5.5) · [k1_mp_gait56](k1_mp_gait56/TRAINING_HISTORY.md) (v5.6). Reference motions: `retarget_speed.py` (turn / fastwalk),
 `retarget_run.py` (run), `retarget_sprint.py` (sprint / gait), hand-over banks `make_walk_bank.py` / `make_run_bank.py`.
 
 ### F. Videos and figures
@@ -367,7 +376,9 @@ Exact historical commands per stage, carried-over checkpoints and code changes b
   mistake), motor speed limits respected for sim2real, stand → run, and walk → run switching above a threshold
   with an allowed speed jump; v5.5: turning while running, automatically lowering the forward speed for a large
   yaw-rate command, leaning the whole body into the turn more at higher speed, and hard braking by absorbing the
-  momentum with a flexing knee while extending the trunk upward, straight up or slightly behind the foot
+  momentum with a flexing knee while extending the trunk upward, straight up or slightly behind the foot;
+  v5.6: keep the pelvis level while walking (human-level sway allowed), a higher swing foot, arm swing for balance,
+  re-placing the feet to the standing position after stopping
 - Evaluation criteria: comparison with the public ROBOTIS policy at approximately the same speed and conditions;
   staged development with branches so earlier results are preserved; selection, testing and integration of the results
 
@@ -381,7 +392,8 @@ Exact historical commands per stage, carried-over checkpoints and code changes b
   [k1_mp_run/REPORT_RUN.md](k1_mp_run/REPORT_RUN.md) (R1–R12), [k1_mp_fastwalk/REPORT_FASTWALK.md](k1_mp_fastwalk/REPORT_FASTWALK.md) (F1–F4)
   [k1_mp_sprint/REPORT_SPRINT.md](k1_mp_sprint/REPORT_SPRINT.md) (S1–S12)
   [k1_mp_gait/REPORT_GAIT.md](k1_mp_gait/REPORT_GAIT.md) (G1–G10)
-  and [k1_mp_gait55/REPORT_GAIT55.md](k1_mp_gait55/REPORT_GAIT55.md) (S1–S12, v5.5).
+  [k1_mp_gait55/REPORT_GAIT55.md](k1_mp_gait55/REPORT_GAIT55.md) (S1–S12, v5.5)
+  and [k1_mp_gait56/REPORT_GAIT56.md](k1_mp_gait56/REPORT_GAIT56.md) (S1–S11, v5.6).
 
 
 ## Use this idea

@@ -19,7 +19,12 @@
 **v5:** 歩行⇄走行の自動切替、立位からの走り出し、最高4.9 m/sの前足着地走行。モーター駆動トルクは、仮定したK1のトルク–速度包絡線の内側に保っています（着地衝撃で関節が速度上限を超えて回されることはあります）。
 [走行に至るまで](#走行に至るまでv3--v4--v5) と [v5](#歩行走行の切替モーター駆動包絡線内の前足着地走行v5) を参照（シミュレーションのみ、実機未検証）。
 
-**最新（v5.5）:** 歩行中・**走行中**の旋回（ヨーレート指令 最大1 rad/s）、その場旋回、旋回時の自動減速（走行中 v·|ω| ≤ 3 m/s²）と旋回内側への体の傾け（実測の傾き ≈ atan(vω/g)）、急停止（4.5 m/s から停止まで 5.9 s / 8.7 m → 4.4 s / 6.2 m）。
+**v5.6（ブランチ `v5.6-level-walk`、確認中）:** 歩行時の左右の揺れを人並みに抑制（骨盤ロールの振れ幅 12° → 5.5°）、遊脚の足上げを高く、腕振りをポリシーが制御、停止前に足を揃える置き直し。押し外乱への強さも向上（通しコース 12/16 → 15/16、その場旋回 6/16 → 10/16）。ただし**歩行の脚電力は +6〜11 %**（K1 の広い腰幅で骨盤を水平に保つには股関節ロールのトルクが要るため）。
+詳細は [k1_mp_gait56/REPORT_GAIT56.md](k1_mp_gait56/REPORT_GAIT56.md)。シミュレーションのみ。
+
+![同じ 1.0 m/s 指令を正面から: v5.5（左）と v5.6（右）](media/K1_v55_v56_straight.gif)
+
+**v5.5:** 歩行中・**走行中**の旋回（ヨーレート指令 最大1 rad/s）、その場旋回、旋回時の自動減速（走行中 v·|ω| ≤ 3 m/s²）と旋回内側への体の傾け（実測の傾き ≈ atan(vω/g)）、急停止（4.5 m/s から停止まで 5.9 s / 8.7 m → 4.4 s / 6.2 m）。
 詳細は [k1_mp_gait55/REPORT_GAIT55.md](k1_mp_gait55/REPORT_GAIT55.md)。シミュレーションのみ。
 
 ![v5.5: 自動減速しながらの走行旋回（指令 4.5 m/s ＋ 1 rad/s → 3 m/s）、旋回内側への傾き](media/K1_v55_governed_turn.gif)
@@ -212,6 +217,7 @@ CoT = P / (m g v)。ジュール損失＋機械仕事への分解は、脚ロボ
 | `k1_mp_sprint/` | **v4 高速走行**: CMU 09_04 の速度ライブラリ 1.6〜5.5 m/s、速度カリキュラム、ポリシー `runs/final/model.pt`（速度優先）と `model_motorlimit.pt` |
 | `k1_mp_gait/` | **v5**: モーターのトルク–速度モデル付き前足着地走行、立位→走行、歩行⇄走行のゲートマネージャ（`gait.py`）、ポリシー `runs/final/walk.pt`、`runs/final/run.pt` |
 | `k1_mp_gait55/` | **v5.5**: 歩行・走行中の旋回、その場旋回、自動減速、旋回内側への傾き、急停止。ゲートマネージャ `gait55.py`、ポリシー `runs/final/walk.pt`、`runs/final/run.pt`、レポート `REPORT_GAIT55.md` |
+| `k1_mp_gait56/` | **v5.6**: 揺れの少ない歩行（倒立振子モデルに基づく参照 `make_ref56.py`、ロールの許容幅）、足上げ、腕の補正、停止前の足の置き直し。ゲートマネージャ `gait56.py`、レポート `REPORT_GAIT56.md` |
 | `k1_compare/` | 3者比較: 収録、電力評価、図、動画合成。結果は `results/` |
 | `media/` | 動画とGIF |
 | `scripts/` | `fetch_external.sh`（固定した上流ソースの取得）、`smoke_test.sh` |
@@ -290,11 +296,11 @@ python3 ppo_speed.py --iters 3500 --init runs/stages/stage_F.pt --add_heading_ob
 python3 ppo_speed.py --iters 9300 --init ../k1_mp_eco/runs/eco1/model.pt --from_eco_full --lr 1e-4 --lr_min 5e-5 --out runs/repro_final_code
 ```
 
-### E. 旋回、走行、速歩き、高速走行、歩行⇄走行（v3〜v5.5）
+### E. 旋回、走行、速歩き、高速走行、歩行⇄走行（v3〜v5.6）
 ステージごとの正確なコマンド、引き継いだチェックポイント、ステージ間のコードの変更:
 [k1_mp_turn](k1_mp_turn/TRAINING_HISTORY.md) · [k1_mp_run](k1_mp_run/TRAINING_HISTORY.md) ·
 [k1_mp_fastwalk](k1_mp_fastwalk/TRAINING_HISTORY.md) · [k1_mp_sprint](k1_mp_sprint/TRAINING_HISTORY.md) ·
-[k1_mp_gait](k1_mp_gait/TRAINING_HISTORY.md) · [k1_mp_gait55](k1_mp_gait55/TRAINING_HISTORY.md)（v5.5）。参照モーション: `retarget_speed.py`（旋回・速歩き）、
+[k1_mp_gait](k1_mp_gait/TRAINING_HISTORY.md) · [k1_mp_gait55](k1_mp_gait55/TRAINING_HISTORY.md)（v5.5） · [k1_mp_gait56](k1_mp_gait56/TRAINING_HISTORY.md)（v5.6）。参照モーション: `retarget_speed.py`（旋回・速歩き）、
 `retarget_run.py`（走行）、`retarget_sprint.py`（高速走行・ゲート）、切替用の状態バンク `make_walk_bank.py` / `make_run_bank.py`。
 
 ### F. 動画・図
@@ -310,7 +316,8 @@ python3 ppo_speed.py --iters 9300 --init ../k1_mp_eco/runs/eco1/model.pt --from_
 - 主な仕様: 体重が前に移ると曲がるが足を持ち上げることはないモーターなしのバネMP関節。かかと → 足裏全体 → つま先の接地順序。股関節→足首の動きだけを模倣して残りはIKで解く。立位→歩行の遷移は別の強化学習。遅い歩行は小股。走行は別の歩容として扱う。
   歩行中とその場の両方での旋回、停止指令での安全停止、旋回時の衝撃吸収に脱力を使う。走行: 人の模倣と安定性を優先、空中期からかかとで着地し、かかとを支点に上体を崩さず体を前に回す、電力は二の次（「省エネは結果」）。
   1.35〜1.6 m/sは歩幅を伸ばした速歩きと省エネ報酬で対応。高速走行は5 m/sを目標に安定性と速度を優先し、電力は結果として評価。走行は中足〜前足で着地（かかと着地は誤り）、sim2realのためにモーター速度上限を守る、立位→走行、しきい値を超えたら速度の跳びを許して歩行→走行に切替。
-  v5.5: 走行中の旋回、大きな旋回指令では自動で直進速度を落とす、速いほど体全体を旋回内側に傾ける、急停止では着地脚の膝を曲げて慣性を吸収しつつ上体を真上〜やや足より後ろの上方向に伸ばす
+  v5.5: 走行中の旋回、大きな旋回指令では自動で直進速度を落とす、速いほど体全体を旋回内側に傾ける、急停止では着地脚の膝を曲げて慣性を吸収しつつ上体を真上〜やや足より後ろの上方向に伸ばす。
+  v5.6: 歩行時は骨盤をなるべく水平に（人並みの揺れは許容）、遊脚の足上げを高く、腕振りでバランス、停止後は初期姿勢の位置へ足を運ぶ
 - 評価基準: ほぼ同じ速度・条件での ROBOTIS 公開ポリシーとの比較。過去の結果を残せるようブランチを分けた段階的な開発。結果の選択・試験・統合
 
 **実装 — Claude（Anthropic）で生成**
@@ -319,7 +326,7 @@ python3 ppo_speed.py --iters 9300 --init ../k1_mp_eco/runs/eco1/model.pt --from_
   [k1_mp_speed/REPORT_SPEED.md](k1_mp_speed/REPORT_SPEED.md)（D1〜D12）、[k1_mp_turn/REPORT_TURN.md](k1_mp_turn/REPORT_TURN.md)（T1〜T9）、
   [k1_mp_run/REPORT_RUN.md](k1_mp_run/REPORT_RUN.md)（R1〜R12）、[k1_mp_fastwalk/REPORT_FASTWALK.md](k1_mp_fastwalk/REPORT_FASTWALK.md)（F1〜F4）、
   [k1_mp_sprint/REPORT_SPRINT.md](k1_mp_sprint/REPORT_SPRINT.md)（S1〜S12）、[k1_mp_gait/REPORT_GAIT.md](k1_mp_gait/REPORT_GAIT.md)（G1〜G10）、
-  [k1_mp_gait55/REPORT_GAIT55.md](k1_mp_gait55/REPORT_GAIT55.md)（S1〜S12、v5.5）。
+  [k1_mp_gait55/REPORT_GAIT55.md](k1_mp_gait55/REPORT_GAIT55.md)（S1〜S12、v5.5）、[k1_mp_gait56/REPORT_GAIT56.md](k1_mp_gait56/REPORT_GAIT56.md)（S1〜S11、v5.6）。
 
 ## このアイディアの利用について
 自由に使い、改変し、発展させてください（コード: Apache-2.0。データファイルはそれぞれのライセンスに従います。[THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md) を参照）。
