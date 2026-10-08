@@ -7,7 +7,7 @@ This repository is **not** under a single licence. Summary:
 | Project code (`*.py`, `*.sh`, CI, Dockerfile), reports, figures, videos, trained policies (`*.pt`, `*.onnx`), hand-over state banks (`*_bank.npz`), result files | **Apache-2.0** | [LICENSE](LICENSE), [LICENSES/Apache-2.0.txt](LICENSES/Apache-2.0.txt) |
 | K1 robot model and meshes in `ai_sapiens/` (original files unmodified, derived files marked) | **Apache-2.0** (ROBOTIS) | [ai_sapiens/LICENSE](ai_sapiens/LICENSE), [ai_sapiens/NOTICE_MODIFICATIONS.md](ai_sapiens/NOTICE_MODIFICATIONS.md) |
 | Human-gait-derived reference trajectories (`ref_gait.npz`, `ref_lib.npz`, `ref_*.csv`, `ref_joint_table.csv` in the walking folders) | **CC BY 4.0** (Marcos Duarte and Renato Naville Watanabe, BMC) | [LICENSES/CC-BY-4.0.txt](LICENSES/CC-BY-4.0.txt), [NOTICE](NOTICE) item 2 |
-| CMU motion-capture files (`*/data/cmu/`) and running references derived from them (`ref_run.npz`, `ref_sprint_lib.npz`) | free for research and commercial use, no restrictions (acknowledgement requested) | `*/data/cmu/READMEFIRST.txt`, [NOTICE](NOTICE) item 3 |
+| CMU motion-capture files (`*/data/cmu/`) and running references derived from them (`ref_run.npz`, `ref_sprint_lib.npz`, `ref_sprint_lib_sym.npz`) | free for research and commercial use, no restrictions (acknowledgement requested) | `*/data/cmu/READMEFIRST.txt`, [NOTICE](NOTICE) item 3 |
 
 The exact file lists are in [NOTICE](NOTICE). The trained policies were trained against the CC BY 4.0 / CMU-derived
 reference motions; the reference data themselves keep their own licences when redistributed.

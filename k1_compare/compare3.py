@@ -5,6 +5,10 @@
  (1) ROBOTIS official walk_default policy (ONNX) on the ORIGINAL K1 model (no MP joint)
  (2) MP-joint K1, human-gait imitation + RL, fixed ROBOTIS PD gains   (k1_mp/runs/final)
  (3) MP-joint K1, eco policy with variable impedance (Kp/Kd per step)   (k1_mp_eco/runs/eco1)
+ (4) v5.6.3 = latest walking policy of main (k1_mp_gait56/runs/final/walk.pt) through its gait manager, 0.92 m/s
+     (added 2026-10-08 to re-measure the v1 comparison with the final policy, same conditions and power model)
+COMPARE_NOSLIP=10 runs every controller with MuJoCo's no-slip friction pass (the friction model of v5.6.3);
+the default (0) is the friction model of the original v1 comparison.
 
 Common conditions
  - MuJoCo 3.14, implicitfast, physics dt = 0.002 s (ROBOTIS sim default), control 50 Hz
@@ -23,6 +27,8 @@ import torch
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 UPSTREAM = os.environ.get('AI_SAPIENS_UPSTREAM', os.path.join(ROOT, 'external', 'ai_sapiens'))
 DT = 0.002
+NOSLIP = int(os.environ.get('COMPARE_NOSLIP', '0'))
+SUFFIX = '_noslip' if NOSLIP else ''
 SUB = int(round(0.02 / DT))
 STAND, WALK = 2.0, 10.0
 WIN = (STAND + 4.0, STAND + WALK)
@@ -67,7 +73,7 @@ def run_robotis(vx):
     jp = cfg['joint_properties']
     sess = ort.InferenceSession(f'{A}/exported/policy.onnx')
     m = mujoco.MjModel.from_xml_path(f'{ROOT}/ai_sapiens/ai_sapiens_description/mujoco/k1/scene.xml')
-    m.opt.timestep = DT
+    m.opt.timestep = DT; m.opt.noslip_iterations = NOSLIP
     d = mujoco.MjData(m)
     qa = np.array([m.jnt_qposadr[m.joint(j).id] for j in pj])
     da = np.array([m.jnt_dofadr[m.joint(j).id] for j in pj])
@@ -150,6 +156,8 @@ def run_ours(kind):
         path, nact = 'runs/eco1/model.pt', 36
     env = Env(1, stage=2, seed=7, dt=DT, ep_len=10 ** 9)
     env.pushes = False
+    for mm in [env.m] + list(getattr(env, 'models', [])):
+        mm.opt.noslip_iterations = NOSLIP
     m = env.m; d = mujoco.MjData(m)
     d.qpos[:] = m.key_qpos[0]; d.qpos[env.qadr] = DEFAULT_POSE; d.qpos[2] = env.ref.z_stand + 0.002
     mujoco.mj_forward(m, d)
@@ -186,11 +194,47 @@ def run_ours(kind):
     return res
 
 
+# ------------------------------------------------------------------ (4) latest policy (v5.6.3)
+def run_v563(vx=0.92):
+    os.environ['K1_NOSLIP'] = str(NOSLIP)
+    sys.path.insert(0, f'{ROOT}/k1_mp_gait56'); os.chdir(f'{ROOT}/k1_mp_gait56')
+    from gait56 import Gait56
+    from k1env import ACT_JOINTS, KP, KD
+    g = Gait56('runs/final/walk.pt', 'runs/final/run.pt', n=1, dt=DT)     # starts standing in DEFAULT_POSE
+    W = g.W; m = W.m
+    lim = np.array([tlim_of(j) for j in ACT_JOINTS])
+    rec = dict(Q=[], QD=[], TAU=[], X=[], t=[])
+    fell = False
+    g.stop()
+    for k in range(int((STAND + WALK) * 50)):
+        if k == int(STAND * 50):
+            g.command(vx, 0.0)
+        term, _ = g.step()
+        assert g.mode[0] == 0                       # walking policy only at this speed
+        tgt = W.ctrl[0]
+        kp = KP.copy(); kd = KD.copy()
+        kp[:12] *= W.kp_scale[0] * W.kp_dr[0]; kd[:12] *= W.kd_scale[0] * W.kp_dr[0]
+        for s in range(W.nsub):
+            x = W.st_out[0, s]
+            q = x[1:1 + m.nq][W.qadr]; qd = x[1 + m.nq:1 + m.nq + m.nv][W.dadr]
+            rec['Q'].append(q); rec['QD'].append(qd)
+            rec['TAU'].append(np.clip(kp * (tgt - q) - kd * qd, -lim, lim))
+            rec['X'].append(x[1]); rec['t'].append(k * 0.02 + (s + 1) * DT)
+        if term[0]:
+            fell = True; break
+    R = {k: np.array(v) for k, v in rec.items()}
+    res = energy(ACT_JOINTS, R['Q'], R['QD'], R['TAU'], R['X'], R['t'])
+    res['fell'] = fell
+    return res
+
+
 if __name__ == '__main__':
     which = sys.argv[1]
     if which == 'robotis':
         out = {f'robotis_v{v}': run_robotis(v) for v in (0.5, 0.7, 0.9)}
+    elif which == 'v563':
+        out = {which: run_v563()}
     else:
         out = {which: run_ours(which)}
-    json.dump(out, open(f'{ROOT}/k1_compare/res_{which}.json', 'w'), indent=1)
+    json.dump(out, open(f'{ROOT}/k1_compare/res_{which}{SUFFIX}.json', 'w'), indent=1)
     print(json.dumps(out, indent=1))

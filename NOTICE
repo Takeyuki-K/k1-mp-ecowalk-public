@@ -43,7 +43,10 @@ Third-party material included in this repository
      k1_mp_speed/ref_gait.npz, k1_mp_speed/ref_lib.npz, k1_mp_speed/deploy_speed/ref_*.csv,
      k1_mp_turn/ref_gait.npz, k1_mp_turn/ref_lib.npz,
      k1_mp_fastwalk/ref_gait.npz, k1_mp_fastwalk/ref_lib.npz,
-     k1_mp_gait/ref_lib.npz
+     k1_mp_gait/ref_lib.npz,
+     k1_mp_gait55/ref_lib.npz, k1_mp_gait55/ref_lib_turn.npz,
+     k1_mp_gait56/ref_lib.npz, k1_mp_gait56/ref_lib_turn.npz, k1_mp_gait56/ref_lib_56.npz,
+     k1_mp_gait56/ref_lib_56_sym.npz
    Derived from the human gait data "data/walk2.trc" of
      Marcos Duarte and Renato Naville Watanabe,
      "Notes on Scientific Computing for Biomechanics and Motor Control" (BMC),
@@ -55,7 +58,9 @@ Third-party material included in this repository
    converted to robot joint angles by inverse kinematics; for ref_lib.npz / ref_*.csv additionally step
    length and cadence scaled with sqrt(speed) (walk-ratio law) to 0.30-1.65 m/s; k1_mp_turn/ref_lib.npz
    additionally contains a stepping-in-place cycle (stride 0); k1_mp_fastwalk/ref_lib.npz and
-   k1_mp_gait/ref_lib.npz extend the library to 1.95 m/s.
+   k1_mp_gait/ref_lib.npz extend the library to 1.95 m/s; k1_mp_gait56/ref_lib_56.npz: narrower stance, lateral
+   pelvis travel from the linear inverted pendulum, level pelvis, more swing clearance (make_ref56.py);
+   *_sym.npz: made left/right symmetric (average with the mirror image shifted by half a cycle, make_sym_ref.py).
    These files remain under CC BY 4.0 (they are NOT relicensed under Apache-2.0).
    The raw walk2.trc file is not redistributed (scripts/fetch_external.sh downloads it).
 
@@ -63,7 +68,9 @@ Third-party material included in this repository
      k1_mp_run/data/cmu/data/016/16_35.bvh, k1_mp_sprint/data/cmu/data/009/09_04.bvh,
      k1_mp_gait/data/cmu/data/009/09_04.bvh, k1_mp_*/data/cmu/READMEFIRST.txt,
      k1_mp_run/ref_run.npz, k1_mp_sprint/ref_run.npz, k1_mp_sprint/ref_sprint_lib.npz,
-     k1_mp_gait/ref_run.npz, k1_mp_gait/ref_sprint_lib.npz
+     k1_mp_gait/ref_run.npz, k1_mp_gait/ref_sprint_lib.npz,
+     k1_mp_gait55/ref_run.npz, k1_mp_gait55/ref_sprint_lib.npz, k1_mp_gait56/ref_run.npz,
+     k1_mp_gait56/ref_sprint_lib.npz, k1_mp_gait56/ref_sprint_lib_sym.npz
    Carnegie Mellon University Graphics Lab Motion Capture Database, http://mocap.cs.cmu.edu
    (subject 16, trial 35 "run/jog"; subject 9, trial 4 "run"), BVH conversion by B. Hahne (cgspeed.com),
    obtained from https://github.com/una-dinosauria/cmu-mocap (commit 09a07f54f3bbb58797325f009282d0b2048a2871).
@@ -76,4 +83,5 @@ Third-party material included in this repository
    joint angles by inverse kinematics; k1_mp_run/ref_run.npz: stride shortened at constant cadence
    (1.65 m/s), heel-first landing imposed, 5 deg trunk lean; ref_sprint_lib.npz (09_04): time-warped to
    1.6-5.5 m/s (cadence ~ v^0.35, contact time ~ 1/v), 5 deg trunk lean, heel-first landing imposed
-   (k1_mp_sprint) or the runner's own mid/forefoot landing kept (k1_mp_gait).
+   (k1_mp_sprint) or the runner's own mid/forefoot landing kept (k1_mp_gait, k1_mp_gait55, k1_mp_gait56);
+   ref_sprint_lib_sym.npz: made left/right symmetric (make_sym_ref.py).

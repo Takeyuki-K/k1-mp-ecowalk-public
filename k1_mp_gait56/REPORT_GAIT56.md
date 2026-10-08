@@ -294,6 +294,11 @@ Stopping: quick stop then re-stance; final stance 2.4–2.9 cm / ≤ 4° after w
 5.7–7.6 cm front-back after in-place stops (the re-stance of w56l is less precise than w56j's).
 Videos: `media/K1_v563_*.mp4`.
 
+**Re-measurement of the v1.0 energy comparison** (`k1_compare/compare3.py v563`, same script, physics and power model
+as v1.0, straight walking ≈ 0.9 m/s): ROBOTIS `walk_default` 179.1 W (CoT 0.568), v1.0 eco 114.1 W (0.355, −37 %),
+**v5.6.3 125.5 W (0.403, −29 %)**; with no-slip friction for all: 177.8 / 117.8 / 126.3 W (−37 % / −27 %).
+Video `media/K1_v1_v563_energy_comparison.mp4`, GIF `media/K1_v1_v563_energy.gif`.
+
 ### Limitations / next steps
 - Re-stance after in-place stops leaves 6–8 cm front-back.
 - The 8-robot end-to-end evaluations become synchronized over long profiles (all robots fall at the same instant);

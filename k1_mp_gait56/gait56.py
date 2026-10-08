@@ -44,7 +44,7 @@ def _act(net, oa):
 
 
 class Gait56:
-    def __init__(self, walk_path, run_path, n=1, seed=5, nthread=1):
+    def __init__(self, walk_path, run_path, n=1, seed=5, nthread=1, dt=None):
         torch.set_num_threads(1)
         K1Walk3Batch.P_RUN = 0.0
         E = os.environ.get
@@ -63,8 +63,9 @@ class Gait56:
         K1Run4Batch.P_STAND = 0.0; K1Run4Batch.P_WALK = 0.0
         n_in0 = torch.load(walk_path, map_location='cpu')['model']['actor.0.weight'].shape[1]
         K1Walk3Batch.RS_OBS = n_in0 == 85                       # w56i policies see the re-stance state
-        self.W = K1Walk3Batch(n, stage=2, randomize=False, seed=seed, ep_len=10 ** 9, nthread=nthread)
-        self.R = K1Run4Batch(n, v_lo=2.0, v_hi=2.0, stage=2, randomize=False, seed=seed + 1, ep_len=10 ** 9,
+        dkw = {} if dt is None else dict(dt=dt)          # physics step (k1_compare uses 0.002 s like v1)
+        self.W = K1Walk3Batch(n, stage=2, randomize=False, seed=seed, ep_len=10 ** 9, nthread=nthread, **dkw)
+        self.R = K1Run4Batch(n, v_lo=2.0, v_hi=2.0, stage=2, randomize=False, seed=seed + 1, ep_len=10 ** 9, **dkw,
                              nthread=nthread)
         for e in (self.W, self.R):
             e.pushes = False; e.scripted = True

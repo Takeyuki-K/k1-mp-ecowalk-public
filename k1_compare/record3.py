@@ -130,9 +130,40 @@ def rec_ours(kind):
     return dict(qpos=np.array(Q), P=np.array(P), names=np.array(ACT_JOINTS), x=np.array(X), xml=xml)
 
 
+def rec_v563():
+    """latest walking policy (v5.6.3) through its gait manager, same conditions (added 2026-10-08)"""
+    os.environ.setdefault('K1_NOSLIP', '0')            # friction model of the original v1 comparison
+    sys.path.insert(0, f'{ROOT}/k1_mp_gait56'); os.chdir(f'{ROOT}/k1_mp_gait56')
+    from gait56 import Gait56
+    from k1env import ACT_JOINTS, KP, KD
+    g = Gait56('runs/final/walk.pt', 'runs/final/run.pt', n=1, dt=DT)
+    W = g.W; m = W.m
+    lim = np.array([tlim_of(j) for j in ACT_JOINTS])
+    Q, P, X = [], [], []
+    g.stop()
+    for k in range(int((STAND + WALK) * 50)):
+        if k == int(STAND * 50):
+            g.command(VX, 0.0)
+        term, _ = g.step()
+        tgt = W.ctrl[0]
+        kp = KP.copy(); kd = KD.copy()
+        kp[:12] *= W.kp_scale[0] * W.kp_dr[0]; kd[:12] *= W.kd_scale[0] * W.kp_dr[0]
+        pw = np.zeros(23)
+        for s in range(W.nsub):
+            x = W.st_out[0, s]
+            q = x[1:1 + m.nq][W.qadr]; qd = x[1 + m.nq:1 + m.nq + m.nv][W.dadr]
+            tau = np.clip(kp * (tgt - q) - kd * qd, -lim, lim)
+            pw += power(tau, qd, ACT_JOINTS) / W.nsub
+        Q.append(W.qpos()[0].copy()); P.append(pw); X.append(W.qpos()[0, 0])
+        if term[0]:
+            print('FELL'); break
+    xml = f'{ROOT}/ai_sapiens/ai_sapiens_description/mujoco/k1/scene_mp.xml'
+    return dict(qpos=np.array(Q), P=np.array(P), names=np.array(ACT_JOINTS), x=np.array(X), xml=xml)
+
+
 if __name__ == '__main__':
     k = sys.argv[1]
-    r = rec_robotis() if k == 'robotis' else rec_ours(k)
+    r = rec_robotis() if k == 'robotis' else (rec_v563() if k == 'v563' else rec_ours(k))
     np.savez(f'{ROOT}/k1_compare/rec_{k}.npz', **r)
     t = np.arange(len(r['x'])) * 0.02
     w = (t >= STAND + 4) & (t < STAND + WALK)

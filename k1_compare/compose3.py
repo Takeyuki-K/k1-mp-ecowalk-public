@@ -9,13 +9,15 @@ from PIL import Image, ImageDraw, ImageFont
 
 import os
 D = os.path.dirname(os.path.abspath(__file__))
-KEYS = ['robotis', 'mp_fixed', 'eco']
-COL = [(0x39, 0x87, 0xe5), (0xd9, 0x59, 0x26), (0x19, 0x9e, 0x70)]
+KEYS = os.environ.get('KEYS', 'robotis,mp_fixed,eco').split(',')
+_ALL = {'robotis': ((0x39, 0x87, 0xe5), '① ROBOTIS公開 歩行ポリシー', 'ROBOTIS public walk_default · original flat foot · fixed gains'),
+        'mp_fixed': ((0xd9, 0x59, 0x26), '② MP関節 ＋ 人の歩行模倣', 'passive MP toe joint · human-gait imitation RL · fixed gains'),
+        'eco': ((0x19, 0x9e, 0x70), '③ v1.0 MP関節 ＋ 人の模倣 ＋ 脱力（エコ）', 'passive MP toe · imitation · variable impedance (relaxation)'),
+        'v563': ((0x8e, 0x5c, 0xd9), '④ v5.6.3 最新（main）', 'walk/run/turn/stop policy · symmetric · relaxation while walking')}
+COL = [_ALL[k][0] for k in KEYS]
 BG, PANEL, INK, INK2, GRID = (16, 16, 15), (26, 26, 25), (255, 255, 255), (195, 194, 183), (60, 60, 58)
-TITLE = ['① ROBOTIS公開 歩行ポリシー', '② MP関節 ＋ 人の歩行模倣', '③ MP関節 ＋ 人の模倣 ＋ 脱力（エコ）']
-SUBT = ['ROBOTIS public walk_default · original flat foot · fixed gains',
-        'passive MP toe joint · human-gait imitation RL · fixed gains',
-        'passive MP toe · imitation · variable impedance (relaxation)']
+TITLE = [_ALL[k][1] for k in KEYS]
+SUBT = [_ALL[k][2] for k in KEYS]
 GROUPS = [('股関節ピッチ hip pitch', 'hip_pitch'), ('股関節ロール hip roll', 'hip_roll'), ('股関節ヨー hip yaw', 'hip_yaw'),
           ('膝 knee', 'knee'), ('足首ピッチ ankle pitch', 'ankle_pitch'), ('足首ロール ankle roll', 'ankle_roll'),
           ('腕・腰 arms + waist', None)]
@@ -158,7 +160,7 @@ def draw_timeseries(dr, k):
         if ys and y < ys[-1] + 22:
             y = ys[-1] + 22
         ys.append(y)
-        dr.text((x1 + 20, y), f'{["①", "②", "③"][i]} {PT1[i][k]:4.0f} W', font=f_mid, fill=COL[i])
+        dr.text((x1 + 20, y), f'{TITLE[i][0]} {PT1[i][k]:4.0f} W', font=f_mid, fill=COL[i])
     dr.text((x1 + 20, HH - 24), 'MuJoCo sim · same physics · 0.92 m/s', font=f_xs, fill=INK2)
 
 
@@ -186,7 +188,8 @@ def summary_card():
 
 
 readers = [imageio.get_reader(f'{D}/raw_{k}.mp4') for k in KEYS]
-wr = imageio.get_writer(f'{D}/K1_3way_energy_comparison.mp4', fps=FPS, codec='libx264', quality=8, macro_block_size=1)
+OUT = os.environ.get('OUT', 'K1_3way_energy_comparison')
+wr = imageio.get_writer(f'{D}/{OUT}.mp4', fps=FPS, codec='libx264', quality=8, macro_block_size=1)
 for k in range(T):
     im = Image.new('RGB', (WW, HH), BG)
     for i in range(3):
@@ -202,5 +205,5 @@ card = summary_card()
 for _ in range(FPS * 5):
     wr.append_data(card)
 wr.close()
-Image.fromarray(card).save(f'{D}/summary_card.png')
+Image.fromarray(card).save(f'{D}/{OUT}_summary.png' if OUT != 'K1_3way_energy_comparison' else f'{D}/summary_card.png')
 print('saved')
