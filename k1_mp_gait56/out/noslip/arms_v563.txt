@@ -1,0 +1,18 @@
+== straight 1.0
+shoulder_pitch  L mean   -3.3 amp  41.9 | R mean   -2.0 amp  47.0   (default L  12.5)
+shoulder_roll   L mean    7.0 amp  21.1 | R mean    7.1 amp  21.3   (default L  18.0)
+shoulder_yaw    L mean   -0.1 amp   1.9 | R mean   -0.1 amp   2.1   (default L   0.0)
+elbow           L mean   63.8 amp   3.0 | R mean   63.9 amp   2.8   (default L  61.9)
+arm residual actions mean [Lpitch Lroll Rpitch Rroll]*0.3rad ->deg [-3.9 -0.6 -3.7  0.4] std [6.9 8.1 7.4 8.1]
+== inplace +0.6
+shoulder_pitch  L mean   -2.8 amp  12.7 | R mean   -2.1 amp  16.5   (default L  12.5)
+shoulder_roll   L mean    7.1 amp  18.8 | R mean    8.1 amp  22.6   (default L  18.0)
+shoulder_yaw    L mean   -0.1 amp   2.6 | R mean   -0.2 amp   2.8   (default L   0.0)
+elbow           L mean   63.9 amp   3.1 | R mean   63.9 amp   2.2   (default L  61.9)
+arm residual actions mean [Lpitch Lroll Rpitch Rroll]*0.3rad ->deg [-4.6 -0.8 -3.8 -1.1] std [3.3 8.1 1.9 7.8]
+== stand
+shoulder_pitch  L mean   -1.7 amp  14.8 | R mean   -3.2 amp  11.1   (default L  12.5)
+shoulder_roll   L mean    7.5 amp  21.3 | R mean    6.8 amp  22.6   (default L  18.0)
+shoulder_yaw    L mean   -0.1 amp   2.1 | R mean   -0.1 amp   2.2   (default L   0.0)
+elbow           L mean   63.8 amp   2.8 | R mean   63.9 amp   1.9   (default L  61.9)
+arm residual actions mean [Lpitch Lroll Rpitch Rroll]*0.3rad ->deg [-2.7  0.6 -4.3  0.8] std [2.2 7.7 3.2 8.5]

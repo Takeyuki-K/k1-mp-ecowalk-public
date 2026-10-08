@@ -48,13 +48,18 @@ def joint_map(m, names):
 
 
 def build(m, nact=41, use_brake=True):
+    """nact 41: walking policy; nact 36: running policy (K1Run4Batch: same observation layout with 36 last actions:
+    0-2 gyro, 3-5 gravity, 6 cmd, 7 alpha, 8 v_cmd, 9 v_ref, 10 heading error, 11 w_cmd, 12 w_ref, 13 brake,
+    14-15 phase, 16-27 q, 28-39 qd, 40-75 last action; actions = 12 targets, 12 Kp, 12 Kd)"""
     jp, js = joint_map(m, LEG_JOINTS)
     # actions
-    ap = list(jp) + list(12 + jp) + list(24 + jp) + [36]
-    asg = list(js) + [1.0] * 12 + [1.0] * 12 + [1.0]
-    arm = ['left_shoulder_pitch_joint', 'left_shoulder_roll_joint', 'right_shoulder_pitch_joint', 'right_shoulder_roll_joint']
-    ap += [37 + arm.index(_other(j)) for j in arm]
-    asg += [_joint_sign(m, j) for j in arm]
+    ap = list(jp) + list(12 + jp) + list(24 + jp)
+    asg = list(js) + [1.0] * 12 + [1.0] * 12
+    if nact == 41:
+        ap += [36]; asg += [1.0]
+        arm = ['left_shoulder_pitch_joint', 'left_shoulder_roll_joint', 'right_shoulder_pitch_joint', 'right_shoulder_roll_joint']
+        ap += [37 + arm.index(_other(j)) for j in arm]
+        asg += [_joint_sign(m, j) for j in arm]
     ap = np.array(ap); asg = np.array(asg)
     assert len(ap) == nact
     # observations
@@ -89,6 +94,43 @@ def mirror_state(m, qpos, qvel):
         q[m.jnt_qposadr[jid]] = s * qpos[m.jnt_qposadr[o]]
         v[m.jnt_dofadr[jid]] = s * qvel[m.jnt_dofadr[o]]
     return q, v
+
+
+def check_run(path='runs/final/run.pt', nsteps=100):
+    """same check for the running policy / env"""
+    import os, torch, mujoco
+    from k1env_run4 import K1Run4Batch
+    from ppo_run4 import ACEco
+    K1Run4Batch.P_STAND = 0.0; K1Run4Batch.P_WALK = 0.0
+    env = K1Run4Batch(2, v_lo=3.0, v_hi=3.0, stage=2, randomize=False, seed=3, ep_len=10 ** 9)
+    env.pushes = False; env.scripted = True
+    om, amp = build(env.m, nact=36)
+    oa, oc = env.obs()
+    net = ACEco(oa.shape[1], oc.shape[1], 36)
+    net.load_state_dict(torch.load(path, map_location='cpu')['model']); net.eval()
+    env.v_cmd[:] = 3.0; env.w_cmd[:] = 0.4
+    for _ in range(nsteps):
+        with torch.no_grad():
+            a = net.dist(torch.from_numpy(oa)).mean.numpy().astype(np.float64)
+        env.step(a); oa, _ = env.obs()
+    m = env.m; d = mujoco.MjData(m)
+    q1, v1 = mirror_state(m, env.qpos()[0], env.qvel()[0])
+    d.qpos[:] = q1; d.qvel[:] = v1; mujoco.mj_forward(m, d)
+    st = np.zeros(env.nstate); mujoco.mj_getState(m, d, st, env.spec_state)
+    env.state[1] = st; env.sdata[1] = d.sensordata
+    env.ph[1] = (env.ph[0] + 0.5) % 1.0
+    for k in ('cmd', 'alpha', 'v_cmd', 'v_ref', 'brake'):
+        getattr(env, k)[1] = getattr(env, k)[0]
+    for k in ('w_cmd', 'w_ref'):
+        getattr(env, k)[1] = -getattr(env, k)[0]
+    env.yaw_t[1] = -env.yaw_t[0]
+    env.last_a[1] = apply(env.last_a[0], amp)
+    oa, _ = env.obs()
+    err = np.abs(apply(oa[0], om) - oa[1])
+    print('run: max |mirror(obs) - obs(mirrored state)| =', err.max(), 'at index', int(err.argmax()))
+    with torch.no_grad():
+        mu = net.dist(torch.from_numpy(oa)).mean.numpy()
+    print('run policy asymmetry: mean %.3f max %.3f' % (np.abs(apply(mu[0], amp) - mu[1]).mean(), np.abs(apply(mu[0], amp) - mu[1]).max()))
 
 
 def check(path='runs/final/walk.pt', nsteps=150):
@@ -136,4 +178,7 @@ def check(path='runs/final/walk.pt', nsteps=150):
 
 if __name__ == '__main__':
     import sys
-    check(*sys.argv[1:2])
+    if len(sys.argv) > 2 and sys.argv[1] == 'run':
+        check_run(sys.argv[2])
+    else:
+        check(*sys.argv[1:2])

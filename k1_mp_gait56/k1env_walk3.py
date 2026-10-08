@@ -153,6 +153,7 @@ class K1Walk3Batch(K1Walk2Batch):
         self._extra_targets(tgt, a)                                          # hook (v5.6: arm residuals)
         self.kp_scale = np.clip(1 + 0.5 * a[:, 12:24], *KP_RANGE)
         self.kd_scale = np.clip(1 + 0.5 * a[:, 24:36], *KD_RANGE)
+        self._stiff_floor()                                                 # hook (v5.6.3: no limp joints standing)
         kp = KP[:12] * self.kp_scale * self.kp_dr
         kd = KD[:12] * self.kd_scale * self.kp_dr
         ctrl = tgt.copy(); ctrl[:, :12] = kp * tgt[:, :12]
@@ -198,6 +199,9 @@ class K1Walk3Batch(K1Walk2Batch):
 
     def _rate_mult(self, Tv):
         return 1.0
+
+    def _stiff_floor(self):
+        pass
 
     def _ip_dpsi(self, Tv, k_ip):
         return 0.5 * self.w_ref * Tv * k_ip

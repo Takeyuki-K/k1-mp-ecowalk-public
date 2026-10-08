@@ -37,6 +37,19 @@ PROFILES = {
     'inplace_stop': ([(2, 'cmd', 0.0, 0.0), (6, 'cmd', 0.0, 0.6), (6, 'stop', 0, 0)], 'その場旋回 → 停止 (v5.6)', 150),
     'inplace_restance': ([(2, 'cmd', 0.0, 0.0), (8, 'cmd', 0.0, 0.6), (5, 'cmd', 0.0, -1.0), (11, 'stop', 0, 0)],
                          'その場旋回（人のリズム）→ すぐ停止 → 1 秒後に足を揃える (v5.6)', 150),
+    # v5.6.3 set (user request: stop, in-place turning, walking, running, walking with turns, running with turns)
+    'v_stop': ([(2, 'cmd', 0.0, 0.0), (5, 'cmd', 1.0, 0.0), (9, 'stop', 0, 0)],
+               '歩行 1.0 m/s → 停止 → 1 秒後に足を揃える (' + os.environ.get('VID_TAG', 'v5.6') + ')', 150),
+    'v_inplace': ([(2, 'cmd', 0.0, 0.0), (8, 'cmd', 0.0, 0.6), (8, 'cmd', 0.0, -1.0), (4, 'stop', 0, 0)],
+                  'その場旋回 +0.6 → −1.0 rad/s (' + os.environ.get('VID_TAG', 'v5.6') + ')', 150),
+    'v_walk': ([(2, 'cmd', 0.0, 0.0), (5, 'cmd', 0.6, 0.0), (5, 'cmd', 1.0, 0.0), (5, 'cmd', 1.4, 0.0), (4, 'stop', 0, 0)],
+               '歩行 0.6 → 1.0 → 1.4 m/s (' + os.environ.get('VID_TAG', 'v5.6') + ')', 150),
+    'v_walk_turn': ([(2, 'cmd', 0.0, 0.0), (3, 'cmd', 1.0, 0.0), (6, 'cmd', 1.0, 0.6), (6, 'cmd', 1.0, -0.6), (4, 'stop', 0, 0)],
+                    '旋回しながら歩行 1.0 m/s、±0.6 rad/s (' + os.environ.get('VID_TAG', 'v5.6') + ')', 150),
+    'v_run': ([(2, 'cmd', 0.0, 0.0), (4, 'cmd', 1.65, 0.0), (5, 'cmd', 2.5, 0.0), (5, 'cmd', 3.5, 0.0), (5, 'cmd', 4.5, 0.0), (7, 'stop', 0, 0)],
+              '走行 2.5 → 3.5 → 4.5 m/s (' + os.environ.get('VID_TAG', 'v5.6') + ')', 90),
+    'v_run_turn': ([(2, 'cmd', 0.0, 0.0), (4, 'cmd', 1.65, 0.0), (4, 'cmd', 3.0, 0.0), (6, 'cmd', 3.0, 0.5), (6, 'cmd', 3.0, -0.5), (6, 'cmd', 4.5, 0.6), (7, 'stop', 0, 0)],
+                   '旋回しながら走行 3.0 m/s ±0.5、4.5 m/s +0.6 rad/s（自動減速）(' + os.environ.get('VID_TAG', 'v5.6') + ')', 150),
     'brake': ([(2, 'cmd', 0.0, 0.0), (5, 'cmd', 1.65, 0.0), (6, 'cmd', 4.5, 0.0), (7, 'brake', 0, 0)],
               '4.5 m/s からの急停止 (v5.6、側面)', 90),
 }
@@ -104,7 +117,7 @@ def main():
         col = C_BRAKE if braking else (C_RUN if run else C_WALK)
         dr.rectangle([0, 0, W, HDR], fill=PANEL); dr.rectangle([0, 0, 8, HDR], fill=col)
         dr.text((20, 4), title, font=f_t, fill=INK)
-        dr.text((20, 40), 'walking policy ⇄ running policy · yaw-rate command · speed governor v·|ω| ≤ 3 m/s² · lean target atan(vω/g) · MuJoCo, simulation only',
+        dr.text((20, 40), 'walking policy ⇄ running policy · yaw-rate command · speed governor v·|ω| ≤ ' + os.environ.get('VID_ALAT', '2.5') + ' m/s² · lean target atan(vω/g) · MuJoCo, simulation only',
                 font=f_s, fill=INK2)
         # left box: mode and speeds
         dr.rounded_rectangle([14, HDR + 14, 470, HDR + 196], radius=8, fill=(0, 0, 0, 160))

@@ -86,7 +86,7 @@ class K1SprintBatch(K1RunBatch):
 
     def _ensure_lib(self):
         if not self._lib_ready:
-            self.lib = RunLib(self.base_model)
+            self.lib = RunLib(self.base_model, path=os.path.join(HERE, 'ref_sprint_lib_sym.npz' if os.environ.get('SYM_REF', '0') == '1' else 'ref_sprint_lib.npz'))   # v5.6.3: SYM_REF
             self.ref.lean = self.lib.lean
             self._lib_ready = True
 

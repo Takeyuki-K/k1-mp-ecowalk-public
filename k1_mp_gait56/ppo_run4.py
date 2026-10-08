@@ -164,6 +164,7 @@ def main():
     ap.add_argument('--w_max_start', type=float, default=0.5)
     ap.add_argument('--p_brake', type=float, default=0.15)
     ap.add_argument('--a_lat', type=float, default=3.0)
+    ap.add_argument('--sym', type=float, default=0.0, help='v5.6.3: weight of the left/right mirror-symmetry loss')
     ap.add_argument('--from_fixed', action='store_true', help='init from a fixed-gain (12-action) policy')
     args = ap.parse_args()
     os.makedirs(args.out, exist_ok=True)
@@ -199,6 +200,11 @@ def main():
                 net.log_std.fill_(np.log(args.std_reset))
     opt = torch.optim.Adam(net.parameters(), lr=args.lr)
     lr = args.lr
+    if args.sym > 0:      # v5.6.3: mirror-symmetry loss (mirror.py); weaker than for walking (user: keep the lean in turns)
+        import mirror
+        (om, osg), (am, asg) = mirror.build(env.m, nact=36)
+        om_t, osg_t = torch.from_numpy(om), torch.from_numpy(osg).float()
+        am_t, asg_t = torch.from_numpy(am), torch.from_numpy(asg).float()
     gamma, lam, clip = 0.99, 0.95, 0.2
     N, H = args.n, args.horizon
     ep_ret = np.zeros(N); ep_len = np.zeros(N)
@@ -253,7 +259,7 @@ def main():
         fadv = (fadv - fadv.mean()) / (fadv.std() + 1e-8)
         net.train()
         nb = 4; bs = N * H // nb
-        kls = []
+        kls = []; syms = []
         for ep in range(5):
             perm = torch.randperm(N * H)
             for b in range(nb):
@@ -265,8 +271,16 @@ def main():
                 vcl = fV[idx] + torch.clamp(v - fV[idx], -clip, clip)
                 vloss = torch.max((v - fret[idx]) ** 2, (vcl - fret[idx]) ** 2).mean()
                 loss = -torch.min(s1, s2).mean() + 1.0 * vloss - 0.002 * dist.entropy().sum(-1).mean()
+                if args.sym > 0:
+                    mu_m = net.dist(fa[idx][:, om_t] * osg_t).mean
+                    l_sym = ((dist.mean[:, am_t] * asg_t - mu_m) ** 2).mean()
+                    loss = loss + args.sym * l_sym
+                    syms.append(l_sym.item())
                 opt.zero_grad(); loss.backward()
                 nn.utils.clip_grad_norm_(net.parameters(), 1.0); opt.step()
+                if args.sym > 0:
+                    with torch.no_grad():
+                        net.log_std.copy_(0.5 * (net.log_std + net.log_std[am_t]))
                 with torch.no_grad():
                     kl = (fLP[idx] - lp).mean().item(); kls.append(kl)
             if np.mean(kls[-nb:]) > 0.03:
@@ -297,7 +311,7 @@ def main():
             el = np.mean(done_len[-100:]) if done_len else 0
             er = np.mean(done_ret[-100:]) if done_ret else 0
             msg = dict(it=it, steps=steps, fps=int(steps / (time.time() - t0)), ep_len=round(el, 1), ep_ret=round(er, 2),
-                       rew=round(R.mean().item(), 3), kl=round(kl, 4), lr=round(lr, 6),
+                       rew=round(R.mean().item(), 3), kl=round(kl, 4), lr=round(lr, 6), sym=round(float(np.mean(syms)), 4) if syms else 0.0,
                        std=round(net.log_std.exp().mean().item(), 3), assist=round(env.assist, 3), v_hi=env.v_hi, w_max=round(env.w_max, 2),
                        **{k: round(float(np.mean(v)), 3) for k, v in infos.items()})
             print(json.dumps(msg), flush=True); log.write(json.dumps(msg) + '\n'); log.flush()

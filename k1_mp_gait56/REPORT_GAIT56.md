@@ -10,7 +10,10 @@ User observations and instructions:
   fall later — re-place the feet to the standing position after stopping;
 - decision after the first stage (§2, S3): **human-level sway is allowed**; lateral pelvis travel is fine.
 
-> **v5.6.2 (§5): `runs/final/walk.pt` is now stage w56j** (left/right mirror symmetry). v5.6.1 (§4) was stage w56h
+> **v5.6.3 (§6): strict static friction in the simulator; `runs/final/walk.pt` = w56l, `runs/final/run.pt` = r56b**
+> (both mirror-symmetric). v5.6.2 (§5) was stage w56j with the v5.5 running policy.
+>
+> v5.6.2 (§5): stage w56j (left/right mirror symmetry). v5.6.1 (§4) was stage w56h
 > (`runs/init/w56h_model.pt`).
 >
 > v5.6.1 (§4): stage w56h — quick stop, feet re-placed 1 s after stopping, in-place
@@ -229,3 +232,71 @@ arm motors, 3–15 W, which v5.5 did not count; the running policy is the same v
 - Walking still costs +9–18 % compared with v5.5 (level-ish pelvis on K1's wide hips, S3; real stepping when
   turning in place).
 - The running policy (v5.5) has not been made symmetric.
+
+## 6. v5.6.3: strict static friction, symmetric running, no limp joints while standing
+
+User decisions: (1) feet must not slide when nothing pushes them → strict static friction in the simulator;
+(2) run the existing policies with it first and report; (3) if retraining is needed: (a) mirror symmetry also for
+running, but not so strong that the lean into a turn is lost; (b) save power mainly while walking, never zero
+stiffness while standing (a joint may go soft for a moment while walking / running — inertia-driven motion);
+(4) videos of stopping, in-place turning, walking, running, walking with turns, running with turns.
+
+### Investigation (before any change)
+- Standing feet crept 0.3–0.7 cm and 2–7° in 8 s (all three contacts loaded, no stepping) under horizontal forces
+  of only 1–3 % of the friction limit (internal force 2–5.5 N, 0.2–0.5 Nm per foot).
+- Same policy and state with MuJoCo's no-slip pass: 0.01 cm / 0.06° → the creep was the soft-contact model.
+  The late falls while standing (5/8 in §4, S18) disappeared with it (8/8).
+- Separately, the standing policy set hip-yaw and ankle-roll stiffness to 0 (copper-loss saving).
+
+### Changes
+| # | decision | reason |
+|---|---|---|
+| S24 | **No-slip friction** (`noslip_iterations = 10`, `k1env.build_spec`, all environments; `K1_NOSLIP=0` reproduces ≤ v5.6.2) | User decision (1). Simulation 24 % slower. With the v5.6.2 policies: standing creep gone, stop from 4.5 m/s 7/8 → 8/8, but in-place turning at −1 rad/s fell 2–3/8 (it relied on feet sliding) → retraining. |
+| S25 | **Symmetric references** (`make_sym_ref.py`): Q'(ph) = ½ (Q(ph) + mirror(Q(ph + ½))), contacts left/right shifted by half a cycle, base height re-solved | The human-derived references were not symmetric (walking 2° mean / 17° max, running 6° / 31°); the symmetry loss would fight the imitation reward. Verified: mirror mismatch 0 after. |
+| S26 | Running policy with the mirror loss at **0.3** (walking 1.0); mirror maps of the running policy checked against mirrored simulator states (error 0) | User (3a). A mirror loss does not forbid leaning (a left turn's mirror is a right turn leaning the other way); the weight was kept low anyway. Policy asymmetry on its training states 0.71 → 0.14. |
+| S27 | Stage r56b: extra training on tight turns commanded while running fast (`P_FAST_TURN=0.35`); **deployment governor v·|ω| ≤ 2.5 m/s²** (was 3.0) | New test with 64 robots: 4.5 m/s straight → 1 rad/s turn fell 7/64 with the v5.5 policy (hidden by the 8-robot evaluations, which become synchronized and count as one sample) and 34/64 with r56a; r56b 3/64. In the full profile r56b still over-leaned at the 3.0 limit (22–27° vs 17° target) and fell 54/64; with 2.5 m/s² 64/64 (pushes 62/64; v5.6.2 63/64 and 55/64). Cost: the tightest running turn is 2.5 m/s at 1 rad/s instead of 3.0. |
+| S28 | **Stiffness floor while standing** (`KP_STAND_MIN = 0.3`, `KD_STAND_MIN = 0.5` × nominal, faded out with the gait amplitude α) | User (3b). Standing gains now hip pitch/roll/yaw 30, knee 45, ankle pitch 45, ankle roll 12 Nm/rad (hip yaw / ankle roll were 0). While walking the hip yaw is still below 5 % of nominal 47 % of the time (allowed). |
+| S29 | Walking stage w56l: w56j + no-slip + symmetric reference + stiffness floor, mirror loss 1.0 | Restarted once from the iteration-300 checkpoint after a machine restart. |
+
+### Result (no-slip simulator; v5.6.2 = previous policies in the same simulator)
+
+| | v5.6.2 | **v5.6.3** |
+|---|---|---|
+| full profile, 64 robots, no pushes / pushes | 63 / 55 of 64 | **64 / 62 of 64** |
+| in-place −1.0 rad/s, 8 robots | 5–6/8 | **8/8** |
+| in-place turning under pushes (16 each, ±0.3…±1.0) | 44–81 % | **63–88 %** |
+| in-place profile under pushes (16) | 7/16 | 11/16 |
+| stopping under pushes, falls / 128 | 28 | **18** |
+| hard braking 4.5 m/s → standing | 4.5 s | **3.8 s** |
+| running turn, lean L / R (target) at ~3 m/s, 0.5 rad/s | +7.9° / −7.4° (9.0° / −8.3°)ᵃ | +6.7° / −7.0° (8.6° / −8.7°) |
+| running turn, lean L / R at ~3.5 m/s, 0.7 rad/s | +12.6° / −13.0° (14.8° / −13.9°)ᵃ | +11.8° / −11.5° (13.7° / −13.8°) |
+| running turn, speed L / R at 4 m/s, 0.7 rad/s | 3.64 / 3.49 m/s | 3.42 / 3.50 m/s |
+| standing feet creep in 8 s | 0.6–0.7 cm, 5–7° (old friction) | 0.0 cm, 0.0° |
+
+ᵃ v5.5 running policy, no-slip simulator. The symmetric running policy leans slightly less (80–85 % of
+atan(vω/g) vs 85–95 %) and runs left and right turns at the same speed.
+
+**Electrical power** (W, gait manager, 8 robots; walking includes the arm motors, 4–9 W):
+
+| | v5.5ᵇ | v5.6.2 | **v5.6.3** |
+|---|---|---|---|
+| walk 0.6 / 1.0 / 1.4 m/s | 87 / 125 / 175 | 102 / 138 / 188 | **95 / 128 / 169** |
+| walk cost of transport 1.0 / 1.4 m/s | 0.35 / 0.36 | 0.40 / 0.40 | **0.38 / 0.36** |
+| walking turn 0.6 m/s ±0.5 rad/s | 92 | 122–125 | **105–106** |
+| walking turn 1.0 m/s ±0.6 rad/s | 130 | 153–158 | **134–139** |
+| in-place ±0.3 / ±0.6 / ±1.0 rad/s | 26–32 / 40–46 / 52–71ᶜ | 109–125 / 102–111 / 111–156 | 118 / 100–117 / 102–109 |
+| run 2.5 / 3.5 / 4.5 m/s | 851 / 1159 / 1493 | 860 / 1163 / 1501 | 820 / 1155 / 1509 |
+| running turn 3.0 m/s ±0.5 rad/s | 995–1015 | 997–1011 | 998–1019 |
+
+ᵇ old (soft) friction, v5.5 policies. ᶜ v5.5 turned in place by spinning one foot on the floor.
+
+Stopping: quick stop then re-stance; final stance 2.4–2.9 cm / ≤ 4° after walking / running stops, but
+5.7–7.6 cm front-back after in-place stops (the re-stance of w56l is less precise than w56j's).
+Videos: `media/K1_v563_*.mp4`.
+
+### Limitations / next steps
+- Re-stance after in-place stops leaves 6–8 cm front-back.
+- The 8-robot end-to-end evaluations become synchronized over long profiles (all robots fall at the same instant);
+  they are about one sample. 64-robot runs or pushes are needed for rates.
+- The tightest running turn is limited to v·|ω| ≤ 2.5 m/s² at deployment.
+- Walking 0.6–1.0 m/s still costs +2–9 % compared with v5.5 (measured with the old soft friction).

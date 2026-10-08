@@ -43,6 +43,10 @@ def build_spec(dt=0.005, friction=1.0, mass_scale=1.0, kp_scale=1.0, servo=True)
     spec = mujoco.MjSpec.from_file(XML)
     spec.option.timestep = dt
     spec.option.integrator = mujoco.mjtIntegrator.mjINT_IMPLICITFAST
+    # v5.6.3 (user decision): strict static friction. Without the no-slip pass MuJoCo's soft contacts let a loaded
+    # foot creep under forces of 1-3 % of the friction limit (standing feet slid 0.7 cm / 5-7 deg in 8 s and the
+    # stance degraded until the robot fell). K1_NOSLIP=0 reproduces the models of v5.6.2 and earlier.
+    spec.option.noslip_iterations = int(os.environ.get('K1_NOSLIP', '10'))
     # cheaper collisions: arms/head do not collide (only legs, torso, feet)
     for g in spec.geoms:
         if g.name and any(k in g.name for k in ('shoulder', 'elbow', 'wrist', 'head')):

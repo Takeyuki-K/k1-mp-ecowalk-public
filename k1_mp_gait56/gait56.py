@@ -57,6 +57,9 @@ class Gait56:
         C.RS_MAX = int(E('RS_MAX', '1')); C.ALIGN_MAX = int(E('ALIGN_MAX', '4'))
         C.RS_DX = float(E('RS_DX', '0.03')); C.RS_DYAW = np.radians(float(E('RS_DYAW_DEG', '6'))); C.RS_DSEP = float(E('RS_DSEP', '0.04'))
         C.IP_RHYTHM = E('IP_RHYTHM', '1') == '1'
+        # v5.6.3: left/right symmetric references for both policies (make_sym_ref.py); SYM_REF=0 for v5.6.2 and older
+        os.environ['SYM_REF'] = E('SYM_REF', '1'); C.SYM_REF = os.environ['SYM_REF'] == '1'
+        C.KP_STAND_MIN = float(E('KP_STAND_MIN', '0.3')); C.KD_STAND_MIN = float(E('KD_STAND_MIN', '0.5'))
         K1Run4Batch.P_STAND = 0.0; K1Run4Batch.P_WALK = 0.0
         n_in0 = torch.load(walk_path, map_location='cpu')['model']['actor.0.weight'].shape[1]
         K1Walk3Batch.RS_OBS = n_in0 == 85                       # w56i policies see the re-stance state
@@ -72,6 +75,11 @@ class Gait56:
         self.nw = _load(walk_path, self.W, self.W.nact)
         self.nr = _load(run_path, self.R, 36)
         self.n = n
+        # v5.6.3: running speed governor v |w| <= 2.5 m/s^2 at deployment (trained with 3.0). At the 3.0 limit
+        # (3 m/s at 1 rad/s, lean target 17 deg) the symmetric running policy over-leaned to 22-27 deg and fell in
+        # 54/64 runs of the full profile; with 2.5: 64/64 (REPORT S27). A_LAT_RUN=3.0 restores v5.5 behaviour.
+        self.a_lat_run = float(os.environ.get('A_LAT_RUN', '2.5'))
+        self.R.a_lat = self.a_lat_run
         self.reset()
 
     # ------------------------------------------------------------ state
@@ -125,7 +133,7 @@ class Gait56:
 
     def _run_wanted(self, i):
         aw = abs(self.w_user[i])
-        return min(self.v_user[i], A_LAT_RUN / aw) if aw > 1e-3 else self.v_user[i]
+        return min(self.v_user[i], self.a_lat_run / aw) if aw > 1e-3 else self.v_user[i]
 
     # ------------------------------------------------------------ step
     def step(self):

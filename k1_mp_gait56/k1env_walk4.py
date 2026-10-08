@@ -59,12 +59,15 @@ class K1Walk4Batch(K1Walk3Batch):
     PLACE_LAT = os.environ.get('PLACE_LAT', '0') == '1'
     PLACE_GAIN_YAW = float(os.environ.get('PLACE_GAIN_YAW', os.environ.get('PLACE_GAIN', '1.0')))   # yaw overshot with 1.5
     RS_FF_UP = os.environ.get('RS_FF_UP', '0') == '1'         # re-placement already while the re-stance steps start      # re-placement also corrects the stance width
+    SYM_REF = os.environ.get('SYM_REF', '0') == '1'          # v5.6.3: left/right symmetric reference (make_sym_ref.py)
+    KP_STAND_MIN = float(os.environ.get('KP_STAND_MIN', '0'))  # v5.6.3: stiffness floor while standing (x nominal)
+    KD_STAND_MIN = float(os.environ.get('KD_STAND_MIN', '0'))
     LIFT_PEN = float(os.environ.get('LIFT_PEN', '0.0'))       # w56f: penalty weight for a loaded reference-swing foot
 
     def __init__(self, n, **kw):
         self._v56 = False
         super().__init__(n, **kw)
-        self.lib = RefLib(self.m, path=os.path.join(HERE, 'ref_lib_56.npz'))
+        self.lib = RefLib(self.m, path=os.path.join(HERE, 'ref_lib_56_sym.npz' if self.SYM_REF else 'ref_lib_56.npz'))
         self.home_cnt = np.zeros(n, int)
         self.P_arm = np.zeros(n)
         self._prev_ph = self.ph.copy()
@@ -271,6 +274,15 @@ class K1Walk4Batch(K1Walk3Batch):
             want[i, k0:k0 + 6] = np.clip(dq, -0.4, 0.4)
         self.corr += 0.2 * (want - self.corr)
         tgt[:, :12] += self.corr
+
+    def _stiff_floor(self):
+        """v5.6.3 (user): while standing the joints must not go limp (the w56j policy set hip-yaw and ankle-roll
+        stiffness to 0 to save copper loss). Floor = KP_STAND_MIN x nominal gain, faded out with the gait amplitude
+        alpha, so while walking (alpha = 1) a joint may still go fully soft for a moment (inertia-driven motion)."""
+        if self.KP_STAND_MIN > 0:
+            f = (1.0 - self.alpha)[:, None]
+            self.kp_scale = np.maximum(self.kp_scale, self.KP_STAND_MIN * f)
+            self.kd_scale = np.maximum(self.kd_scale, self.KD_STAND_MIN * f)
 
     # ---- 3. arm residuals ----
     def _extra_targets(self, tgt, a):

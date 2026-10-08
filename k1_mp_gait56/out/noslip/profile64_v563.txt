@@ -1,0 +1,2 @@
+full profile pushes=False: 64/64 survived; falls per segment [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+full profile pushes=True: 62/64 survived; falls per segment [0, 0, 0, 0, 0, 0, 0, 1, 0, 1]

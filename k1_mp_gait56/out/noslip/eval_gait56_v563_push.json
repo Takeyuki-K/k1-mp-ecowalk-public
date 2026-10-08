@@ -1,0 +1,164 @@
+{
+ "profile": {
+  "survival": 1.0,
+  "fall_t": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "segments": [
+   {
+    "seg": 0,
+    "cmd": "cmd v=0.0 w=0.0",
+    "w_meas": 0.031,
+    "v_meas": 0.102,
+    "v_ref": 0.0,
+    "run_frac": 0.0
+   },
+   {
+    "seg": 1,
+    "cmd": "cmd v=1.0 w=0.0",
+    "w_meas": 0.005,
+    "v_meas": 0.93,
+    "v_ref": 1.0,
+    "run_frac": 0.0
+   },
+   {
+    "seg": 2,
+    "cmd": "cmd v=1.0 w=0.6",
+    "w_meas": 0.592,
+    "v_meas": 0.934,
+    "v_ref": 1.0,
+    "run_frac": 0.0
+   },
+   {
+    "seg": 3,
+    "cmd": "cmd v=3.0 w=0.0",
+    "w_meas": -0.025,
+    "v_meas": 2.831,
+    "v_ref": 3.0,
+    "run_frac": 1.0
+   },
+   {
+    "seg": 4,
+    "cmd": "cmd v=3.0 w=0.5",
+    "w_meas": 0.503,
+    "v_meas": 2.951,
+    "v_ref": 3.0,
+    "run_frac": 1.0
+   },
+   {
+    "seg": 5,
+    "cmd": "cmd v=3.0 w=-0.5",
+    "w_meas": -0.514,
+    "v_meas": 2.977,
+    "v_ref": 3.0,
+    "run_frac": 1.0
+   },
+   {
+    "seg": 6,
+    "cmd": "cmd v=4.5 w=0.0",
+    "w_meas": 0.004,
+    "v_meas": 4.481,
+    "v_ref": 4.5,
+    "run_frac": 1.0
+   },
+   {
+    "seg": 7,
+    "cmd": "cmd v=4.5 w=1.0",
+    "w_meas": 1.022,
+    "v_meas": 2.692,
+    "v_ref": 2.5,
+    "run_frac": 1.0
+   },
+   {
+    "seg": 8,
+    "cmd": "cmd v=4.5 w=0.0",
+    "w_meas": -0.009,
+    "v_meas": 4.411,
+    "v_ref": 4.5,
+    "run_frac": 1.0
+   },
+   {
+    "seg": 9,
+    "cmd": "brake v=0 w=0",
+    "w_meas": -0.005,
+    "v_meas": 0.398,
+    "v_ref": 0.0,
+    "run_frac": 0.07
+   }
+  ]
+ },
+ "inplace": {
+  "survival": 0.6875,
+  "fall_t": [
+   null,
+   null,
+   null,
+   15.96,
+   null,
+   13.26,
+   null,
+   null,
+   null,
+   22.26,
+   4.18,
+   6.3,
+   null,
+   null,
+   null,
+   null
+  ],
+  "segments": [
+   {
+    "seg": 1,
+    "cmd": "cmd v=0.0 w=0.6",
+    "w_meas": 0.596,
+    "v_meas": 0.138,
+    "v_ref": 0.0,
+    "run_frac": 0.0
+   },
+   {
+    "seg": 2,
+    "cmd": "cmd v=0.0 w=-0.6",
+    "w_meas": -0.605,
+    "v_meas": 0.11,
+    "v_ref": 0.0,
+    "run_frac": 0.0
+   }
+  ]
+ },
+ "stop": {
+  "kind": "stop",
+  "v": 4.5,
+  "survival": 1.0,
+  "t_to_2mps": 1.94,
+  "dist_to_2mps": 6.58,
+  "t_to_stand": 5.9,
+  "dist_to_stand": 8.94,
+  "standing_end": 1.0
+ },
+ "brake": {
+  "kind": "brake",
+  "v": 4.5,
+  "survival": 0.875,
+  "t_to_2mps": 0.83,
+  "dist_to_2mps": 2.91,
+  "t_to_stand": 3.99,
+  "dist_to_stand": 5.56,
+  "standing_end": 1.0
+ }
+}

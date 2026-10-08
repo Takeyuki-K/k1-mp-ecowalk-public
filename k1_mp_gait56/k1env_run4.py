@@ -18,6 +18,7 @@ Hard braking ("急停止"):
     while braking
 Observation = v5 running observation + [heading_err, w_cmd, w_ref, brake] after v_cmd/v_ref (index 10) -> 82.
 """
+import os
 import numpy as np
 from k1env import DEFAULT_POSE, KP, KD
 from k1env_eco import KP_RANGE, KD_RANGE, TLIM, KM
@@ -81,6 +82,11 @@ class K1Run4Batch(K1Run2Batch):
         for i in ev:
             if self.brake[i] < 0.5 and self.rng.random() < self.P_BRAKE and self.v_ref[i] > 2.3:
                 self.brake[i] = 1.0; self.v_cmd[i] = V_RUN_MIN; self.w_cmd[i] = 0.0
+            elif self.brake[i] < 0.5 and self.v_ref[i] > 3.5 and self.rng.random() < float(os.environ.get('P_FAST_TURN', '0')):
+                # v5.6.3: a tight turn commanded while running fast (the governor has to slow down and turn at once);
+                # 4.5 m/s -> 1 rad/s fell 7/64 (v5.5 policy) and 34/64 (first symmetric policy) without pushes
+                self.v_cmd[i] = max(self.v_cmd[i], self.v_ref[i])
+                self.w_cmd[i] = self.rng.choice([-1.0, 1.0]) * self.rng.uniform(0.7, self.w_max)
             elif self.brake[i] < 0.5:
                 self.v_cmd[i] = self._sample_v(1)[0]
                 self.w_cmd[i] = (self.rng.choice([-1.0, 1.0]) * self.rng.uniform(0.15, self.w_max)
