@@ -21,12 +21,14 @@ Idea & direction: **Takeyuki-K** · Implementation generated with Claude (Anthro
 torque kept inside a modelled K1 torque–speed envelope (joints can still be back-driven above the speed limit by impacts) — see
 [Road to running](#road-to-running) and [v5](#walk--run-switching-forefoot-running-within-a-modelled-motor-drive-envelope) (simulation only, not tested on a real robot).
 
-**v5.6 / v5.6.1 (branches `v5.6-level-walk`, `v5.6.1`, under review):** less side-to-side rocking while walking (pelvis roll 12° → ~7°
+**v5.6 / v5.6.1 / v5.6.2 (branches `v5.6-level-walk`, `v5.6.1`, `v5.6.2`, under review):** less side-to-side rocking while walking (pelvis roll 12° → ~7°
 peak-to-peak, human level), higher swing foot, policy-controlled arm swing; v5.6.1: **quick stop** (as fast as v5.5) and
 **re-stance 1 s later** — the feet are stepped back to the standing position with joint-angle kinematics (FK + IK) and
 foot contact sensors; **in-place turning with real alternating steps in the turning rhythm of a human motion capture**
 (before: one foot spun on the floor), in-place turning under pushes 63–75 % → 69–88 %. Costs: walking leg power
-+10 … +13 % vs v5.5, in-place stepping up to +40 W at slow turns — see
++10 … +13 % vs v5.5, in-place stepping up to +40 W at slow turns. v5.6.2: **left/right mirror symmetry** in training
+("in the mirrored situation, do the mirrored motion"): symmetric arm swing, walking power 151 → 139 W at 1.0 m/s
+(v5.5: 125 W); in-place turning under pushes weaker than v5.6.1 — see
 [k1_mp_gait56/REPORT_GAIT56.md](k1_mp_gait56/REPORT_GAIT56.md). Simulation only.
 
 ![same 1.0 m/s command from the front: v5.5 (left) vs v5.6 (right)](media/K1_v55_v56_straight.gif)

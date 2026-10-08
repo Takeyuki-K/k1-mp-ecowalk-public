@@ -10,7 +10,10 @@ User observations and instructions:
   fall later — re-place the feet to the standing position after stopping;
 - decision after the first stage (§2, S3): **human-level sway is allowed**; lateral pelvis travel is fine.
 
-> **v5.6.1 (§4): `runs/final/walk.pt` is now stage w56h** — quick stop, feet re-placed 1 s after stopping, in-place
+> **v5.6.2 (§5): `runs/final/walk.pt` is now stage w56j** (left/right mirror symmetry). v5.6.1 (§4) was stage w56h
+> (`runs/init/w56h_model.pt`).
+>
+> v5.6.1 (§4): stage w56h — quick stop, feet re-placed 1 s after stopping, in-place
 > turning with real alternating steps in the human rhythm. §1–§3 describe the first v5.6 result (stage w56c,
 > `runs/init/w56c_model.pt`).
 
@@ -165,3 +168,64 @@ place itself scatters the feet by that much. Video: `media/K1_v56_inplace_restan
 - In-place stepping costs +40 W at slow turns; lower swing height for in-place steps would save energy (not tried).
 - One normal stop from 4.5 m/s fell (7/8) without pushes; stopping after −1.0 rad/s under pushes is weak.
 - Walking rocks slightly more than w56c (6.8° vs 5.5°).
+
+## 5. v5.6.2: left/right mirror symmetry (stage w56j)
+
+User observation: the arms moved asymmetrically. Measured (`eval_arms56.py`, stage w56h): straight walking shoulder
+roll swing L 33° / R 25° (reference 0°), stepping in place shoulder pitch mean L +0.6° / R −7.6°. The reference
+arm motion is symmetric (pitch swing 29° / 31°); the asymmetry came from the learned arm residuals — and, more
+generally, from nothing in the training requiring a symmetric policy (the left/right turning asymmetry of w56f was
+the same problem). User decision: **"in the mirrored situation, do the mirrored motion"** as v5.6.2.
+
+### Method
+- `mirror.py`: mirror maps of the 81 observations and 41 actions (sagittal plane y → −y: joints about y keep their
+  sign, joints about x / z are negated, left/right swapped; base angular velocity (−x, y, −z); gravity y negated;
+  heading error and yaw-rate commands negated; gait phase shifted by half a cycle). Built from the model's joint axes
+  and **checked against the simulator**: a simulator state mirrored joint by joint gives exactly the mirrored
+  observation (max error 0.0; a deliberately wrong sign is detected).
+- Training (`ppo_walk4.py --sym 1.0`): mirror-symmetry loss ‖mirror(π(o)) − π(mirror(o))‖² added to the PPO loss
+  (mean actions), exploration noise kept equal on mirrored actions; no left/right bias in the command sampling any
+  more (`TURN_POS_P=0.5`). Started from w56h, 1500 iterations, other settings as w56h.
+- Policy asymmetry |mirror(a(o)) − a(mirror(o))| on a test state: w56h 1.00 → **w56j 0.055** (action units).
+
+### Result (8 robots unless noted; `out/*_w56j*`)
+
+| | v5.6.1 (w56h) | **v5.6.2 (w56j)** |
+|---|---|---|
+| straight 1.0 m/s, shoulder pitch swing L / R | 50° / 54° | **41° / 43°** |
+| straight 1.0 m/s, shoulder roll swing L / R | 33° / 25° | **20° / 22°** |
+| stepping in place, shoulder pitch mean L / R | +0.6° / −7.6° | **−2.6° / −2.6°** |
+| pelvis roll peak-to-peak 0.6 / 1.0 / 1.4 m/s | 6.9 / 6.8 / 6.8° | 6.2 / 6.4 / 6.3° |
+| full profile / in-place profile / stop 4.5 m/s / braking | 8/8, 8/8, 7/8, 8/8 | 8/8, 8/8, 7/8, 8/8 |
+| with pushes (16): full profile / in-place profile / stop / braking | 15, 12, 16, 15 | 15, **7**, 15, 16 |
+| in-place turning under pushes (16), ±0.3…±1.0 rad/s | 69–88 % | 56–94 % |
+| stopping under pushes, falls / 128 | 27 | 29 |
+
+**Electrical power** (`eval_power56.py`, through the gait manager, mean of the last 5 s; walking values include the
+arm motors, 3–15 W, which v5.5 did not count; the running policy is the same v5.5 policy in all three):
+
+| | v5.5 | v5.6.1 | **v5.6.2** |
+|---|---|---|---|
+| walk 0.6 / 1.0 / 1.4 m/s | 87 / 125 / 175 W | 102 / 151 / 208 W | **103 / 139 / 191 W** |
+| walk, cost of transport at 1.0 m/s | 0.35 | 0.43 | **0.40** |
+| walking turn 0.6 m/s ±0.5 rad/s | 92 W | 110–112 W | 116–117 W |
+| walking turn 1.0 m/s ±0.6 rad/s | 130 W | 157–159 W | 148–153 W |
+| in-place ±0.3 / ±0.6 / ±1.0 rad/s | 26–32 / 40–46 / 52–71 W (−1 rad/s: 5/8 survived) | 79–81 / 85–88 / 106–115 W | 111–126 / 102–106 / 111–144 W |
+| 4.5 m/s with 1.0 rad/s (governor → walking turn at 1.0 m/s) | 172–180 W | 190–203 W | 177–195 W |
+| run 2.5 / 3.5 / 4.5 m/s | 851 / 1159 / 1493 W | 850 / 1164 / 1491 W | 854 / 1156 / 1498 W |
+| run, cost of transport 2.5 / 3.5 / 4.5 m/s | 0.98 / 0.92 / 0.97 | same | same |
+| running turn 3.0 m/s ±0.5 rad/s | 995–1015 W | 991–1009 W | 996–1013 W |
+
+### Decisions and reasons
+
+| # | decision | reason |
+|---|---|---|
+| S21 | Symmetry as a loss on the policy (mirror maps), not by forcing the arm residuals to be symmetric | Fixes arms and legs together; the arm asymmetry was compensating leg asymmetry. A mirror loss keeps asymmetric responses where the situation is asymmetric (a left turn), unlike tying left and right actions. |
+| S22 | **v5.6.2 = w56j** | Symmetric; walking power −8 % compared with v5.6.1 at 1.0–1.4 m/s. Cost: in-place turning under pushes is weaker (in-place profile 7/16 vs 12/16), and slow in-place turns use more power (+30–47 W at 0.3 rad/s, more and smaller steps: 10.7° per step vs 16°). |
+| S23 | Stage w56k (w56j + 1500 iterations, stronger pushes) **rejected** | Walking power fell further (104 / 136 / 181 W, roll 4–6°), but the normal stop from 4.5 m/s fell 6/8 without pushes (run → walk hand-over). |
+
+### Limitations / next steps
+- In-place turning under pushes is weaker than v5.6.1; slow in-place turns step too often for the human rhythm.
+- Walking still costs +9–18 % compared with v5.5 (level-ish pelvis on K1's wide hips, S3; real stepping when
+  turning in place).
+- The running policy (v5.5) has not been made symmetric.

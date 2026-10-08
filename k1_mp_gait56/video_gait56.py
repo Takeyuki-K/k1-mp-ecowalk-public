@@ -33,7 +33,7 @@ F = lambda s, b=False: _tt(CJKB if (b and os.path.exists(CJKB)) else CJK, s)
 PROFILES = {
     'profile': (E.PROFILE, '歩行・走行中の旋回、旋回時の自動減速、急停止 (v5.6)', 150),
     'inplace': (E.INPLACE, 'その場旋回 ±0.6 rad/s (v5.6)', 150),
-    'straight': ([(2, 'cmd', 0.0, 0.0), (10, 'cmd', 1.0, 0.0), (5, 'stop', 0, 0)], '直進 1.0 m/s を正面から (v5.6)', 180),
+    'straight': ([(2, 'cmd', 0.0, 0.0), (10, 'cmd', 1.0, 0.0), (5, 'stop', 0, 0)], '直進 1.0 m/s を正面から (' + os.environ.get('VID_TAG', 'v5.6') + ')', 180),
     'inplace_stop': ([(2, 'cmd', 0.0, 0.0), (6, 'cmd', 0.0, 0.6), (6, 'stop', 0, 0)], 'その場旋回 → 停止 (v5.6)', 150),
     'inplace_restance': ([(2, 'cmd', 0.0, 0.0), (8, 'cmd', 0.0, 0.6), (5, 'cmd', 0.0, -1.0), (11, 'stop', 0, 0)],
                          'その場旋回（人のリズム）→ すぐ停止 → 1 秒後に足を揃える (v5.6)', 150),

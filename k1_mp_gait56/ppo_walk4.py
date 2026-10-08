@@ -197,6 +197,7 @@ def main():
     ap.add_argument('--kv_walk', type=float, default=15.0)
     ap.add_argument('--lr_min', type=float, default=1e-5)
     ap.add_argument('--from_v55', action='store_true', help='init from the v5.5 walking policy (adds 4 arm actions)')
+    ap.add_argument('--sym', type=float, default=0.0, help='v5.6.2: weight of the left/right mirror-symmetry loss')
     ap.add_argument('--add_rs_obs', action='store_true', help='w56i: append 4 zero-weight re-stance inputs')
     ap.add_argument('--add_brake', action='store_true', help='init from a v5.5 walking policy without the brake input')
     ap.add_argument('--from_v5', action='store_true', help='init from the v5 walking policy (adds w_cmd/w_ref inputs)')
@@ -233,6 +234,11 @@ def main():
             with torch.no_grad():
                 net.log_std.fill_(np.log(args.std_reset))
     opt = torch.optim.Adam(net.parameters(), lr=args.lr)
+    if args.sym > 0:      # v5.6.2: mirror-symmetry loss (mirror.py)
+        import mirror
+        (om, osg), (am, asg) = mirror.build(env.m, nact=env.nact, use_brake=env.use_brake)
+        om_t, osg_t = torch.from_numpy(om), torch.from_numpy(osg).float()
+        am_t, asg_t = torch.from_numpy(am), torch.from_numpy(asg).float()
     lr = args.lr
     gamma, lam, clip = 0.99, 0.95, 0.2
     N, H = args.n, args.horizon
@@ -285,7 +291,7 @@ def main():
         fadv = (fadv - fadv.mean()) / (fadv.std() + 1e-8)
         net.train()
         nb = 4; bs = N * H // nb
-        kls = []
+        kls = []; syms = []
         for ep in range(5):
             perm = torch.randperm(N * H)
             for b in range(nb):
@@ -297,8 +303,16 @@ def main():
                 vcl = fV[idx] + torch.clamp(v - fV[idx], -clip, clip)
                 vloss = torch.max((v - fret[idx]) ** 2, (vcl - fret[idx]) ** 2).mean()
                 loss = -torch.min(s1, s2).mean() + 1.0 * vloss - 0.002 * dist.entropy().sum(-1).mean()
+                if args.sym > 0:
+                    mu_m = net.dist(fa[idx][:, om_t] * osg_t).mean          # policy in the mirrored situation
+                    l_sym = ((dist.mean[:, am_t] * asg_t - mu_m) ** 2).mean()  # should do the mirrored motion
+                    loss = loss + args.sym * l_sym
+                    syms.append(l_sym.item())
                 opt.zero_grad(); loss.backward()
                 nn.utils.clip_grad_norm_(net.parameters(), 1.0); opt.step()
+                if args.sym > 0:
+                    with torch.no_grad():                                   # same exploration noise on mirrored actions
+                        net.log_std.copy_(0.5 * (net.log_std + net.log_std[am_t]))
                 with torch.no_grad():
                     kl = (fLP[idx] - lp).mean().item(); kls.append(kl)
             if np.mean(kls[-nb:]) > 0.03:
@@ -313,7 +327,7 @@ def main():
             el = np.mean(done_len[-100:]) if done_len else 0
             er = np.mean(done_ret[-100:]) if done_ret else 0
             msg = dict(it=it, steps=steps, fps=int(steps / (time.time() - t0)), ep_len=round(el, 1), ep_ret=round(er, 2),
-                       rew=round(R.mean().item(), 3), kl=round(kl, 4), lr=round(lr, 6),
+                       rew=round(R.mean().item(), 3), kl=round(kl, 4), lr=round(lr, 6), sym=round(float(np.mean(syms)), 4) if syms else 0.0,
                        std=round(net.log_std.exp().mean().item(), 3),
                        **{k: round(float(np.mean(v)), 3) for k, v in infos.items()})
             print(json.dumps(msg), flush=True); log.write(json.dumps(msg) + '\n'); log.flush()
