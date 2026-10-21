@@ -1,6 +1,7 @@
 cff-version: 1.2.0
 message: "If you use this work or are inspired by its idea, please credit Takeyuki-K and cite this repository. Project code is Apache-2.0; some data files are separately licensed (human-gait-derived references: CC BY 4.0; CMU motion-capture files) - see NOTICE and THIRD_PARTY_LICENSES.md."
-title: "K1 MP Eco-Walk: passive MP toe joints, human-gait imitation and learned relaxation for energy-efficient humanoid walking (simulation)"
+title: "K1 MP Eco-Walk: energy-efficient walking, running and turning for the ROBOTIS AI Sapiens K1 humanoid with passive MP toe joints, human-gait imitation and learned relaxation (simulation)"
+version: "5.6.3"
 authors:
   - alias: "Takeyuki-K"
 type: software
@@ -13,9 +14,9 @@ identifiers:
   - type: doi
     value: "10.5281/zenodo.23178358"
     description: "Zenodo archive of v5.0.1"
-date-released: "2026-10-06"
+date-released: "2026-10-22"
 repository-code: "https://github.com/Takeyuki-K/k1-mp-ecowalk-public"
-abstract: "Simulation study (MuJoCo) on the ROBOTIS AI Sapiens K1 humanoid model: passive spring toe (MP) joints, imitation of human gait data and learned joint relaxation for energy-efficient walking, extended to speed-command walking, turning, running and walk-run switching. Implementation generated with Claude (Anthropic) under the direction of Takeyuki-K."
+abstract: "Simulation study (MuJoCo) on the ROBOTIS AI Sapiens K1 humanoid model with passive spring toe (MP) joints, imitation of human gait data and learned joint relaxation. v5.6.3: walking and running policies switched by a gait manager - walking, running, turning (also on the spot), quick stop, hard braking and re-stance, left/right symmetric. In a same-condition simulation comparison of straight walking against the public ROBOTIS walk_default policy, v5.6.3 has 29 % lower estimated electrical cost of transport (27 % with strict static friction); the walking-only v1.0 had 37 % lower. Not tested on a real robot. Implementation generated with Claude (Anthropic) under the direction of Takeyuki-K."
 keywords:
   - humanoid
   - reinforcement learning
@@ -23,6 +24,8 @@ keywords:
   - toe joint
   - variable impedance
   - motion imitation
+  - running
+  - gait transition
   - MuJoCo
   - ROS 2
 references:

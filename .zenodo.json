@@ -1,5 +1,6 @@
 {
-  "title": "K1 MP Eco-Walk: passive MP toe joints, human-gait imitation and learned relaxation for energy-efficient humanoid walking (simulation)",
+  "title": "K1 MP Eco-Walk: energy-efficient walking, running and turning for the ROBOTIS AI Sapiens K1 humanoid with passive MP toe joints, human-gait imitation and learned relaxation (simulation)",
+  "version": "5.6.3",
   "upload_type": "software",
   "creators": [
     {
@@ -7,7 +8,7 @@
     }
   ],
   "license": "Apache-2.0",
-  "description": "MuJoCo simulation study on the ROBOTIS AI Sapiens K1 humanoid model: passive spring toe (MP) joints, imitation of human gait data and learned joint relaxation for energy-efficient walking (37 % lower estimated electrical cost of transport than the public walk_default policy under the reported simulation condition), extended to speed-command walking, turning, running and automatic walk-run switching. Simulation only; not tested on a real robot. Idea and direction: Takeyuki-K. Implementation generated with Claude (Anthropic) under the direction of Takeyuki-K. Project code is Apache-2.0; human-gait-derived reference trajectories are CC BY 4.0 (Marcos Duarte & Renato Naville Watanabe, BMC, doi:10.5281/zenodo.4599319); CMU motion-capture data from mocap.cs.cmu.edu (NSF EIA-0196217). See NOTICE and THIRD_PARTY_LICENSES.md.",
+  "description": "MuJoCo simulation study on the ROBOTIS AI Sapiens K1 humanoid model with passive spring toe (MP) joints, imitation of human gait data and learned joint relaxation (stiffness and damping chosen by the policy and rewarded for low electrical power). Current version v5.6.3: one walking policy and one running policy, switched automatically by a gait manager and driven by forward speed and yaw-rate commands. Walking 0.3-1.65 m/s, running up to 4.5 m/s tested, turning up to 1 rad/s while walking, running and on the spot (human turning rhythm), leaning into running turns, quick stop, hard braking and re-stance; full test course passed by 64/64 robots (62/64 with random pushes); left/right mirror-symmetric policies; strict static friction (no-slip) in the simulator. Energy, same-condition comparison against the public ROBOTIS walk_default policy (straight walking at about 0.9 m/s, same script, physics and power model): v5.6.3 has 29 % lower estimated electrical cost of transport (27 % with strict static friction); the first, walking-only v1.0 policy had 37 % lower. v5.6.3 uses about 10 % more than v1.0 because it also turns, runs, stops, recovers from pushes and is left/right symmetric. Power values come from a motor model with assumed constants. Simulation only; not tested on a real robot. Independent personal research, not affiliated with or endorsed by ROBOTIS. Idea and direction: Takeyuki-K. Implementation generated with Claude (Anthropic) under the direction of Takeyuki-K. Project code is Apache-2.0; human-gait-derived reference trajectories are CC BY 4.0 (Marcos Duarte & Renato Naville Watanabe, BMC, doi:10.5281/zenodo.4599319); CMU motion-capture data from mocap.cs.cmu.edu (NSF EIA-0196217). See NOTICE and THIRD_PARTY_LICENSES.md.",
   "keywords": [
     "humanoid",
     "reinforcement learning",
@@ -15,6 +16,8 @@
     "toe joint",
     "variable impedance",
     "motion imitation",
+    "running",
+    "gait transition",
     "MuJoCo",
     "ROS 2",
     "ROBOTIS K1"
