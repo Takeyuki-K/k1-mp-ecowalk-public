@@ -14,6 +14,9 @@ identifiers:
   - type: doi
     value: "10.5281/zenodo.23178358"
     description: "Zenodo archive of v5.0.1"
+  - type: doi
+    value: "10.5281/zenodo.23549025"
+    description: "Zenodo archive of v5.6.3"
 date-released: "2026-10-22"
 repository-code: "https://github.com/Takeyuki-K/k1-mp-ecowalk-public"
 abstract: "Simulation study (MuJoCo) on the ROBOTIS AI Sapiens K1 humanoid model with passive spring toe (MP) joints, imitation of human gait data and learned joint relaxation. v5.6.3: walking and running policies switched by a gait manager - walking, running, turning (also on the spot), quick stop, hard braking and re-stance, left/right symmetric. In a same-condition simulation comparison of straight walking against the public ROBOTIS walk_default policy, v5.6.3 has 29 % lower estimated electrical cost of transport (27 % with strict static friction); the walking-only v1.0 had 37 % lower. Not tested on a real robot. Implementation generated with Claude (Anthropic) under the direction of Takeyuki-K."
