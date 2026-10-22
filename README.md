@@ -93,6 +93,8 @@ The full development path (v1 → v5.6.3), every decision with its reason, rejec
 - The tightest running turn is limited to v·|ω| ≤ 2.5 m/s² (at 3.0 the running policy over-leaned and fell).
 - Walking at 0.6–1.0 m/s costs a few per cent more than v1.0/v5.5; turning on the spot costs ~100–120 W because the
   feet are really lifted (earlier policies spun a foot on the floor).
+- Trained without any payload. Adding sensors or other equipment (e.g. a head camera or LiDAR) changes the mass and
+  inertia, so re-check that walking and running are still stable, and fine-tune the policies if they are not.
 
 ## Power model
 At every 2 ms physics step for every joint: `τ = clip(Kp(q* − q) − Kd·q̇, motor limit)`
