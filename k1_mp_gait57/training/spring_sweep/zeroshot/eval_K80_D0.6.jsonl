@@ -1,0 +1,4 @@
+{"survival": 0.0, "fall_t": [39.9, 40.0, 39.5, 39.46, 40.14, 39.98, 39.96, 40.0], "segments": [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}]}
+{"survival": 1.0, "fall_t": [null, null, null, null, null, null, null, null], "segments": [{"seg": 1, "cmd": "cmd v=0.0 w=0.6", "w_meas": 0.589, "v_meas": 0.097, "v_ref": 0.0, "run_frac": 0.0}, {"seg": 2, "cmd": "cmd v=0.0 w=-0.6", "w_meas": -0.604, "v_meas": 0.138, "v_ref": 0.0, "run_frac": 0.0}]}
+{"kind": "stop", "v": 4.5, "survival": 1.0, "t_to_2mps": 1.86, "dist_to_2mps": 5.56, "t_to_stand": 5.8, "dist_to_stand": 7.99, "standing_end": 1.0}
+{"kind": "brake", "v": 4.5, "survival": 1.0, "t_to_2mps": 0.66, "dist_to_2mps": 2.1, "t_to_stand": 4.46, "dist_to_stand": 5.86, "standing_end": 1.0}
