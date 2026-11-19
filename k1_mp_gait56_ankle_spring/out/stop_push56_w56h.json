@@ -1,0 +1,26 @@
+{
+ "inplace+0.6_stop": {
+  "n": 32,
+  "fell_before_stop": 4,
+  "fell_after_stop": 4,
+  "survival_after_stop": 0.857
+ },
+ "inplace-1.0_stop": {
+  "n": 32,
+  "fell_before_stop": 1,
+  "fell_after_stop": 14,
+  "survival_after_stop": 0.548
+ },
+ "turnwalk_stop": {
+  "n": 32,
+  "fell_before_stop": 0,
+  "fell_after_stop": 5,
+  "survival_after_stop": 0.844
+ },
+ "run4.5_stop": {
+  "n": 32,
+  "fell_before_stop": 0,
+  "fell_after_stop": 4,
+  "survival_after_stop": 0.875
+ }
+}

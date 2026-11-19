@@ -1,0 +1,12 @@
+alpha [0. 0. 0. 0. 0. 0. 0. 0.]
+=== aligned (fresh standing)
+  policy   survival=8/8  hip_yaw_torque_Nm=L 1.2 R 0.5  hip_roll_torque_Nm=L 2.5 R 3.7  creep_cm=0.0 (max 0.0)  foot_yaw_deg=0.0 (max 0.1)  internal_N=3.5  net_horiz_N=0.2  yaw_moment_Nm=0.77 (L+R 0.82)  Ft_over_Fn=0.02 (max 0.04)  tgt_minus_q_deg=hipP 3.2 hipR 5.8 hipY 1.6 knee 4.3 ankP 2.7 ankR 6.0
+alpha [0. 0. 0. 0. 0. 0. 0. 0.]
+=== after in-place +0.6 turn
+  policy   survival=8/8  hip_yaw_torque_Nm=L 0.9 R 0.7  hip_roll_torque_Nm=L 1.0 R 1.5  creep_cm=0.0 (max 0.0)  foot_yaw_deg=0.0 (max 0.1)  internal_N=2.3  net_horiz_N=0.2  yaw_moment_Nm=0.78 (L+R 0.03)  Ft_over_Fn=0.01 (max 0.02)  tgt_minus_q_deg=hipP 3.3 hipR 2.5 hipY 1.6 knee 4.8 ankP 3.3 ankR 4.1
+alpha [0. 0. 0. 0. 0. 0. 0. 0.]
+=== after walking 1.2 m/s
+  policy   survival=8/8  hip_yaw_torque_Nm=L 0.3 R 0.6  hip_roll_torque_Nm=L 0.2 R 1.0  creep_cm=0.0 (max 0.0)  foot_yaw_deg=0.0 (max 0.1)  internal_N=1.0  net_horiz_N=0.2  yaw_moment_Nm=0.45 (L+R 0.23)  Ft_over_Fn=0.01 (max 0.02)  tgt_minus_q_deg=hipP 4.0 hipR 1.0 hipY 0.9 knee 5.7 ankP 1.3 ankR 7.3
+alpha [0. 0. 0. 0. 0. 0. 0. 0.]
+=== after in-place -1.0 turn
+  policy   survival=8/8  hip_yaw_torque_Nm=L 0.6 R 0.7  hip_roll_torque_Nm=L 1.0 R 0.2  creep_cm=0.0 (max 0.0)  foot_yaw_deg=0.0 (max 0.1)  internal_N=1.3  net_horiz_N=0.2  yaw_moment_Nm=0.61 (L+R 0.13)  Ft_over_Fn=0.01 (max 0.04)  tgt_minus_q_deg=hipP 3.2 hipR 1.2 hipY 1.2 knee 4.2 ankP 1.8 ankR 5.3
