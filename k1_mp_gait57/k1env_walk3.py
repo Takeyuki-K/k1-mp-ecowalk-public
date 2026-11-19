@@ -263,14 +263,26 @@ class K1Walk3Batch(K1Walk2Batch):
         slip = (np.linalg.norm(fv[:, :, :2], axis=2) ** 2 * anyc).sum(1)
         a_rate = ((a - self.last_a) ** 2).sum(1)
         a_acc = ((a - 2 * self.last_a + self.last_a2) ** 2).sum(1)
+        # v5.8b: price energy per metre, not per second. With a per-second price the policy learned to walk
+        # slower (exp59a/b). vx is smoothed (~1 s) so the gait-cycle ripple does not modulate the price.
+        if not hasattr(self, '_vx_ema'):
+            self._vx_ema = np.zeros(self.n)
+        self._vx_ema = np.where(self.t <= 1, vlin[:, 0], 0.98 * self._vx_ema + 0.02 * vlin[:, 0])
+        walking = (al > 0.5) & (v_t > 0.25)
+        e_fac = np.ones(self.n)
+        p_vdef = np.zeros(self.n)
+        if os.environ.get('E_PER_M', '0') == '1':
+            e_fac = np.where(walking, np.clip(v_t / np.maximum(self._vx_ema, 0.3 * v_t + 1e-6), 1.0, 2.5), 1.0)
+            p_vdef = float(os.environ.get('VDEF_W', '0')) * np.clip(v_t - self._vx_ema - 0.03, 0, None) * walking
+        self.e_fac = e_fac
         rew = (self.w_im * (0.20 * r_q + 0.25 * r_ank + 0.10 * r_pitch) + self.w_vel * r_vel + 0.10 * r_up
                + self.w_yaw * r_yaw + 0.05 * r_h + 0.15 * r_contact + 0.3 * r_hs + self.w_head * r_head
                + 0.3 * r_place + 0.05 * r_nodrop
-               - 0.1 * slip - 0.15 * p_impact - self.w_energy * self.P_elec - 0.005 * a_rate - 0.002 * a_acc)
+               - 0.1 * slip - 0.15 * p_impact - self.w_energy * self.P_elec * e_fac - p_vdef - 0.005 * a_rate - 0.002 * a_acc)
         ex, exinfo = self._extra_reward(a, g, ank, touch)                   # hook (v5.6: level pelvis, home stance)
         rew = rew + ex
         info = dict(**exinfo, brake=b.copy(), r_place=r_place, r_q=r_q, r_ank=r_ank, r_vel=r_vel, r_up=r_up, r_contact=r_contact, hs_bad=hs_bad,
-                    vx=vlin[:, 0], verr=np.abs(vlin[:, 0] - v_t) * (al > 0.99), v_cmd=self.v_cmd.copy(),
+                    vx=vlin[:, 0], e_fac=e_fac, vx_ema=self._vx_ema.copy(), verr=np.abs(vlin[:, 0] - v_t) * (al > 0.99), v_cmd=self.v_cmd.copy(),
                     head_err=np.abs(e_head), v_lib_ratio=self.v_lib / np.maximum(self.v_ref, 0.1),
                     P_elec=self.P_elec, kp_mean=self.kp_scale.mean(1), kd_mean=self.kd_scale.mean(1),
                     werr=np.abs(qv[:, 5] - al * self.w_ref) * (np.abs(self.w_ref) > 0.1),

@@ -64,3 +64,43 @@ K1_ANKROLL_SPRING=10 K1_ANKROLL_DAMP=0.6 W_WALK_M=0.11 python3 diag.py runs/fina
 `training/train_env6.sh` の変更点（train_env5 から）: `ROLL_DEADBAND=0.012`、`W_LEVEL=1.0`、`W_KPROLL=0.25`、`KPROLL_SOFT=0.72`、`HIPCU_W=0.008`。
 チェックポイントの選択: 全項目で生存率 1.00 を満たすもののうち、J/m が最小のもの。
 走行は r58a/model_500 と最終 model が急制動で崩れたため、model_300 を採用した。
+
+---
+
+# v5.8b 追加学習: 速度追従を戻しつつ、exp58c 並みの姿勢と電力抑制（exp60a → exp60b）
+
+採用: `runs/final60/walk.pt`（exp60b 100回時点）＋ `runs/final60/run.pt`（= final58 の走行ポリシー）
+
+## 変更（`k1env_walk3.py`、`E_PER_M=1` のときだけ有効。既定は従来どおり）
+- **電力を距離あたりで価格付け**: 電力の罰則 × clip(v_ref / v_ema, 1, 2.5)。v_ema は約1秒の移動平均速度。遅く歩くほど 1 W あたりが割高になる（速く歩いても割引はしない）
+- **速度不足の罰則**: `VDEF_W` × max(v_ref − v_ema − 0.03, 0)
+- 姿勢の設定は exp58c（train_env5）に戻した。設定ファイルは `training/train_env9.sh`（exp60a）と `train_env10.sh`（exp60b、`HIPCU_W=0.006`）
+
+```bash
+source training/train_env9.sh   # exp60a: exp58c から 400 回、kv_walk 60、w_energy 0.002
+python3 ppo_walk4.py --iters 400 --init runs/init/exp58c_model.pt --sym 1.0 --lr 3e-5 --lr_min 2e-5 --kv_walk 60 --w_energy 0.002 --out runs/exp60a
+source training/train_env10.sh  # exp60b: exp60a から 400 回、w_energy 0.0035
+python3 ppo_walk4.py --iters 400 --init runs/exp60a/model.pt --sym 1.0 --lr 3e-5 --lr_min 2e-5 --kv_walk 60 --w_energy 0.0035 --out runs/exp60b
+```
+
+## 結果（直進 1.0 m/s 指令、n=8、全区間バネ）
+
+| ポリシー | 実速度 | J/m | ロールRMS | 股関節ロール銅損 |
+|---|---|---|---|---|
+| v5.6.3（モーター） | 0.96 | 132 | 2.97° | 31.8 W |
+| exp58c | 0.89 | 157 | 0.66° | 54.9 W |
+| exp59a/200（v5.8） | 0.87 | 148 | 1.41° | 46.5 W |
+| exp60a/300 | 0.97 | 163 | 0.69° | 58.2 W |
+| **exp60b/100（採用）** | **1.00** | **159** | **0.76°** | 60.1 W |
+| exp60b/最終 | 0.95 | 156 | 1.18° | 53.9 W |
+
+0.6 / 1.4 m/s 指令（採用モデル）: 実速度 0.65 / 1.36、J/m 186 / 153、ロール 0.72° / 0.76°。
+フル評価: コース・その場旋回・停止（5.80 s）・急制動（4.46 s）すべて 1.00。旋回の追従は 0.59〜0.60 rad/s。
+外乱テスト（n=8）: コース 0.5 / その場旋回 **0.0** / 停止 0.375 / 急制動 0.625。
+
+## 所見
+- 速度は戻った（0.87 → 1.00 m/s）。距離あたりの価格付けで「遅く歩く」抜け道が塞がった
+- 姿勢を exp58c 並み（0.7°台）に保つと、J/m は 156〜159 で頭打ちになる。
+  原因は股関節ロール銅損（54〜60 W）。足首で横バランスを取れない分を股関節が担っており、「垂直姿勢」と「省エネ」が物理的にぶつかっている
+- 外乱への耐性は弱いまま
+- 次の候補: (1) バネ剛性 K を上げる（K=40 で股関節銅損が約 −2 W という前回のスイープ結果あり）、または中立角の可変化。(2) ロール許容幅をごく小さく（〜1°）残す。(3) 外乱付きの立ち・歩き出しを重点的に学習する

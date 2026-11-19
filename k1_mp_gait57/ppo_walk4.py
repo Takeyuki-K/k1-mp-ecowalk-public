@@ -255,7 +255,7 @@ def main():
             with torch.no_grad():
                 dist = net.dist(ta); a = dist.sample(); lp = dist.log_prob(a).sum(-1); v = net.value(tc)
             rew, term, trunc, info = env.step(a.numpy().astype(np.float64))
-            for k in ('r_q', 'r_ank', 'r_vel', 'r_up', 'r_contact', 'hs_bad', 'vx', 'verr', 'v_cmd', 'head_err', 'v_lib_ratio', 'P_elec', 'kp_mean', 'kd_mean', 'werr', 'w_ref', 'impact', 'lean', 'brake', 'r_place', 'r_level', 'roll_deg', 'r_home', 'r_align', 'P_arm', 'P_leg', 'arm_act', 'r_lift', 'pivot', 'rs', 'r_rsp', 'r_place57', 'r_stance57', 'kp_roll_pen', 'td_off_cm', 'hipcu', 'arm_dev_deg'):
+            for k in ('r_q', 'r_ank', 'r_vel', 'r_up', 'r_contact', 'hs_bad', 'vx', 'verr', 'v_cmd', 'head_err', 'v_lib_ratio', 'P_elec', 'kp_mean', 'kd_mean', 'werr', 'w_ref', 'impact', 'lean', 'brake', 'r_place', 'r_level', 'roll_deg', 'r_home', 'r_align', 'P_arm', 'P_leg', 'arm_act', 'r_lift', 'pivot', 'rs', 'r_rsp', 'r_place57', 'r_stance57', 'kp_roll_pen', 'td_off_cm', 'hipcu', 'arm_dev_deg', 'e_fac', 'vx_ema', 'verr'):
                 if k in info:
                     infos.setdefault(k, []).append(float(np.mean(info[k])))
             rew = rew.copy()
