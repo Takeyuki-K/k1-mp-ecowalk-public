@@ -134,3 +134,20 @@ walkK_scuff, walkJ_straight stopped. Bounce found: fore 'touchdowns' have 5-10 m
     Q_up075 it100 (from Pk25p2_200, W_UPRIGHT .075) +12.9/+7.9/+9.5 tilt 1.18/1.20/1.57 roll .80/.94/.92 -> best/walk_cand_Qup075_it100.pt
     (only miss: tilt at 0.6 = Mc1 +0.40). p2v/p3/k20 runs worse power or posture.
   Qup075_100: full 12 + profile all survive, arm 1.8/2.7/4.4 W, min arm clearance >= 3.9 cm.
+
+## Phases 2-4 (2026-11-20 JST): summary (experimental code not included in this branch)
+Precise dP@v vs v5.6.3 at the same actual speed (0.6/1.0/1.4 m/s); "vs F1" in points.
+- Phase 2 B, ankle-roll spring sweep on the Q_up075 checkpoint (zero-shot): power falls monotonically with K up to K20; D 0.3-1.0 matters little.
+  **F1 = K20 D0.3: +12.1/+6.7/+8.7 %**, v 0.628/1.044/1.387, tilt 1.20/1.17/1.62, roll .82/.93/.93, pushed-walk falls 0/0/0,
+  pushed hard brake 98.4/96.9/100/98.4 %, 12 cases + profile all survive, run policy -0.4..-0.9 % power -> adopted (eval_F1.sh).
+  Hip-roll kp: nominal is best (higher -> pelvis drifts, lower -> more power or falls). Hip-roll reference x0.75 + stance +0.02 rad:
+  +9.9/+5.6/+8.8 % but mostly from walking 2-3 % faster; absolute power about equal.
+- Phase 2 A, waist roll axis (+0.7 kg QC060-class actuator + bracket): +20.9/+15.6/+18.9 % (same mass, axis locked: +17.4/+12.0/+12.7 %).
+  Better torso posture (turns 2.4 -> ~1 deg) but no energy benefit.
+- Phase 3, clutched parallel ankle-pitch spring (Collins-type): best physically valid version (engage at foot-flat, K40, 0.1 kg near the knee)
+  -3.7/-0.5/+1.7 vs F1; 0.2 kg is a net loss. Spring cycles only 0.1-0.7 J/stride vs 17-24 J ankle-motor work (K1 pushes off above
+  the engagement angle). A fixed-angle clutch model that engaged pre-loaded was found non-physical and discarded.
+- Phase 4, allow pelvis roll up to 1.5 deg (fine-tune from F1): best -2.5/+0.8/-1.4 vs F1 with roll 1.52 deg and tilt at the limit;
+  strict-pass version +0.1/-0.6/-1.1 (within fine-tune noise). Policies leaned over the stance leg; stance hip-roll torque -1..-2 Nm of ~30.
+- Conclusion: v5.6.3's saving comes from relaxed hip-roll holding (leaning ~3 deg over the stance leg), not from the rocker function.
+  Posture was prioritised for camera / IMU on hardware; F1 is the walking setting.
