@@ -3,6 +3,18 @@
 v5.6.3 (k1_mp_gait56) variant in which the ankle **roll** joints have no motor and act as a
 passive spring-damper (K = 10 Nm/rad, D = 0.6 Nms/rad). Policies were PPO fine-tuned from v5.6.3.
 
+## 姿勢の比較 / Posture comparison (v5.6.3 | F1, 1.0 m/s)
+![front: v5.6.3 vs F1](media/posture_front.gif)
+![side: v5.6.3 vs F1](media/posture_side.gif)
+
+緑の破線は鉛直線、赤い線は胴体（torso_link）の軸です。上の数字は1台ぶんの瞬間値です。
+32台・10秒の評価では、上体の傾き RMS は v5.6.3 が 3.16 / 3.21 / 3.24°、F1 が 1.20 / 1.17 / 1.62°（0.6 / 1.0 / 1.4 m/s）、
+骨盤ロール RMS は v5.6.3 が約 3.0°、F1 が 0.8〜0.9° です。差はほとんど左右方向（正面図）で、前後の傾き（側面図）はどちらも小さく同程度です。
+
+Green dashed line: world vertical; red line: torso (torso_link) axis. Overlay numbers are single-robot instantaneous values.
+Measured (32 robots x 10 s): torso tilt RMS v5.6.3 3.16 / 3.21 / 3.24 deg vs F1 1.20 / 1.17 / 1.62 deg (0.6 / 1.0 / 1.4 m/s);
+pelvis roll RMS ~3.0 deg vs 0.8-0.9 deg. The difference is almost entirely lateral (front view); fore-aft pitch (side view) is small for both.
+
 ## Policies (runs/final_spring/)
 | file | use | notes |
 |---|---|---|
